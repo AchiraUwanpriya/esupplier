@@ -27,7 +27,7 @@ if (isset($_POST['insert'])) {
   <link rel="stylesheet" href="./static/css/login.css" />
   <title>eSupplier-CDPLC</title>
 
-
+  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
   <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
 
 </head>
@@ -41,7 +41,7 @@ if (isset($_POST['insert'])) {
 
         <form id="frm-mobile-verification" class="sign-in-form">
           <!-- <center><img src="img/2.svg" style="height: 60px; width: 100%;"  alt=""></center>  -->
-          <img class="mb-4" src="static/img/9.png" width="50%" alt="">
+          <img class="mb-4" src="/esupplier/static/img/9.png" width="50%" alt="">
           <br><br>
           <h2 class="title">Enter Your OTP Number</h2>
           <p>We have sent a 5 digit otp number to your mobile.</p>
@@ -85,7 +85,7 @@ if (isset($_POST['insert'])) {
     <div class="panels-container">
       <div class="panel left-panel">
         <div class="content">
-          <img class="mb-5 pb-4" src="static/img/dockyardlogo.png" width="50%" alt="">
+          <img class="mb-5 pb-4" src="/esupplier/static/img/dockyardlogo.png" width="50%" alt="">
           <p>
             Please use this LOGIN-IN to place a tender and select the categories as required to proceed !!!
           </p>
@@ -93,7 +93,7 @@ if (isset($_POST['insert'])) {
               Sign up
             </button> -->
         </div>
-        <img src="./static/img/loginimage.svg" class="image" alt="" />
+        <img src="/esupplier/static/img/loginimage.svg" class="image" alt="" />
       </div>
       <div class="panel right-panel">
         <div class="content">
@@ -105,7 +105,7 @@ if (isset($_POST['insert'])) {
             Sign in
           </button> -->
         </div>
-        <img src="./static/img/loginimage.svg" class="image" alt="" />
+        <img src="/esupplier/static/img/loginimage.svg" class="image" alt="" />
       </div>
     </div>
   </div>
@@ -116,14 +116,87 @@ if (isset($_POST['insert'])) {
 
   <script src="./static/js/login.js"></script>
   <script src="./static/js/showhideelement.js"></script>
-  <script src="js/verification.js"></script>
-  <!-- <script src="js/adminverification.js"></script> -->
-  <script src="js/otpexpire.js"></script>
+  <script src="./js/verification.js"></script>
+  <!-- <script src="./js/adminverification.js"></script> -->
+  <script src="./js/otpexpire.js"></script>
+  
+  <!-- Load scripts with path correction -->
   <script>
-    $("#mobileOtp").keydown(function(e) {
-      if (e.keyCode == 13) {
-        e.preventDefault();
-        verifyOTP();
+    // Fix script loading for AJAX-injected content
+    (function fixScripts() {
+      var scripts = [
+        './static/js/login.js',
+        './static/js/showhideelement.js', 
+        './js/verification.js',
+        './js/otpexpire.js'
+      ];
+      
+      // If in Public subfolder, these already loaded, if not loaded, load with correct path
+      if (!window.loginJsLoaded && typeof $ !== 'undefined') {
+        window.loginJsLoaded = true;
+        // Scripts are loaded above
+      }
+    })();
+  </script>
+  <script>
+    // Ensure timer starts immediately when OTP form is loaded
+    var initializeTimerNow = function() {
+      var timerEl = document.getElementById('timer');
+      if (timerEl && !window.otpTimerStarted) {
+        window.otpTimerStarted = true;
+        var duration = 90;
+        
+        // Show initial time
+        timerEl.innerText = "1:30";
+        
+        var updateTimer = function() {
+          duration--;
+          if (duration < 1) {
+            timerEl.innerText = "0:00";
+            alert('OTP session expired. Please try again.');
+            window.location = window.location.pathname.includes('/Public/') ? '../index.php' : 'index.php';
+          } else {
+            var Minutes = parseInt(duration / 60);
+            var Seconds = (duration % 60);
+            if (Seconds < 10) {
+              Seconds = '0' + Seconds;
+            }
+            timerEl.innerText = Minutes + ":" + Seconds;
+          }
+        };
+        
+        // Update timer every second
+        setInterval(updateTimer, 1000);
+      }
+    };
+    
+    // Try multiple methods to ensure timer starts
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeTimerNow);
+    } else {
+      initializeTimerNow();
+    }
+    
+    // Also try with jQuery if available
+    if (typeof jQuery !== 'undefined') {
+      jQuery(document).ready(initializeTimerNow);
+    }
+    
+    // And try immediately with setTimeout
+    setTimeout(initializeTimerNow, 100);
+    
+    // Handle Enter key in OTP input
+    document.addEventListener('DOMContentLoaded', function() {
+      var otpInput = document.getElementById('mobileOtp');
+      if (otpInput) {
+        otpInput.addEventListener('keydown', function(e) {
+          if (e.keyCode == 13 || e.key == 'Enter') {
+            e.preventDefault();
+            if (typeof verifyOTP === 'function') {
+              verifyOTP();
+            }
+          }
+        });
       }
     });
   </script>

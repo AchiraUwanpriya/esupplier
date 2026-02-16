@@ -62,9 +62,18 @@ function verifyOTP() {
           // $(".").html(response.message)
           // $(".").show();
           if (response.status === "A") {
-            window.location.href = "profile.php";
+            // Redirect with proper path handling
+            if (window.location.pathname.includes("/Public/")) {
+              window.location.href = "../profile.php";
+            } else {
+              window.location.href = "profile.php";
+            }
           } else {
-            window.location.href = "dashboard.php";
+            if (window.location.pathname.includes("/Public/")) {
+              window.location.href = "../dashboard.php";
+            } else {
+              window.location.href = "dashboard.php";
+            }
           }
           // window.location.href = "dashboard.php";
         } else {
