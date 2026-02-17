@@ -1,71 +1,104 @@
 <?php
 session_start();
+?>
+<?php
 include '../config.php';
 
-if (isset($_SESSION['msd_supplier_name'])) {
-    header("Location: ../dashboard.php");
-    exit();
-}
+
+// if (isset($_SESSION['msd_supplier_name'])) {
+//   header("Location: dashboard.php");
+// }
+// if (isset($_POST['submit'])) {
+
+//   $msd_supplier_name = $_POST["msd_supplier_name"];
+//   $tsql = "SELECT msd_supplier_code,msd_mobileno,msd_supplier_name
+//   FROM mms_supplier_pending_details";
+//   $stmt = mysqli_query($con, $tsql);
+//   if ($stmt->num_rows > 0) {
+//     $user = mysqli_fetch_array($stmt);
+
+//     $_SESSION["msd_supplier_name"] = $msd_supplier_name;
+//     header("Location: dashboard.php");
+//   } else {
+//     // echo "<script>alert('Invalid User.')</script>";
+//   }
+// }
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     .buttonload {
       background-color: white;
+      /* Green background */
       border: none;
+      /* Remove borders */
       color: black;
+      /* White text */
       padding: 12px 24px;
+      /* Some padding */
       font-size: 16px;
+      /* Set a font-size */
     }
+
+    /* Add a right margin to each icon */
     .fa {
       margin-left: -12px;
       margin-right: 8px;
     }
+
     input,
     input::placeholder {
       font: 17px/3 sans-serif;
     }
   </style>
 
-  <script src="https://kit.fontawesome.co<!-- m/64d58efce2.js" crossorigin="anonymous"></script>
-  <link rel="shortcut icon" href="../static/img/9.png" /> 
+  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
+  <link rel="shortcut icon" href="../static/img/9.png" />
   <link rel="stylesheet" href="../static/css/login.css" />
+
+
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  <!-- <script src="../static/js/jquery-3.3.1.min.js"></!--> 
+  <!-- <script src="../static/js/jquery-3.3.1.min.js"></script> -->
   <script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+
   <script src="../static/js/jquery.validate.min.js"></script>
   <script src="../static/js/jquery.validate.unobtrusive.min.js"></script>
-  
+
   <title>eSupplier-CDPLC</title>
 
   <!-- insert function -->
   <script>
+    // Set base URL for AJAX calls from Public folder
+    var baseURL = '../';
+    
     $(document).ready(function() {
       $('#insertbtn').click(function(e) {
         e.preventDefault();
         $.ajax({
           type: "post",
-          url: "supRegistration.php",
+          url: baseURL + "supRegistration.php",
           data: $('#insertsup').serialize(),
           dataType: "text",
           success: function(response) {
-            $('#messagedisplay').html(data);
-          },
-
-          success: function(data) {
-            $('#messagedisplay').html(data);
-          },
+            $('#messagedisplay').html(response);
+          }
         })
       })
     });
   </script>
+
 </head>
 
 <body>
+
   <div class="container">
+
     <div class="forms-container">
       <div class="signin-signup">
         <form id="frm-mobile-verification" style="padding-top: 50px; justify-content: center;" class="sign-in-form">
@@ -73,9 +106,11 @@ if (isset($_SESSION['msd_supplier_name'])) {
           <img class="mb-4" src="../static/img/9.png" width="50%" alt="">
           <br>
           <h2 class="title">Sign in</h2>
+          <h2 style="color: #5995fd;">Administrator</h2>
+          <br>
           <div class="input-field">
-            <i class="fas fa-phone-alt"></i>
-            <input type="number" id="mobile" placeholder="Mobile Number" maxlength="10" />
+            <i class="fas fa-user-alt"></i>
+            <input type="snumber" id="servicenumber" placeholder="Service Number" maxlength="7" />
           </div>
           <div class="error" style="color: red; font-weight: bold;"></div>
 
@@ -87,9 +122,12 @@ if (isset($_SESSION['msd_supplier_name'])) {
             <i class="fa fa-spinner fa-spin"></i>Loading! Please Wait....
           </button>
 
-          <!-- Login buttons - both buttons needed  -->
-          <input id="submit" type="button" name="submit" class="" onclick="sendOTP();" style="visibility: hidden; height: 1px;" />
-          <input value="Login" class="btn btnSubmit solid" type="button" name="submit" id="submit" onclick="sendOTP();"  />
+          <!-- Loader OnClick  -->
+          <!-- <input value="Login" class="btn btnSubmit solid" type="submit" name="submit" id="submit" onclick="sendOTP()" /> -->
+
+          <input id="submit" type="button" name="submit" class="" onclick="sendAdminOTP();" style="visibility: hidden; height: 1px;" />
+          <input value="Login" class="btn btnSubmit solid" type="button" name="submit" id="submit" onclick="sendAdminOTP();" />
+
         </form>
 
         <?php
@@ -111,7 +149,8 @@ if (isset($_SESSION['msd_supplier_name'])) {
           <div class="input-field mb-3">
             <i class="fas fa-list"></i>
             <select class="form-select" name="supcat" id="supcat" required>
-              <option value="">Loading categories...</option>
+              <option selected value="RI">Ration Items</option>
+              <option selected value="PI">Pvc Items</option>
             </select>
           </div>
           <div class="input-field">
@@ -144,14 +183,16 @@ if (isset($_SESSION['msd_supplier_name'])) {
         <div class="content">
           <img class="mb-5 pb-4" src="../static/img/dockyardlogo.png" width="50%" alt="">
           <br>
-          <p>
-            Please use this LOGIN-IN to place a tender and select the categories as required to proceed !!!
-          </p>
-          <button class="btn transparent" id="sign-up-btn">
+          <h3 style="font-weight: 400;">
+            Please use your service number to login to the system!
+          </h3>
+          <br>
+          <!-- <button class="btn transparent" id="sign-up-btn">
             Register
-          </button>
+          </button> -->
+          <img src="../static/img/adminuser.svg" style="" class="image" alt="" />
         </div>
-        <img src="../static/img/loginimage.svg" class="image" alt="" />
+
       </div>
       <div class="panel right-panel">
         <div class="content">
@@ -169,77 +210,14 @@ if (isset($_SESSION['msd_supplier_name'])) {
     </div>
   </div>
 
+
   <script>
     $("#mobile1").attr("maxlength", 10);
-    
-    // Load categories from database
-    $(document).ready(function() {
-      loadCategories();
-    });
-
-    function loadCategories() {
-      $.ajax({
-        url: '../backend/common/get_categories.php',
-        type: 'GET',
-        dataType: 'json',
-        success: function(data) {
-          var select = $('#supcat');
-          select.empty();
-          select.append('<option value="">Select Category</option>');
-          
-          if (data && data.length > 0) {
-            $.each(data, function(index, category) {
-              select.append('<option value="' + escapeHtml(category.category_name) + '">' + escapeHtml(category.category_name) + '</option>');
-            });
-          }
-        },
-        error: function(xhr, status, error) {
-          console.error('Error loading categories:', error);
-          $('#supcat').html('<option value="">Error loading categories</option>');
-        }
-      });
-    }
-
-    // Helper function to escape HTML
-    function escapeHtml(unsafe) {
-      return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
   </script>
 
   <script src="../static/js/login.js"></script>
   <script src="../static/js/showhideelement.js"></script>
-  <script src="../js/verification.js"></script>
-
-  <!-- Fix AJAX paths for Public subfolder -->
-  <script>
-    // Override the AJAX calls to use correct paths
-    var originalAjax = $.ajax;
-    $.ajax = function(settings) {
-      // If URL is relative and not http(s)
-      if (settings.url && !settings.url.startsWith('http')) {
-        // Check if it's a PHP file without a path prefix
-        if (settings.url.endsWith('.php') && !settings.url.includes('/')) {
-          settings.url = '../' + settings.url;
-        }
-      }
-      return originalAjax.apply(this, arguments);
-    };
-  </script>
-
-  <script>
-    // Fix redirects for dashboard.php and profile.php
-    // Intercept all AJAX success callbacks
-    document.addEventListener('DOMContentLoaded', function() {
-      // Override common redirect patterns
-      var originalLocation = window.location.href;
-      window.basePath = '../';
-    });
-  </script>
+  <script src="adminverification-public.js"></script>
 
 </body>
 
