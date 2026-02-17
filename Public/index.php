@@ -30,8 +30,8 @@ if (isset($_SESSION['msd_supplier_name'])) {
     }
   </style>
 
-  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
-  <link rel="shortcut icon" href="../static/img/9.png" />
+  <script src="https://kit.fontawesome.co<!-- m/64d58efce2.js" crossorigin="anonymous"></script>
+  <link rel="shortcut icon" href="../static/img/9.png" /> 
   <link rel="stylesheet" href="../static/css/login.css" />
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <!-- <script src="../static/js/jquery-3.3.1.min.js"></!--> 
@@ -111,10 +111,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
           <div class="input-field mb-3">
             <i class="fas fa-list"></i>
             <select class="form-select" name="supcat" id="supcat" required>
-              <option selected value="Ration Items">Ration Items</option>
-              <option  value="PVC Items">Pvc Items</option>
-              <option  value="Medicine Items">Medicine Items</option>
-              <option  value="Cables">Cables</option>
+              <option value="">Loading categories...</option>
             </select>
           </div>
           <div class="input-field">
@@ -174,6 +171,44 @@ if (isset($_SESSION['msd_supplier_name'])) {
 
   <script>
     $("#mobile1").attr("maxlength", 10);
+    
+    // Load categories from database
+    $(document).ready(function() {
+      loadCategories();
+    });
+
+    function loadCategories() {
+      $.ajax({
+        url: '../backend/common/get_categories.php',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          var select = $('#supcat');
+          select.empty();
+          select.append('<option value="">Select Category</option>');
+          
+          if (data && data.length > 0) {
+            $.each(data, function(index, category) {
+              select.append('<option value="' + escapeHtml(category.category_name) + '">' + escapeHtml(category.category_name) + '</option>');
+            });
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error loading categories:', error);
+          $('#supcat').html('<option value="">Error loading categories</option>');
+        }
+      });
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
   </script>
 
   <script src="../static/js/login.js"></script>
