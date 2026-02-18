@@ -67,61 +67,114 @@ function selectquery($query)
 function changesSupplierStatus()
 {
     try {
-        global $suppliermobile;
-        $suppliercode = $_REQUEST['suppliercode'];
-        $suppliername = $_REQUEST['msd_supplier_name'];
-        $supplieremail = $_REQUEST['msd_email_address'];
-        $suppliermobile = $_REQUEST['msd_mobileno'];
-        $supcat = $_REQUEST['msd_supply_category'];
-        $description = $_REQUEST['msd_supply_category_des'];
-        $supaddress = $_REQUEST['msd_address'];
+        global $con;
+        
+        $suppliercode = isset($_REQUEST['suppliercode']) ? $_REQUEST['suppliercode'] : null;
+        $suppliername = isset($_REQUEST['msd_supplier_name']) ? $_REQUEST['msd_supplier_name'] : null;
+        $supplieremail = isset($_REQUEST['msd_email_address']) ? $_REQUEST['msd_email_address'] : null;
+        $suppliermobile = isset($_REQUEST['msd_mobileno']) ? $_REQUEST['msd_mobileno'] : null;
+        $supcat = isset($_REQUEST['msd_supply_category']) ? $_REQUEST['msd_supply_category'] : null;
+        $description = isset($_REQUEST['msd_supply_category_des']) ? $_REQUEST['msd_supply_category_des'] : null;
+        $supaddress = isset($_REQUEST['msd_address']) ? $_REQUEST['msd_address'] : null;
         $supplieraction = $_REQUEST['supplieraction'] == "true" ? true : false;
+
+        // Validation
+        if (!$suppliercode || !$suppliername || !$supplieremail || !$suppliermobile) {
+            throw new Exception("Missing required supplier information");
+        }
 
         $_SESSION['msd_mobileno'] = $suppliermobile;
 
-        var_dump($suppliermobile);
-        // die();
-
-        $supAction = $supplieraction ? "A" : "I";
-        $query = "UPDATE mms_supplier_pending_details SET msd_status='$supAction' WHERE msd_supplier_code='$suppliercode'";
-        runquery($query);
-
-        $suppliermobile = $_SESSION['msd_mobileno'];
-
-        $ch = curl_init();
-        // $msg = "Congratulations, Now You're an approved supplier for the CDPLC. Please login & submit your tender.";l_address
-        $msg = "Congratulations, Now you are an Active supplier for the CDPLC. Please login & Update your profile to Authorization!";
-
-        curl_setopt($ch, CURLOPT_URL, "https://esystems.cdl.lk/apidock/api/SMS/SendMsg?mobileNo=$suppliermobile&msg=" . urlencode($msg) . "");
-        // curl_setopt($ch, CURLOPT_URL, "https://esystems.cdl.lk/apidock/api/SMS/SendMsg?mobileNo=$suppliermobile&msg=Congratulations");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt(
-            $ch,
-            CURLOPT_POSTFIELDS,
-            "postvar1=value1&postvar2=value2&postvar3=valu3"
-        );
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $_output = curl_exec($ch);
-        // var_dump($_output);
-        curl_close($ch);
-
         if ($supplieraction) {
-            // $query = "INSERT INTO mms_suppliers_details (msd_supplier_code,msd_supplier_name,msd_email_address,msd_mobileno,msd_supply_category,msd_address,msd_status) VALUES ($suppliercode,'$suppliername', '$supplieremail','$suppliermobile','$supcat','$supaddress','$supAction')";
-            $query = "INSERT INTO mms_suppliers_details (msd_supplier_code,msd_supplier_name,msd_email_address,msd_mobileno,msd_supply_category,msd_supply_category_des,msd_address,msd_status)
-        VALUES ('$suppliercode','$suppliername', '$supplieremail','$suppliermobile','$supcat','$description','$supaddress','$supAction')";
-            runquery($query);
-            $query = "DELETE FROM mms_supplier_pending_details WHERE msd_supplier_code='$suppliercode'";
-            runquery($query);
+            // Approve supplier: Move from pending to registered
+            
+            // Start transaction
+            mysqli_begin_transaction($con);
+            
+            // Insert into registered suppliers
+            $insert_query = "INSERT INTO mms_suppliers_details 
+                (msd_supplier_code, msd_supplier_name, msd_email_address, msd_mobileno, 
+                 msd_supply_category, msd_supply_category_des, msd_address, msd_status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'A')";
+            
+            $stmt = mysqli_prepare($con, $insert_query);
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . mysqli_error($con));
+            }
+            
+            mysqli_stmt_bind_param($stmt, "sssssss", $suppliercode, $suppliername, $supplieremail, 
+                                  $suppliermobile, $supcat, $description, $supaddress);
+            
+            if (!mysqli_stmt_execute($stmt)) {
+                throw new Exception("Insert failed: " . mysqli_stmt_error($stmt));
+            }
+            mysqli_stmt_close($stmt);
+            
+            // Delete from pending suppliers
+            $delete_query = "DELETE FROM mms_supplier_pending_details WHERE msd_supplier_code = ?";
+            $stmt = mysqli_prepare($con, $delete_query);
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . mysqli_error($con));
+            }
+            
+            mysqli_stmt_bind_param($stmt, "s", $suppliercode);
+            if (!mysqli_stmt_execute($stmt)) {
+                throw new Exception("Delete failed: " . mysqli_stmt_error($stmt));
+            }
+            mysqli_stmt_close($stmt);
+            
+            // Commit transaction
+            mysqli_commit($con);
+            
+            // Send SMS notification
+            $msg = "Congratulations, Now you are an Active supplier for the CDPLC. Please login & Update your profile to Authorization!";
+            sendSMS($suppliermobile, $msg);
+            
+            $returnJson['message'] = "Supplier approved successfully";
         } else {
-            $query = "DELETE FROM mms_suppliers_details WHERE msd_supplier_code='$suppliercode'";
-            runquery($query);
+            // Reject supplier: Remove from pending
+            $delete_query = "DELETE FROM mms_supplier_pending_details WHERE msd_supplier_code = ?";
+            $stmt = mysqli_prepare($con, $delete_query);
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . mysqli_error($con));
+            }
+            
+            mysqli_stmt_bind_param($stmt, "s", $suppliercode);
+            if (!mysqli_stmt_execute($stmt)) {
+                throw new Exception("Delete failed: " . mysqli_stmt_error($stmt));
+            }
+            mysqli_stmt_close($stmt);
+            
+            $returnJson['message'] = "Supplier rejected successfully";
         }
-        $returnJson['message'] = "Successfull event for ";
-        //echo json_encode($returnJson);
+        
+        echo json_encode($returnJson);
     } catch (Exception $ex) {
-        returnDefault();
+        http_response_code(400);
+        $returnJson['error'] = $ex->getMessage();
+        echo json_encode($returnJson);
+    }
+}
+
+function sendSMS($mobileNo, $msg)
+{
+    try {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://esystems.cdl.lk/apidock/api/SMS/SendMsg?mobileNo=" . urlencode($mobileNo) . "&msg=" . urlencode($msg));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        
+        $output = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        if ($error) {
+            error_log("SMS sending failed: " . $error);
+        }
+    } catch (Exception $ex) {
+        error_log("SMS Exception: " . $ex->getMessage());
     }
 }
 
