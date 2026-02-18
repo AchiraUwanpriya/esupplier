@@ -79,6 +79,47 @@ if ($supplierCode) {
 }
 
 
+// Update supplier profile details
+if (isset($_POST['updateSupBtn'])) {
+  $sc               = mysqli_real_escape_string($con, $_POST['supcode_hidden']);
+  $supname          = mysqli_real_escape_string($con, $_POST['supname']);
+  $supcat           = mysqli_real_escape_string($con, $_POST['supcat']);
+  $bsnature         = mysqli_real_escape_string($con, $_POST['bsnature']);
+  $address          = mysqli_real_escape_string($con, $_POST['address']);
+  $officeaddress    = mysqli_real_escape_string($con, $_POST['officeaddress']);
+  $operationaddress = mysqli_real_escape_string($con, $_POST['operationaddress']);
+  $postalCode       = mysqli_real_escape_string($con, $_POST['postalCode']);
+  $telnumber        = mysqli_real_escape_string($con, $_POST['telnumber']);
+  $fax              = mysqli_real_escape_string($con, $_POST['fax']);
+  $emailad          = mysqli_real_escape_string($con, $_POST['emailad']);
+  $web              = mysqli_real_escape_string($con, $_POST['web']);
+  $contactperson    = mysqli_real_escape_string($con, $_POST['contactperson']);
+  $agent            = mysqli_real_escape_string($con, $_POST['agent']);
+
+  $query = "UPDATE mms_suppliers_details SET
+    msd_supplier_name     = '$supname',
+    msd_supply_category   = '$supcat',
+    msd_business_nature   = '$bsnature',
+    msd_address           = '$address',
+    msd_officeaddress     = '$officeaddress',
+    msd_operationaddress  = '$operationaddress',
+    msd_postalcode        = '$postalCode',
+    msd_teleno            = '$telnumber',
+    msd_faxno             = '$fax',
+    msd_email_address     = '$emailad',
+    msd_website           = '$web',
+    msd_contact_person    = '$contactperson',
+    msd_agent             = '$agent'
+    WHERE msd_supplier_code = '$sc'";
+
+  $query_run = mysqli_query($con, $query);
+  if ($query_run) {
+    echo "<script>alert('Supplier Details Updated Successfully!!'); window.location.href = window.location.href;</script>";
+  } else {
+    echo "<script>alert('Update Failed: " . mysqli_error($con) . "');</script>";
+  }
+}
+
 // update sup reference number
 if (isset($_POST['updateRefer'])) {
   $referenceNo = $_POST['msd_supplier_reference_no'];
@@ -368,11 +409,12 @@ if (isset($_POST['updateRefer'])) {
 
                         <div class="form-group col-md-10">
                           <input type="text" class="form-control" name="supcode" id="supcode" placeholder="Type your name" value="<?= $supplierDetails['msd_supplier_code'] ?>" disabled>
+                          <input type="hidden" name="supcode_hidden" value="<?= $supplierDetails['msd_supplier_code'] ?>">
                         </div>
 
                         <div class="form-group col-md-10">
                           <label for="inputAddress2">Supplier Name</label>
-                          <input type="text" class="form-control" name="supname" id="supname" placeholder="Type your name" value="<?= $supplierDetails['msd_supplier_name'] ?>" disabled>
+                          <input type="text" class="form-control" name="supname" id="supname" placeholder="Type your name" value="<?= $supplierDetails['msd_supplier_name'] ?>">
                         </div>
                         <div class="form-group col-md-2">
                           <!-- <label for="inputAddress2">Supplier Code</label> -->
@@ -382,43 +424,49 @@ if (isset($_POST['updateRefer'])) {
                       <div class="form-row">
                         <div class="form-group col-md-10">
                           <label for="inputAddress2">Supplier Category</label>
-                          <input type="text" class="form-control" name="supcat" id="supcat" placeholder="Fish, Vegetables, Spices, Rice / Oil and Coconut, Dry Fish" disabled value="<?= $supplierDetails['msd_supply_category'] ?>">
+                          <input type="text" class="form-control" name="supcat" id="supcat" placeholder="Fish, Vegetables, Spices, Rice / Oil and Coconut, Dry Fish" value="<?= $supplierDetails['msd_supply_category'] ?>">
                         </div>
                         <div class="form-group col-md-2">
                           <label for="bsnature">Business Nature</label>
-                          <!-- <input type="text" class="form-control" name="country" id="country" placeholder="country"> -->
-                          <select id="bsnature" name="bsnature" class="form-control" disabled>
-                            <option selected disabled hidden value="<?= $supplierDetails['msd_business_nature'] ?>"><?= $supplierDetails['msd_business_nature'] ? $supplierDetails['msd_business_nature'] : "Manufacture" ?></option>
+                          <select id="bsnature" name="bsnature" class="form-control">
+                            <?php
+                            $bsOptions = ['Manufacture', 'Trading', 'Service'];
+                            foreach ($bsOptions as $opt) {
+                              $sel = ($supplierDetails['msd_business_nature'] === $opt) ? 'selected' : '';
+                              echo "<option value=\"$opt\" $sel>$opt</option>";
+                            }
+                            if (!in_array($supplierDetails['msd_business_nature'], $bsOptions) && $supplierDetails['msd_business_nature']) {
+                              echo "<option value=\"{$supplierDetails['msd_business_nature']}\" selected>{$supplierDetails['msd_business_nature']}</option>";
+                            }
+                            ?>
                           </select>
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="form-group col-md-12">
                           <label for="address">Address</label>
-                          <input type="text" class="form-control" name="address" id="address" value="<?= $supplierDetails['msd_address'] ?>" disabled>
+                          <input type="text" class="form-control" name="address" id="address" value="<?= $supplierDetails['msd_address'] ?>">
                         </div>
                       </div>
 
                       <div class="form-row">
                         <div class="form-group col-md-6">
                           <label for="officeaddress">Office Address</label>
-                          <!-- <input type="text" class="form-control" name="country" id="country" placeholder="country"> -->
-                          <input type="text" class="form-control" name="officeaddress" id="officeaddress" placeholder="Office Address" value="<?= $supplierDetails['msd_officeaddress'] ?>" disabled>
+                          <input type="text" class="form-control" name="officeaddress" id="officeaddress" placeholder="Office Address" value="<?= $supplierDetails['msd_officeaddress'] ?>">
                         </div>
                         <div class="form-group col-md-6">
                           <label for="operationaddress">Operation Address</label>
-                          <input type="text" class="form-control" name="operationaddress" id="operationaddress" placeholder="Operation Address" value="<?= $supplierDetails['msd_operationaddress'] ?>" disabled>
+                          <input type="text" class="form-control" name="operationaddress" id="operationaddress" placeholder="Operation Address" value="<?= $supplierDetails['msd_operationaddress'] ?>">
                         </div>
                         <div class="form-group col-md-6">
                           <label for="postalCode">Postal Code</label>
-                          <input type="text" class="form-control" name="postalCode" id="postalCode" placeholder="postal Code" value="<?= $supplierDetails['msd_postalcode'] ?>" disabled>
+                          <input type="text" class="form-control" name="postalCode" id="postalCode" placeholder="postal Code" value="<?= $supplierDetails['msd_postalcode'] ?>">
                         </div>
 
                       </div>
                       <div class="form-row">
                         <div class="form-group col-md-2">
                           <label for="">Country</label>
-                          <!-- <input type="text" class="form-control" name="country" id="country" placeholder="country"> -->
                           <select id="country" name="country" class="form-control" disabled>
                             <option selected>Sri lanka</option>
                           </select>
@@ -426,38 +474,47 @@ if (isset($_POST['updateRefer'])) {
 
                         <div class="form-group col-md-4">
                           <label for="telnumber">Telephone Number</label>
-                          <input type="text" class="form-control" name="telnumber" id="telnumber" placeholder="Telephone Number(Other)" value="<?= $supplierDetails['msd_teleno'] ?>" disabled>
+                          <input type="text" class="form-control" name="telnumber" id="telnumber" placeholder="Telephone Number(Other)" value="<?= $supplierDetails['msd_teleno'] ?>">
                         </div>
                       </div>
 
                       <div class="form-row">
                         <div class="form-group col-md-3">
                           <label for="fax">Fax Number</label>
-                          <input type="text" class="form-control" name="fax" id="fax" value="<?= $supplierDetails['msd_faxno'] ?>" disabled>
+                          <input type="text" class="form-control" name="fax" id="fax" value="<?= $supplierDetails['msd_faxno'] ?>">
                         </div>
                         <div class="form-group col-md-4">
                           <label for="emailad">Sales email address</label>
-                          <input type="email" name="emailad" class="form-control" id="emailad" value="<?= $supplierDetails['msd_email_address'] ?>" disabled>
+                          <input type="email" name="emailad" class="form-control" id="emailad" value="<?= $supplierDetails['msd_email_address'] ?>">
                         </div>
                         <div class="form-group col-md-5">
                           <label for="web">Web site</label>
-                          <input type="text" name="web" class="form-control" id="web" value="<?= $supplierDetails['msd_website'] ?>" disabled>
+                          <input type="text" name="web" class="form-control" id="web" value="<?= $supplierDetails['msd_website'] ?>">
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="form-group col-md-5">
                           <label for="contactperson">Contact Person</label>
-                          <input type="text" name="contactperson" class="form-control" id="contactperson" value="<?= $supplierDetails['msd_contact_person'] ?>" disabled>
+                          <input type="text" name="contactperson" class="form-control" id="contactperson" value="<?= $supplierDetails['msd_contact_person'] ?>">
                         </div>
                         <div class="form-group col-md-6">
                           <label for="agent">Agent </label>
-                          <select id="agent" name="agent" class="form-control" disabled>
-                            <option selected disabled hidden value="<?= $supplierDetails['msd_agent'] ?>"><?= $supplierDetails['msd_agent'] ? $supplierDetails['msd_agent'] : "Yes" ?></option>
+                          <select id="agent" name="agent" class="form-control">
+                            <?php
+                            $agentOptions = ['Yes', 'No'];
+                            foreach ($agentOptions as $opt) {
+                              $sel = ($supplierDetails['msd_agent'] === $opt) ? 'selected' : '';
+                              echo "<option value=\"$opt\" $sel>$opt</option>";
+                            }
+                            if (!in_array($supplierDetails['msd_agent'], $agentOptions) && $supplierDetails['msd_agent']) {
+                              echo "<option value=\"{$supplierDetails['msd_agent']}\" selected>{$supplierDetails['msd_agent']}</option>";
+                            }
+                            ?>
                           </select>
                         </div>
                       </div>
 
-                      <input type="submit" class="btn btn-info" name="updateSupBtn" id="updateSupBtn" value="Update Details" onclick="supReg();" hidden />
+                      <input type="submit" class="btn btn-info" name="updateSupBtn" id="updateSupBtn" value="Update Details" <?php if ($ButtonsDisabled) echo 'disabled'; ?> />
                       <hr>
                     </form>
 
