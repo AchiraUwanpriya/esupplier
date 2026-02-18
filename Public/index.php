@@ -179,7 +179,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
 
     function loadCategories() {
       $.ajax({
-        url: '../backend/common/get_categories.php',
+        url: '../backend/supplier categories/get_categories.php',
         type: 'GET',
         dataType: 'json',
         success: function(data) {

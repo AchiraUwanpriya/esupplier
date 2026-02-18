@@ -216,8 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 														<td><?php echo $row['msd_address']; ?><input type="text" hidden name="msd_address[<?= $index ?>]" value="<?php echo $row['msd_address']; ?>"></td>
 														<td>
 															<div class="form-check">
-																<input <?php if ($viewButtonDisabled) echo 'disabled'; ?> type="checkbox" class="form-check-input" id="exampleCheck1" name="exampleCheck1" <?= $row['msd_status'] === "A" ? "checked" : "" ?> onClick="test(this,'<?= $row['msd_supplier_code'] ?>','<?= $row['msd_supplier_name'] ?>','<?= $row['msd_email_address'] ?>','<?= $row['msd_mobileno'] ?>','<?= $row['msd_supply_category'] ?>','<?= $row['msd_address'] ?>','<?= $row['msd_supply_category_des'] ?>'); popupmsg();">
-																<!--<label class="form-check-label" for="">Approve</label>-->
+																<input <?php if ($viewButtonDisabled) echo 'disabled'; ?> type="checkbox" class="form-check-input" id="exampleCheck1" name="exampleCheck1" <?= $row['msd_status'] === "A" ? "checked" : "" ?> onClick="test(this,'<?= $row['msd_supplier_code'] ?>','<?= $row['msd_supplier_name'] ?>','<?= $row['msd_email_address'] ?>','<?= $row['msd_mobileno'] ?>','<?= $row['msd_supply_category'] ?>','<?= $row['msd_address'] ?>','<?= $row['msd_supply_category_des'] ?>');">
 																<label class="form-check-label fw-bold text-success" for="">Approve</label>
 															</div>
 														</td>
@@ -247,39 +246,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		</div>
 	</div>
 	<script>
-		function popupmsg() {
-			// var result = confirm('Are you sure?');
-			// if(result === true){
-			// 	window.location.reload();
-			// }
-			// else{
-			// 	event.preventDefault();
-			// 	exit();
-			// }
-
-			alert("Supplier has approved!");
-			window.location.reload();
-		}
-	</script>
-
-	<script>
 		function logoutfunction() {
 			alert("Please Confirm To Logout!!");
 		}
 
 		function test(e, msd_supplier_code, msd_supplier_name, msd_email_address, msd_mobileno, msd_supply_category, msd_address, msd_supply_category_des) {
-			// var url = "/ajaxservice.php?func=changesuppstatus&suppliercode=" + msd_supplier_code +
-			var url = "/ajaxservice.php?func=changesuppstatus&suppliercode=" + msd_supplier_code +
-				"&msd_supplier_name=" + msd_supplier_name +
-				"&msd_email_address=" + msd_email_address +
-				"&msd_mobileno=" + msd_mobileno +
-				"&msd_supply_category=" + msd_supply_category +
-				"&msd_address=" + msd_address +
-				"&msd_supply_category_des=" + msd_supply_category_des +
+			// Prevent the default checkbox behavior temporarily
+			e.preventDefault ? e.preventDefault() : (event.returnValue = false);
+			
+			if (e.checked) {
+				// Confirm approval
+				if (!confirm("Are you sure you want to approve this supplier?")) {
+					return false;
+				}
+			}
+
+			var url = "ajaxservice.php?func=changesuppstatus&suppliercode=" + encodeURIComponent(msd_supplier_code) +
+				"&msd_supplier_name=" + encodeURIComponent(msd_supplier_name) +
+				"&msd_email_address=" + encodeURIComponent(msd_email_address) +
+				"&msd_mobileno=" + encodeURIComponent(msd_mobileno) +
+				"&msd_supply_category=" + encodeURIComponent(msd_supply_category) +
+				"&msd_address=" + encodeURIComponent(msd_address) +
+				"&msd_supply_category_des=" + encodeURIComponent(msd_supply_category_des) +
 				"&supplieraction=" + e.checked;
-			//console.log("Test Clicked",e.checked,msd_supplier_code,msd_supplier_name,msd_email_address,msd_mobileno ,url);
-			$.get(url, function(data, status) {
-				//alert("Data: " + data + "\nStatus: " + status);
+
+			console.log("Approval request:", url);
+
+			$.ajax({
+				url: url,
+				type: 'GET',
+				timeout: 10000,
+				success: function(data, status) {
+					console.log("Response:", data);
+					alert("Supplier has been " + (e.checked ? "approved" : "rejected") + " successfully!");
+					window.location.reload();
+				},
+				error: function(xhr, status, error) {
+					console.error("Error:", error, xhr.responseText);
+					alert("Error processing supplier approval. Please try again. Error: " + error);
+					// Uncheck the checkbox if there was an error
+					e.checked = !e.checked;
+				}
 			});
 		}
 	</script>
