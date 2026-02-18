@@ -49,39 +49,26 @@ function runquery($query)
   }
 }
 
-// Update Attachement status to Inactive
+// ── ALL WRITE HANDLERS FIRST (before any SELECT) ──────────────────────────
 
+// Attachment deactivate
 if (isset($_POST['delete'])) {
   $qry = "UPDATE mms_supplier_attachments SET msd_status='I',updated_by='" . $_SESSION['User'] . "',updated_date='$updatedate' WHERE msd_serial_no = '" . $_POST['msd_serial_no'] . "'";
   runquery($qry);
 }
 
-// get Suppiler Details
-$supplierCode = isset($_GET['suppliercode']) ? $_GET['suppliercode'] : null;
-
-$suppliermobile = isset($_GET['supmobile']) ? $_GET['supmobile'] : null;
-
-$updateModalOpen = false;
-$supplierDetails = [];
-if ($supplierCode) {
-  $updateModalOpen = true;
-  $query = "SELECT mmssd.*, mmssb.MSB_BANK_STATEMENT FROM mms_suppliers_details mmssd
-  LEFT JOIN mms_supplier_banks mmssb ON mmssd.msd_supplier_code = mmssb.MSB_SUPPLIER_CODE 
-  WHERE mmssd.msd_supplier_code='$supplierCode'
-  GROUP BY mmssd.msd_supplier_code;";
-  $datalist = selectquery($query);
-  if (count($datalist) === 1)
-    $supplierDetails = $datalist[0];
-  $query = "SELECT msd_serial_no,msd_file_name,msd_file_path,msd_status FROM mms_supplier_attachments WHERE msd_sup_code = '$supplierCode' AND msd_status = 'A'";
-  $datalist = selectquery($query);
-  if (count($datalist) > 0)
-    $supplierDetails['attachments'] = $datalist;
+// Authorize supplier → set msd_status = 'C'
+if (isset($_GET['action']) && $_GET['action'] === 'authorize' && isset($_GET['suppliercode'])) {
+  $sc = mysqli_real_escape_string($con, $_GET['suppliercode']);
+  mysqli_query($con, "UPDATE mms_suppliers_details SET msd_status = 'C' WHERE msd_supplier_code = '$sc'");
+  header('Location: allactivesuppliersview.php');
+  exit();
 }
-
 
 // Update supplier profile details
 if (isset($_POST['updateSupBtn'])) {
   $sc               = mysqli_real_escape_string($con, $_POST['supcode_hidden']);
+  $supmob           = mysqli_real_escape_string($con, $_POST['supmobile_hidden']);
   $supname          = mysqli_real_escape_string($con, $_POST['supname']);
   $supcat           = mysqli_real_escape_string($con, $_POST['supcat']);
   $bsnature         = mysqli_real_escape_string($con, $_POST['bsnature']);
@@ -95,49 +82,63 @@ if (isset($_POST['updateSupBtn'])) {
   $web              = mysqli_real_escape_string($con, $_POST['web']);
   $contactperson    = mysqli_real_escape_string($con, $_POST['contactperson']);
   $agent            = mysqli_real_escape_string($con, $_POST['agent']);
+  mysqli_query($con, "UPDATE mms_suppliers_details SET
+    msd_supplier_name='$supname', msd_supply_category='$supcat', msd_business_nature='$bsnature',
+    msd_address='$address', msd_officeaddress='$officeaddress', msd_operationaddress='$operationaddress',
+    msd_postalcode='$postalCode', msd_teleno='$telnumber', msd_faxno='$fax',
+    msd_email_address='$emailad', msd_website='$web', msd_contact_person='$contactperson', msd_agent='$agent'
+    WHERE msd_supplier_code='$sc'");
+  header("Location: allactivesuppliersview.php?suppliercode=$sc&supmobile=$supmob&msg=supplier_updated");
+  exit();
+}
 
-  $query = "UPDATE mms_suppliers_details SET
-    msd_supplier_name     = '$supname',
-    msd_supply_category   = '$supcat',
-    msd_business_nature   = '$bsnature',
-    msd_address           = '$address',
-    msd_officeaddress     = '$officeaddress',
-    msd_operationaddress  = '$operationaddress',
-    msd_postalcode        = '$postalCode',
-    msd_teleno            = '$telnumber',
-    msd_faxno             = '$fax',
-    msd_email_address     = '$emailad',
-    msd_website           = '$web',
-    msd_contact_person    = '$contactperson',
-    msd_agent             = '$agent'
-    WHERE msd_supplier_code = '$sc'";
+// Update bank details
+if (isset($_POST['updateBankBtn'])) {
+  $sc      = mysqli_real_escape_string($con, $_POST['bank_supplier_code']);
+  $supmob  = mysqli_real_escape_string($con, $_POST['bank_supmobile']);
+  $accno   = mysqli_real_escape_string($con, $_POST['accnumber']);
+  $acctype = mysqli_real_escape_string($con, $_POST['acctype']);
+  $bankcode= mysqli_real_escape_string($con, $_POST['bankcode']);
+  mysqli_query($con, "UPDATE mms_supplier_banks SET
+    MSB_ACCOUNT_NO='$accno', MSB_ACCOUNT_TYPE='$acctype', MSB_BANK_CODE='$bankcode'
+    WHERE MSB_SUPPLIER_CODE='$sc'");
+  header("Location: allactivesuppliersview.php?suppliercode=$sc&supmobile=$supmob&msg=bank_updated");
+  exit();
+}
 
-  $query_run = mysqli_query($con, $query);
-  if ($query_run) {
-    echo "<script>alert('Supplier Details Updated Successfully!!'); window.location.href = window.location.href;</script>";
-  } else {
-    echo "<script>alert('Update Failed: " . mysqli_error($con) . "');</script>";
+// Update reference number
+if (isset($_POST['updateRefer'])) {
+  $sc          = mysqli_real_escape_string($con, $_POST['refer_supplier_code']);
+  $supmob      = mysqli_real_escape_string($con, $_POST['refer_supmobile']);
+  $referenceNo = mysqli_real_escape_string($con, $_POST['msd_supplier_reference_no']);
+  mysqli_query($con, "UPDATE mms_suppliers_details SET msd_supplier_reference_no='$referenceNo' WHERE msd_supplier_code='$sc'");
+  header("Location: allactivesuppliersview.php?suppliercode=$sc&supmobile=$supmob&msg=ref_updated");
+  exit();
+}
+
+// ── NOW FETCH DATA ─────────────────────────────────────────────────────────
+
+// Show success message if redirected back after update
+if (isset($_GET['msg'])) {
+  $msgs = ['supplier_updated'=>'Supplier Details Updated Successfully!!','bank_updated'=>'Bank Details Updated Successfully!!','ref_updated'=>'Reference Number Updated Successfully!!'];
+  if (isset($msgs[$_GET['msg']])) {
+    echo "<script>window.addEventListener('load',function(){ alert('" . $msgs[$_GET['msg']] . "'); });</script>";
   }
 }
 
-// update sup reference number
-if (isset($_POST['updateRefer'])) {
-  $referenceNo = $_POST['msd_supplier_reference_no'];
+$supplierCode   = isset($_GET['suppliercode']) ? $_GET['suppliercode'] : null;
+$suppliermobile = isset($_GET['supmobile'])    ? $_GET['supmobile']    : null;
 
-  // Sanitize and validate the input
-  $referenceNo = mysqli_real_escape_string($con, $referenceNo);
-
-  $query = "UPDATE mms_suppliers_details SET msd_supplier_reference_no = '$referenceNo'
-     WHERE msd_supplier_code = '$supplierCode'";
-
-  $query_run = mysqli_query($con, $query);
-
-  if ($query_run) {
-    echo "<script>alert('Records Updated Successfully!!'); window.location.href = window.location.href;</script>";
-    // echo "<script>window.location.reload();</script>"; 
-  } else {
-    echo "Please fill the fields!";
-  }
+$updateModalOpen = false;
+$supplierDetails = [];
+if ($supplierCode) {
+  $updateModalOpen = true;
+  $datalist = selectquery("SELECT mmssd.*, mmssb.MSB_BANK_STATEMENT FROM mms_suppliers_details mmssd
+    LEFT JOIN mms_supplier_banks mmssb ON mmssd.msd_supplier_code = mmssb.MSB_SUPPLIER_CODE
+    WHERE mmssd.msd_supplier_code='$supplierCode' GROUP BY mmssd.msd_supplier_code");
+  if (count($datalist) === 1) $supplierDetails = $datalist[0];
+  $datalist = selectquery("SELECT msd_serial_no,msd_file_name,msd_file_path,msd_status FROM mms_supplier_attachments WHERE msd_sup_code='$supplierCode' AND msd_status='A'");
+  if (count($datalist) > 0) $supplierDetails['attachments'] = $datalist;
 }
 
 ?>
@@ -405,62 +406,55 @@ if (isset($_POST['updateRefer'])) {
                   </div>
                   <div class="card-body h-100">
                     <form method="POST" id="profUpdate" name="profUpdate">
+                      <input type="hidden" name="supcode_hidden" value="<?= $supplierDetails['msd_supplier_code'] ?>">
+                      <input type="hidden" name="supmobile_hidden" value="<?= $suppliermobile ?>">
                       <div class="form-row">
 
                         <div class="form-group col-md-10">
-                          <input type="text" class="form-control" name="supcode" id="supcode" placeholder="Type your name" value="<?= $supplierDetails['msd_supplier_code'] ?>" disabled>
-                          <input type="hidden" name="supcode_hidden" value="<?= $supplierDetails['msd_supplier_code'] ?>">
+                          <input type="text" class="form-control" placeholder="Type your name" value="<?= $supplierDetails['msd_supplier_code'] ?>" disabled>
                         </div>
 
                         <div class="form-group col-md-10">
                           <label for="inputAddress2">Supplier Name</label>
-                          <input type="text" class="form-control" name="supname" id="supname" placeholder="Type your name" value="<?= $supplierDetails['msd_supplier_name'] ?>">
+                          <input type="text" class="form-control" name="supname" id="supname" placeholder="Type your name" value="<?= htmlspecialchars($supplierDetails['msd_supplier_name']) ?>">
                         </div>
                         <div class="form-group col-md-2">
-                          <!-- <label for="inputAddress2">Supplier Code</label> -->
-                          <input type="number" class="form-control" name="supcode" value="" id="supcode" hidden>
+                          <input type="number" class="form-control" value="" hidden>
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="form-group col-md-10">
                           <label for="inputAddress2">Supplier Category</label>
-                          <input type="text" class="form-control" name="supcat" id="supcat" placeholder="Fish, Vegetables, Spices, Rice / Oil and Coconut, Dry Fish" value="<?= $supplierDetails['msd_supply_category'] ?>">
+                          <input type="text" class="form-control" name="supcat" id="supcat" placeholder="Fish, Vegetables, Spices, Rice / Oil and Coconut, Dry Fish" value="<?= htmlspecialchars($supplierDetails['msd_supply_category']) ?>">
                         </div>
                         <div class="form-group col-md-2">
                           <label for="bsnature">Business Nature</label>
                           <select id="bsnature" name="bsnature" class="form-control">
-                            <?php
-                            $bsOptions = ['Manufacture', 'Trading', 'Service'];
-                            foreach ($bsOptions as $opt) {
-                              $sel = ($supplierDetails['msd_business_nature'] === $opt) ? 'selected' : '';
-                              echo "<option value=\"$opt\" $sel>$opt</option>";
-                            }
-                            if (!in_array($supplierDetails['msd_business_nature'], $bsOptions) && $supplierDetails['msd_business_nature']) {
-                              echo "<option value=\"{$supplierDetails['msd_business_nature']}\" selected>{$supplierDetails['msd_business_nature']}</option>";
-                            }
-                            ?>
+                            <?php foreach (['Manufacture','Trading','Service'] as $opt): ?>
+                              <option value="<?= $opt ?>" <?= $supplierDetails['msd_business_nature'] === $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                            <?php endforeach; ?>
                           </select>
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="form-group col-md-12">
                           <label for="address">Address</label>
-                          <input type="text" class="form-control" name="address" id="address" value="<?= $supplierDetails['msd_address'] ?>">
+                          <input type="text" class="form-control" name="address" id="address" value="<?= htmlspecialchars($supplierDetails['msd_address']) ?>">
                         </div>
                       </div>
 
                       <div class="form-row">
                         <div class="form-group col-md-6">
                           <label for="officeaddress">Office Address</label>
-                          <input type="text" class="form-control" name="officeaddress" id="officeaddress" placeholder="Office Address" value="<?= $supplierDetails['msd_officeaddress'] ?>">
+                          <input type="text" class="form-control" name="officeaddress" id="officeaddress" placeholder="Office Address" value="<?= htmlspecialchars($supplierDetails['msd_officeaddress']) ?>">
                         </div>
                         <div class="form-group col-md-6">
                           <label for="operationaddress">Operation Address</label>
-                          <input type="text" class="form-control" name="operationaddress" id="operationaddress" placeholder="Operation Address" value="<?= $supplierDetails['msd_operationaddress'] ?>">
+                          <input type="text" class="form-control" name="operationaddress" id="operationaddress" placeholder="Operation Address" value="<?= htmlspecialchars($supplierDetails['msd_operationaddress']) ?>">
                         </div>
                         <div class="form-group col-md-6">
                           <label for="postalCode">Postal Code</label>
-                          <input type="text" class="form-control" name="postalCode" id="postalCode" placeholder="postal Code" value="<?= $supplierDetails['msd_postalcode'] ?>">
+                          <input type="text" class="form-control" name="postalCode" id="postalCode" placeholder="postal Code" value="<?= htmlspecialchars($supplierDetails['msd_postalcode']) ?>">
                         </div>
 
                       </div>
@@ -474,42 +468,35 @@ if (isset($_POST['updateRefer'])) {
 
                         <div class="form-group col-md-4">
                           <label for="telnumber">Telephone Number</label>
-                          <input type="text" class="form-control" name="telnumber" id="telnumber" placeholder="Telephone Number(Other)" value="<?= $supplierDetails['msd_teleno'] ?>">
+                          <input type="text" class="form-control" name="telnumber" id="telnumber" placeholder="Telephone Number(Other)" value="<?= htmlspecialchars($supplierDetails['msd_teleno']) ?>">
                         </div>
                       </div>
 
                       <div class="form-row">
                         <div class="form-group col-md-3">
                           <label for="fax">Fax Number</label>
-                          <input type="text" class="form-control" name="fax" id="fax" value="<?= $supplierDetails['msd_faxno'] ?>">
+                          <input type="text" class="form-control" name="fax" id="fax" value="<?= htmlspecialchars($supplierDetails['msd_faxno']) ?>">
                         </div>
                         <div class="form-group col-md-4">
                           <label for="emailad">Sales email address</label>
-                          <input type="email" name="emailad" class="form-control" id="emailad" value="<?= $supplierDetails['msd_email_address'] ?>">
+                          <input type="email" name="emailad" class="form-control" id="emailad" value="<?= htmlspecialchars($supplierDetails['msd_email_address']) ?>">
                         </div>
                         <div class="form-group col-md-5">
                           <label for="web">Web site</label>
-                          <input type="text" name="web" class="form-control" id="web" value="<?= $supplierDetails['msd_website'] ?>">
+                          <input type="text" name="web" class="form-control" id="web" value="<?= htmlspecialchars($supplierDetails['msd_website']) ?>">
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="form-group col-md-5">
                           <label for="contactperson">Contact Person</label>
-                          <input type="text" name="contactperson" class="form-control" id="contactperson" value="<?= $supplierDetails['msd_contact_person'] ?>">
+                          <input type="text" name="contactperson" class="form-control" id="contactperson" value="<?= htmlspecialchars($supplierDetails['msd_contact_person']) ?>">
                         </div>
                         <div class="form-group col-md-6">
                           <label for="agent">Agent </label>
                           <select id="agent" name="agent" class="form-control">
-                            <?php
-                            $agentOptions = ['Yes', 'No'];
-                            foreach ($agentOptions as $opt) {
-                              $sel = ($supplierDetails['msd_agent'] === $opt) ? 'selected' : '';
-                              echo "<option value=\"$opt\" $sel>$opt</option>";
-                            }
-                            if (!in_array($supplierDetails['msd_agent'], $agentOptions) && $supplierDetails['msd_agent']) {
-                              echo "<option value=\"{$supplierDetails['msd_agent']}\" selected>{$supplierDetails['msd_agent']}</option>";
-                            }
-                            ?>
+                            <?php foreach (['Yes','No'] as $opt): ?>
+                              <option value="<?= $opt ?>" <?= $supplierDetails['msd_agent'] === $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                            <?php endforeach; ?>
                           </select>
                         </div>
                       </div>
@@ -520,6 +507,8 @@ if (isset($_POST['updateRefer'])) {
 
                     <!-- Refrence number update -->
                     <form method="POST" id="ref" name="ref">
+                      <input type="hidden" name="refer_supplier_code" value="<?= $supplierDetails['msd_supplier_code'] ?>">
+                      <input type="hidden" name="refer_supmobile" value="<?= $suppliermobile ?>">
                       <div class="form-group col-md-4">
                         <label for="refNo">Supplier Reference Number:</label>
                         <input type="text" name="msd_supplier_reference_no" class="form-control" id="referenceNo" value="<?= $supplierDetails['msd_supplier_reference_no'] ?>" required>
@@ -556,13 +545,12 @@ if (isset($_POST['updateRefer'])) {
 
                         <!-- Supplier Bank -->
                         <?php
-                        // $suppliercode = $_SESSION['sup_code'];
                         $supplierCode = isset($_GET['suppliercode']) ? $_GET['suppliercode'] : null;
 
                         $query = "SELECT MMSSB.*, MMSDB.MBD_BANK_NAME, MMSDB2.MBD_BANK_NAME AS BRANCH_NAME FROM mms_supplier_banks MMSSB 
                                   LEFT JOIN mms_bank_details MMSDB ON MMSDB.MBD_CHILD_KEY = MMSSB.MSB_MAIN_BANK_CODE 
                                   LEFT JOIN mms_bank_details MMSDB2 ON MMSDB2.MBD_CHILD_KEY = MMSSB.MSB_CHILD_KEY
-                                  WHERE MMSSB.MSB_SUPPLIER_CODE = $supplierCode ";
+                                  WHERE MMSSB.MSB_SUPPLIER_CODE = '$supplierCode' ";
                         $dataList = selectquery($query);
                         $data = [];
                         if (count($dataList)) {
@@ -572,35 +560,36 @@ if (isset($_POST['updateRefer'])) {
                         ?>
                         <br>
                         <form method="POST" id="bankdetails" name="bankdetails">
+                          <input type="hidden" name="bank_supplier_code" value="<?= $supplierDetails['msd_supplier_code'] ?>">
+                          <input type="hidden" name="bank_supmobile" value="<?= $suppliermobile ?>">
                           <br>
                           <div class="form-row">
                             <div class="form-group col-md-6">
                               <label for="mainbank">Main Bank</label>
-                              <input type="text" class="form-control" value="<?= getvalue($data, 'MBD_BANK_NAME') ?>" disabled>
+                              <input type="text" class="form-control" name="mainbank" value="<?= getvalue($data, 'MBD_BANK_NAME') ?>">
                             </div>
                             <div class="form-group col-md-4">
                               <label for="bankcode">Bank Code</label>
-                              <input type="text" class="form-control" value="<?= getvalue($data, 'MSB_BANK_CODE') ?>" disabled>
+                              <input type="text" class="form-control" name="bankcode" value="<?= getvalue($data, 'MSB_BANK_CODE') ?>">
                             </div>
                           </div>
 
                           <div class="form-row">
                             <div class="form-group col-md-6">
                               <label for="branch">Branch</label>
-                              <input type="text" class="form-control" value="<?= getvalue($data, 'BRANCH_NAME') ?>" disabled>
+                              <input type="text" class="form-control" name="branch" value="<?= getvalue($data, 'BRANCH_NAME') ?>">
                             </div>
 
                             <div class="form-group col-md-4">
                               <label for="accnumber">Account Number</label>
-                              <input type="text" class="form-control" name="accnumber" id="accnumber" value="<?= getvalue($data, 'MSB_ACCOUNT_NO') ?>" disabled>
+                              <input type="text" class="form-control" name="accnumber" id="accnumber" value="<?= getvalue($data, 'MSB_ACCOUNT_NO') ?>">
                             </div>
                           </div>
 
                           <div class="form-row">
                             <div class="form-group col-md-6">
                               <label for="acctype">Account Type</label>
-                              <!-- <input type="text" class="form-control" name="country" id="country" placeholder="country"> -->
-                              <input type="text" class="form-control" value="<?= getvalue($data, 'MSB_ACCOUNT_TYPE') ?>" disabled>
+                              <input type="text" class="form-control" name="acctype" value="<?= getvalue($data, 'MSB_ACCOUNT_TYPE') ?>">
                             </div>
                           </div>
                           <br />
@@ -609,10 +598,10 @@ if (isset($_POST['updateRefer'])) {
                           if ($supplierDetails['MSB_BANK_STATEMENT'] === "Pending") {
                           ?>
                             <button type="submit" id="approvebank" class="btn bg-success" data-bs-dismiss="modal" onclick="approvedbakdetails()" <?php if ($ButtonsDisabled) echo 'disabled'; ?>>Approve</button>
-
                           <?php
                           }
                           ?>
+                          <input type="submit" class="btn btn-info" name="updateBankBtn" id="updateBankBtn" value="Update Bank Details" <?php if ($ButtonsDisabled) echo 'disabled'; ?> />
                         </form>
 
                       </div>
@@ -776,11 +765,20 @@ if (isset($_POST['updateRefer'])) {
 
 
                   <div class="modal-footer">
-                    <input type="hidden" name="insert" value="vegitables" />
-                    <button type="submit" id="authBtn" class="btn bg-success" data-bs-dismiss="modal" <?= $supplierDetails['msd_status'] === "A" && $supplierDetails['MSB_BANK_STATEMENT'] === "Approved" ? "" : "disabled" ?>>Authorize</button>
-                    <button type="submit" class="btn btn-success" data-bs-dismiss="modal" onclick="closeModal()">Close</button>
-                    <!-- <button type="submit" class="btn btn-primary" name="insert" id="insert" value="vegitables">Save changes</button> -->
-                    <!-- <button type="button" class="btn btn-success" data-bs-dismiss="modal">Update</button> -->
+                    <?php
+                    $authorizeUrl = "allactivesuppliersview.php?suppliercode=" . urlencode($supplierDetails['msd_supplier_code']) . "&supmobile=" . urlencode($suppliermobile) . "&action=authorize";
+                    ?>
+                    <?php if (!$ButtonsDisabled): ?>
+                    <a href="<?= htmlspecialchars($authorizeUrl) ?>"
+                       class="btn bg-success"
+                       id="authBtn"
+                       onclick="return confirm('Confirm Authorize this supplier?')">
+                      Authorize
+                    </a>
+                    <?php else: ?>
+                    <button type="button" class="btn bg-success" id="authBtn" disabled>Authorize</button>
+                    <?php endif; ?>
+                    <button type="button" class="btn btn-success" onclick="closeModal()">Close</button>
                   </div>
                 </div>
                 </form>
@@ -807,15 +805,8 @@ if (isset($_POST['updateRefer'])) {
 </script>
 
 <script>
-  
   $('#approveBankDetails').on('click', function() {
 
-  })
-
-  $('#authBtn').on('click', function() {
-    $.get("/ajaxservice.php?func=confirmsupplier&suppliercode=<?= $supplierCode ?>&supmobile=<?= $suppliermobile ?>", function(data, status) {
-      popupMsgAuth();
-    });
   })
 
 function closeModal() {
