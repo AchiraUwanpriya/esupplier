@@ -107,69 +107,64 @@ class Controller
     {
         if ($_SESSION['mobile_number']) {
             include 'config.php';
-            $sql = "SELECT msd_supplier_code, msd_supplier_name, msd_status,msd_supply_category
+            $sql = "SELECT msd_supplier_code, msd_supplier_name, msd_status, msd_supply_category
             FROM mms_suppliers_details
             WHERE msd_mobileno =" . $_SESSION['mobile_number'];
+            
             if ($stmt = mysqli_query($con, $sql)) {
                 while ($row = mysqli_fetch_row($stmt)) {
                     $supCode = $row[0];
                     $supName = $row[1];
                     $supStatus = $row[2];
-                    $supCategory = $row[3];
+                    $supCategory = $row[3]; // This is the full category name like "Ration Items"
                 }
+                
+                // Convert full category name to short code
                 $supCategoryShort = '';
-              if ($supCategory === "Ration Items") {
-                   $supCategoryShort = "RI";
-               } elseif ($supCategory === "Medicine Items") 
-               {                  
-                  $supCategoryShort = "MI";
-              } elseif ($supCategory === "Cables") {
-                   $supCategoryShort = "CB";
-              } elseif ($supCategory === "PVC Items") {
-                   $supCategoryShort = "PI";
-              } else {
-                   // fallback: normalize first two letters (uppercased) so variable is never undefined
-                   $supCategoryShort = $supCategory ? strtoupper(substr(trim($supCategory), 0, 2)) : '';
-               }
+                if ($supCategory === "Ration Items") {
+                    $supCategoryShort = "RI";
+                } elseif ($supCategory === "Medicine Items") {                  
+                    $supCategoryShort = "MI";
+                } elseif ($supCategory === "Cables") {
+                    $supCategoryShort = "CB";
+                } elseif ($supCategory === "PVC Items") {
+                    $supCategoryShort = "PI";
+                } elseif ($supCategory === "Hardware Items") {
+                    $supCategoryShort = "HW";
+                } elseif ($supCategory === "Office Supplies") {
+                    $supCategoryShort = "OS";
+                } else {
+                    // fallback: normalize first two letters (uppercased)
+                    $supCategoryShort = $supCategory ? strtoupper(substr(trim($supCategory), 0, 2)) : '';
+                }
 
                 if ($supCode) {
                     $_SESSION['sup_code'] = $supCode;
                     $_SESSION['sup_name'] = $supName;
                     $_SESSION['sup_status'] = $supStatus;
                     $_SESSION['sup_category'] = $supCategoryShort;
+                    
+                    // Also store the full category name for display purposes
+                    $_SESSION['sup_category_full'] = $supCategory;
                 } else {
                     unset($_SESSION['sup_code']);
                     unset($_SESSION['sup_name']);
                     unset($_SESSION['sup_status']);
                     unset($_SESSION['sup_category']);
+                    unset($_SESSION['sup_category_full']);
                 }
                 return $supStatus;
             }
             if ($stmt === false) {
-                // die( print_r( sqlsrv_errors(), true));
                 die("database error:" . mysqli_error($con));
             }
 
             // Make the first (and in this case, only) row of the result set available for reading.
             if (mysqli_fetch_row($stmt) === false) {
-                // die( print_r( sqlsrv_errors(), true));
                 die("database error:" . mysqli_error($con));
             }
-
-            // Get the row fields. Field indices start at 0 and must be retrieved in order.
-            // Retrieving row fields by name is not supported by sqlsrv_get_field.
-
-
-
-            // $supCode = sqlsrv_get_field( $stmt, 0);
-            // $supName = sqlsrv_get_field( $stmt, 1);
-
-            // var_dump($supName);
-            // die();
-
-
-
         }
     }
 }
 $controller = new Controller();
+?>

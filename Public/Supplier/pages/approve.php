@@ -1,6 +1,7 @@
 <?php
-// File: pages/approve.php
+// File: public/supplier/pages/approve.php
 ?>
+
 <fieldset>
     <div class="form-card">
         <!-- Step indicator - Step 1 - 3  -->

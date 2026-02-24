@@ -2,8 +2,9 @@
 session_start();
 date_default_timezone_set('Asia/Colombo');
 
-// ========== START: Add this code right here after session_start() ==========
-include_once 'helper.php';
+// Include backend helper and db
+require_once dirname(__DIR__) . '/backend/common/helper.php';
+require_once dirname(__DIR__) . '/backend/common/db.php';
 
 if (!isset($_SESSION['sup_code'])) {
     header('Location: index.php');
@@ -15,26 +16,42 @@ if (!isset($_SESSION['sup_status']) || $_SESSION['sup_status'] === "A") {
     exit();
 }
 
+// Get database connection
+$con = Database::getInstance();
+
 // Ensure category is in session
 if (!isset($_SESSION['sup_category']) && isset($_SESSION['sup_code'])) {
-    include 'config.php';
     $supplier_code = $_SESSION['sup_code'];
     
     // Try to get from pending details
-    $query = "SELECT msd_supply_category FROM mms_supplier_pending_details WHERE msd_supplier_code = '$supplier_code'";
-    $result = mysqli_query($con, $query);
-    
-    if ($result && mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
-        $_SESSION['sup_category'] = $row['msd_supply_category'];
-    } else {
-        // Try from approved suppliers
-        $query = "SELECT msd_supply_category FROM mms_suppliers_details WHERE msd_supplier_code = '$supplier_code'";
-        $result = mysqli_query($con, $query);
+    $query = "SELECT msd_supply_category FROM mms_supplier_pending_details WHERE msd_supplier_code = ?";
+    $stmt = $con->prepare($query);
+    if ($stmt) {
+        $stmt->bind_param("s", $supplier_code);
+        $stmt->execute();
+        $result = $stmt->get_result();
         
-        if ($result && mysqli_num_rows($result) > 0) {
-            $row = mysqli_fetch_assoc($result);
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
             $_SESSION['sup_category'] = $row['msd_supply_category'];
+        }
+        $stmt->close();
+    }
+    
+    // If not found in pending, check approved suppliers
+    if (!isset($_SESSION['sup_category'])) {
+        $query = "SELECT msd_supply_category FROM mms_suppliers_details WHERE msd_supplier_code = ?";
+        $stmt = $con->prepare($query);
+        if ($stmt) {
+            $stmt->bind_param("s", $supplier_code);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result && $result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $_SESSION['sup_category'] = $row['msd_supply_category'];
+            }
+            $stmt->close();
         }
     }
 }
@@ -45,8 +62,6 @@ if (isset($_SESSION['sup_category'])) {
     echo "<script>console.log('Debug - User Category: " . $_SESSION['sup_category'] . "');</script>";
 } else {
     echo "<script>console.log('Debug - No category set in session');</script>";
-}
-// ========== END of added code ==========
 
 include 'config.php';
 
