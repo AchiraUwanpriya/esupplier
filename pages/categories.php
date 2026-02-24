@@ -25,7 +25,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- Vegetables -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0 bg-light" style="width: 15rem;">
             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#vegModal">
-                <img class="card-img-top pt-4" src="./static/img/vegetable.png" style="width: 80px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/vegetable.png" style="width: 80px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title" style="text-decoration-line: none;">VEGETABLE ITEMS</h5>
                 </div>
@@ -35,7 +35,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- Spices -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0" style="width: 15rem;">
             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#spicesModal">
-                <img class="card-img-top pt-4" src="./static/img/spice.png" style="width: 80px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/spice.png" style="width: 80px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">SPICES</h5>
                 </div>
@@ -45,7 +45,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- Fish -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0 bg-light" style="width: 15rem;">
             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#fishModal">
-                <img class="card-img-top pt-4" src="./static/img/fish.png" style="width: 80px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/fish.png" style="width: 80px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">FISH</h5>
                 </div>
@@ -55,7 +55,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- Dry Fish -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0" style="width: 15rem;">
             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#dryfishModal">
-                <img class="card-img-top pt-4" src="./static/img/dried-fish.png" style="width: 80px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/dried-fish.png" style="width: 80px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">DRY FISH</h5>
                 </div>
@@ -65,7 +65,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- Dry Items -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0 bg-light" style="width: 15rem;">
             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#dryItemsModal">
-                <img class="card-img-top pt-4" src="./static/img/dried-item.png" style="width: 68px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/dried-item.png" style="width: 68px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">DRY ITEMS</h5>
                 </div>
@@ -75,7 +75,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- Rice -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0 " style="width: 15rem;">
             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#riceModal">
-                <img class="card-img-top pt-4" src="./static/img/rice.png" style="width: 68px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/rice.png" style="width: 68px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">RICE</h5>
                 </div>
@@ -85,7 +85,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- Meat -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0 bg-light" style="width: 15rem;">
             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#chickenModal">
-                <img class="card-img-top pt-4" src="./static/img/chicken-leg.png" style="width: 68px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/chicken-leg.png" style="width: 68px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">MEAT</h5>
                 </div>
@@ -95,7 +95,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- Miscellaneous Items -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0" style="width: 15rem;">
             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#wrappingpModal">
-                <img class="card-img-top pt-4" src="./static/img/gift-wrapping.png" style="width: 68px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/gift-wrapping.png" style="width: 68px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">MISCELLANEOUS ITEMS</h5>
                 </div>
@@ -110,7 +110,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- PVC Items - Show for PVC users AND general users (but not Medicine users) -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0 bg-light" style="width: 15rem;">
             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#pvcModal">
-                <img class="card-img-top pt-4" src="./static/img/Pvc.png" style="width: 68px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/Pvc.png" style="width: 68px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">PVC ITEMS</h5>
                 </div>
@@ -122,7 +122,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
          <!-- Cables -->
             <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0 bg-light" style="width: 15rem;">
                 <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#cableModal">
-                    <img class="card-img-top pt-4" src="./static/img/cables.png" style="width: 68px;" alt="Card image cap">
+                    <img class="card-img-top pt-4" src="../static/img/cables.png" style="width: 68px;" alt="Card image cap">
                     <div class="card-body">
                         <h5 class="card-title">CABLES</h5>
                     </div>
@@ -134,7 +134,7 @@ $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : 
         <!-- Medicine Items - Show for Medicine users AND general users (but not PVC users) -->
         <div class="card rounded shadow-sm col-2 mb-4 mb-lg-0" style="width: 15rem;">
             <a href="" data-bs-toggle="modal" data-bs-target="#medicineModal">
-                <img class="card-img-top pt-4" src="./static/img/medicine.png" style="width: 68px;" alt="Card image cap">
+                <img class="card-img-top pt-4" src="../static/img/medicine.png" style="width: 68px;" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">MEDICINE ITEMS</h5>
                 </div>

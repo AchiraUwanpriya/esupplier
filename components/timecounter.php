@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include dirname(__DIR__) . '/config.php';
 $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : '';
 
 // $tsql = "select mtd_start_date, mtd_end_date, mtd_bidclose_date, mtd_tender_no from  mms_tender_details where mtd_status = 'A'";
