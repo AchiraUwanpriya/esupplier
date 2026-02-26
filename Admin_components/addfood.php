@@ -4,17 +4,65 @@ session_start();
 // }
 ?>
 <?php
-include 'config.php';
+include '../config.php';
 
 if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_SESSION['entry'])) {
-	header('Location: admin.php');
+	header('Location: ../admin.php');
 	exit();
 }
 
 $entry = $_SESSION['entry'];
-?>
 
-<!DOCTYPE html>
+// Include query functions
+require_once __DIR__ . '/../backend/queries/material_catalogue_queries.php';
+
+// ============ PROCESS POST REQUESTS (INSERT/UPDATE) ============
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+	
+	// Handle UPDATE
+	if (isset($_POST['updatebtn'])) {
+		$sup_code = $_SESSION['mobile_number'];
+		$date_now = date('Y-m-d');
+		
+		$result = updateMaterial(
+			$con,
+			$_POST['MaterialCode'],
+			$_POST['Description'],
+			$_POST['MaterialSpec'],
+			$_POST['Status'],
+			$sup_code,
+			$date_now
+		);
+		
+		if ($result['status']) {
+			echo $result['message'];
+			header('Refresh: 1; url=' . $_SERVER['REQUEST_URI']);
+		} else {
+			echo $result['message'];
+		}
+		exit;
+	}
+	
+	// Handle INSERT
+	if (isset($_POST['insertbtn'])) {
+	$result = insertMaterial(
+		$con,
+		$_POST['MaterialCode'],
+		$_POST['Description'],
+		$_POST['MaterialSpec'],
+		$_POST['Unit'],
+		$_POST['CatCode']
+	);
+	if ($result['status']) {
+		echo $result['message'];
+		header('Refresh: 1; url=' . $_SERVER['REQUEST_URI']);
+	} else {
+		echo $result['message'];
+	}
+	exit;
+}
+}
+?>
 <html lang="en">
 
 <head>
@@ -22,7 +70,7 @@ $entry = $_SESSION['entry'];
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<link rel="shortcut icon" href="./static/img/2.svg" />
+	<link rel="shortcut icon" href="../static/img/2.svg" />
 
 	<title>eSupplier-CDL</title>
 
@@ -31,15 +79,15 @@ $entry = $_SESSION['entry'];
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-	<link href="./static/css/app.css" rel="stylesheet">
-	<link href="./static/css/main.css" rel="stylesheet">
+	<link href="../static/css/app.css" rel="stylesheet">
+	<link href="../static/css/main.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
-	<script src="./static/js/jquery-3.3.1.min.js"></script>
-	<script src="./static/js/jquery.validate.min.js"></script>
-	<script src="./static/js/jquery.validate.unobtrusive.min.js"></script>
+	<script src="../static/js/jquery-3.3.1.min.js"></script>
+	<script src="../static/js/jquery.validate.min.js"></script>
+	<script src="../static/js/jquery.validate.unobtrusive.min.js"></script>
 
-	<script src="./static/js/app.js"></script>
+	<script src="../static/js/app.js"></script>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -52,13 +100,13 @@ $entry = $_SESSION['entry'];
 		}
 
 		function selectProduct(meterialCode, desc, spec, unit, sts) {
-			//console.log(meterialCode,desc, spec);
-			$("input#MaterialCode").val(meterialCode)
-			$('input#Description').val(desc)
-			$('input#MaterialSpec').val(spec)
-			$('input#Unit').val(unit)
-			$('input#stsactive').attr('checked', sts)
-			$('input#stsinactive').attr('checked', !sts)
+			$("#MaterialCode_hidden").val(meterialCode);
+			$("#MaterialCode").val(meterialCode);
+			$('#Description').val(desc);
+			$('#MaterialSpec').val(spec);
+			$('#Unit').val(unit);
+			$('#stsactive').attr('checked', sts);
+			$('#stsinactive').attr('checked', !sts);
 		}
 	</script>
 
@@ -93,9 +141,9 @@ $entry = $_SESSION['entry'];
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="adminview.php">
+				<a class="sidebar-brand" href="../adminview.php">
 					<!-- <span class="align-middle">eSupplier-CDL</span> -->
-					<center><img src="./static/img/8.png" class="mt-3" style=" width: 100%; padding-right: 30px;" alt=""></center>
+					<center><img src="../static/img/8.png" class="mt-3" style=" width: 100%; padding-right: 30px;" alt=""></center>
 				</a>
 
 				<ul class="sidebar-nav">
@@ -141,7 +189,7 @@ $entry = $_SESSION['entry'];
 				<div class="sidebar-cta">
 					<div class="sidebar-cta-content">
 						<div class="d-grid">
-							<a href="adminlogout.php" class="btn btn-primary" onclick="logoutfunction()">Logout</a>
+							<a href="../adminlogout.php" class="btn btn-primary" onclick="logoutfunction()">Logout</a>
 
 						</div>
 					</div>
@@ -170,7 +218,7 @@ $entry = $_SESSION['entry'];
 							</a>
 
 							<a class="nav-link d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-								<img src="./static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark"><?php echo $_SESSION['name'] ?></span>
+								<img src="../static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark"><?php echo $_SESSION['name'] ?></span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
 								<!-- <a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="user"></i> Profile</a> -->
@@ -203,7 +251,7 @@ $entry = $_SESSION['entry'];
 
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0 bg-light" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#exampleModalScrollable">
-								<img class="card-img-top pt-4" src="./static/img/vegetable.png" style="width: 80px; " alt="Card image cap ">
+								<img class="card-img-top pt-4" src="../static/img/vegetable.png" style="width: 80px; " alt="Card image cap ">
 								<div class="card-body">
 									<h5 class="card-title" style="text-decoration-line: none;">VEGETABLE ITEMS TENDER</h5>
 								</div>
@@ -214,7 +262,7 @@ $entry = $_SESSION['entry'];
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0" style="width: 18rem;">
 
 							<a href="" data-bs-toggle="modal" data-bs-target="#exampleModalScrollable1">
-								<img class="card-img-top pt-4" src="./static/img/spice.png" style="width: 80px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/spice.png" style="width: 80px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">SPICES TENDER</h5>
 								</div>
@@ -223,7 +271,7 @@ $entry = $_SESSION['entry'];
 
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0 bg-light" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#exampleModalScrollable2">
-								<img class="card-img-top pt-4" src="./static/img/fish.png" style="width: 80px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/fish.png" style="width: 80px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">FISH TENDER</h5>
 								</div>
@@ -232,7 +280,7 @@ $entry = $_SESSION['entry'];
 
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#exampleModalScrollable3">
-								<img class="card-img-top pt-4" src="./static/img/dried-fish.png" style="width: 80px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/dried-fish.png" style="width: 80px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">DRY FISH TENDER</h5>
 								</div>
@@ -241,7 +289,7 @@ $entry = $_SESSION['entry'];
 
 						<!-- <div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0 bg-light" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#cocoilcreamModal">
-								<img class="card-img-top pt-4" src="./static/img/coconut-oil.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/coconut-oil.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">COCONUT OIL & COCONUT CREAMER</h5>
 								</div>
@@ -254,7 +302,7 @@ $entry = $_SESSION['entry'];
 						<!-- dry items -->
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#dryItemsModal">
-								<img class="card-img-top pt-4" src="./static/img/dried-item.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/dried-item.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">DRY ITEMS</h5>
 								</div>
@@ -264,7 +312,7 @@ $entry = $_SESSION['entry'];
 						<!-- coconut -->
 						<!-- <div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0 bg-light" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#coconutModal">
-								<img class="card-img-top pt-4" src="./static/img/coconut.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/coconut.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">COCONUT</h5>
 								</div>
@@ -274,7 +322,7 @@ $entry = $_SESSION['entry'];
 						<!-- eggs -->
 						<!-- <div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#eggsModal">
-								<img class="card-img-top pt-4" src="./static/img/eggs.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/eggs.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">EGGS</h5>
 								</div>
@@ -284,7 +332,7 @@ $entry = $_SESSION['entry'];
 						<!-- rice -->
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0 bg-light" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#riceModal">
-								<img class="card-img-top pt-4" src="./static/img/rice.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/rice.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">RICE</h5>
 								</div>
@@ -294,7 +342,7 @@ $entry = $_SESSION['entry'];
 						<!-- chicken -->
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#chickenModal">
-								<img class="card-img-top pt-4" src="./static/img/chicken-leg.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/chicken-leg.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">MEAT</h5>
 								</div>
@@ -304,7 +352,7 @@ $entry = $_SESSION['entry'];
 						<!-- wrapping papers -->
 						<!-- <div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0 bg-light" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#wrappingpModal">
-								<img class="card-img-top pt-4" src="./static/img/gift-wrapping.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/gift-wrapping.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">WRAPPING PAPERS</h5>
 								</div>
@@ -313,7 +361,7 @@ $entry = $_SESSION['entry'];
 
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0 bg-light" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#wrappingpModal">
-								<img class="card-img-top pt-4" src="./static/img/gift-wrapping.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/gift-wrapping.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">MISCELLANEOUS ITEMS</h5>
 								</div>
@@ -327,7 +375,7 @@ $entry = $_SESSION['entry'];
 						<!-- Pvc items -->
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#pvcItemsModal">
-								<img class="card-img-top pt-4" src="./static/img/Pvc.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/Pvc.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">PVC ITEMS</h5>
 								</div>
@@ -337,7 +385,7 @@ $entry = $_SESSION['entry'];
 						<!-- medicine items -->
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0 bg-light" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#medItemsModal">
-								<img class="card-img-top pt-4" src="./static/img/medicine.png" style="width: 68px;" alt="Card image cap">
+								<img class="card-img-top pt-4" src="../static/img/medicine.png" style="width: 68px;" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">MEDICINE ITEMS</h5>
 								</div>
@@ -347,13 +395,7 @@ $entry = $_SESSION['entry'];
 						<!-- cables -->
 						<div class="card rounded shadow-sm col-lg-3 col-md-6 mb-4 mb-lg-0" style="width: 18rem;">
 							<a href="" data-bs-toggle="modal" data-bs-target="#cablesModal">
-								<img class="card-img-top pt-4" src="./static/img/cables.png" style="width: 68px;" alt="Card image cap">
-								<div class="card-body">
-									<h5 class="card-title">CABLES</h5>
-								</div>
-							</a>
-						</div>
-
+						<img class="card-img-top pt-4" src="../static/img/cables.png" style="width: 68px;" alt="Card image cap">
 					</div>
 
 
@@ -404,74 +446,10 @@ $entry = $_SESSION['entry'];
 				</div>
 			</main>
 			<!-- footer -->
-			<?php include './components/footer.php' ?>
+			<?php include '../components/footer.php' ?>
 		</div>
 	</div>
 	</form>
-
-	<!-- UPDATE MODAL -->
-	<?php
-	include 'config.php';
-	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-		if (isset($_POST['updatebtn'])) {
-
-			//   $MaterialCode = $_POST['MaterialCode'];
-			//   $Description = $_POST['Description'];
-			//   $MaterialSpec = $_POST['MaterialSpec'];
-
-			//$sup_code = $_SESSION["sup_code"];
-			$sup_code = $_SESSION['User'];
-			$date_now = date('Y-m-d');
-			// if($rows !== null && $rows['Description'] === $MMC_DESCRIPTION && $rows['MaterialSpec'] === $MMC_MATERIAL_SPEC && $rows['Status'] === $MMC_STATUS){
-			// continue;
-			// }
-			$query = "UPDATE mms_material_catalogue SET MMC_DESCRIPTION='" . $_POST['Description'] . "', MMC_MATERIAL_SPEC='" . $_POST['MaterialSpec'] . "', MMC_STATUS='" . $_POST['Status'] . "'
-							,updated_by='$sup_code',updated_date='$date_now' WHERE MMC_MATERIAL_CODE='" . $_POST['MaterialCode'] . "'";
-
-			//  $query_run = sqlsrv_query($con,$query);
-			$query_run = mysqli_query($con, $query);
-
-			if ($query_run) {
-				echo "Data Updated Successfully!";
-			} else {
-				echo "Error";
-			}
-		}
-	}
-	?>
-
-	<?php
-
-	include 'config.php';
-	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-		if (isset($_POST['insertbtn'])) {
-
-			$MaterialCode = $_POST['MaterialCode'];
-			$Description = $_POST['Description'];
-			$MaterialSpec = $_POST['MaterialSpec'];
-			$BalanceQty = $_POST['BalanceQty'];
-			$StockCat = $_POST['StockCat'];
-			$BinLocation = $_POST['BinLocation'];
-			$Unit = $_POST['Unit'];
-
-
-
-
-			$query = "INSERT INTO mms_material_catalogue (MMC_MATERIAL_CODE,MMC_DESCRIPTION,MMC_MATERIAL_SPEC) VALUES (' $MaterialCode','$Description', '$MaterialSpec','$Unit')";
-			// $query_run = sqlsrv_query($con,$query);
-			$query_run = mysqli_query($con, $query);
-
-			if ($query_run) {
-				echo "Data Inserted Successfully!";
-			} else {
-				echo "Error";
-			}
-		}
-	}
-	?>
-
 
 	<!-- Food Update Modal - for all categories -->
 
@@ -487,39 +465,39 @@ $entry = $_SESSION['entry'];
 					<form id="veg2" method="POST">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" value="Material Code" hidden>
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" value="Material Code" disabled>
-									</div>
-									<div class="form-group row">
-										<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-										<div class="col-sm-10">
-											<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-										</div>
-									</div>
-									<div class="form-group row">
-										<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-										<div class="col-sm-10">
-											<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-										</div>
-									</div>
-									<div class="form-group row">
-										<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-										<div class="col-sm-10">
-											<input type="text" class="form-control-plaintext" name="Unit" id="Unit" readonly>
-										</div>
-									</div>
-									<div class="form-group row">
-										<label for="Status" class="col-sm-2 col-form-label">Status:</label>
-										<div class="col-sm-10">
-											<input type='Radio' name='Status' value='A' id="stsactive">Active
-											<input type='Radio' name='Status' value='I' id="stsinactive">Inactive
-										</div>
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode_hidden" value="Material Code" hidden>
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" value="Material Code" disabled>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control-plaintext" name="Unit" id="Unit" readonly>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label">Status:</label>
+								<div class="col-sm-10">
+									<input type='Radio' name='Status' value='A' id="stsactive">Active
+									<input type='Radio' name='Status' value='I' id="stsinactive">Inactive
+								</div>
+							</div>
 						</table>
 				</div>
 				<div class="modal-footer">
@@ -555,14 +533,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content" data-backdrop="static">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">VEGETABLE ADD TENDER</h2>
-					<img src="./static/img/vegetable.png" style="width: 100px;" alt="">
+					<img src="../static/img/vegetable.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -654,41 +632,41 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">VEGETABLE ADD TENDER</h2>
-					<img src="./static/img/vegetable.png" style="width: 80px;" alt="">
+					<img src="../static/img/vegetable.png" style="width: 80px;" alt="">
 
 
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<!-- hidden category code -->
+						<input type="hidden" name="CatCode" value="V">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -720,14 +698,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">SPICES ADD TENDER</h2>
-					<img src="./static/img/spice.png" style="width: 100px;" alt="">
+					<img src="../static/img/spice.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -821,7 +799,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">SPICES UPDATE TENDER</h2>
-					<img src="./static/img/spice.png" style="width: 80px;" alt="">
+					<img src="../static/img/spice.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -829,35 +807,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="S">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -889,14 +866,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">FISH ADD TENDER</h2>
-					<img src="./static/img/fish.png" style="width: 80px;" alt="">
+					<img src="../static/img/fish.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -989,7 +966,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">FISH UPDATE TENDER</h2>
-					<img src="./static/img/fish.png" style="width: 80px;" alt="">
+					<img src="../static/img/fish.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -997,35 +974,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="F">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -1057,14 +1033,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">DRY FISH ADD TENDER</h2>
-					<img src="./static/img/dried-fish.png" style="width: 100px;" alt="">
+					<img src="../static/img/dried-fish.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -1156,7 +1132,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">DRY FISH UPDATE TENDER</h2>
-					<img src="./static/img/dried-fish.png" style="width: 80px;" alt="">
+					<img src="../static/img/dried-fish.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -1164,35 +1140,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="D">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -1223,14 +1198,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">OIL & COCONUT CREAMER</h2>
-					<img src="./static/img/coconut-oil.png" style="width: 100px;" alt="">
+					<img src="../static/img/coconut-oil.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -1318,7 +1293,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">UPDATE OIL & COCONUT CREAMER</h2>
-					<img src="./static/img/coconut-oil.png" style="width: 80px;" alt="">
+					<img src="../static/img/coconut-oil.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -1326,35 +1301,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="O">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -1389,14 +1363,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">DRY ITEMS</h2>
-					<img src="./static/img/dried-item.png" style="width: 100px;" alt="">
+					<img src="../static/img/dried-item.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -1481,7 +1455,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">UPDATE DRY ITEMS</h2>
-					<img src="./static/img/dried-item.png" style="width: 80px;" alt="">
+					<img src="../static/img/dried-item.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -1489,35 +1463,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="Y">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -1549,14 +1522,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">COCONUT</h2>
-					<img src="./static/img/coconut.png" style="width: 100px;" alt="">
+					<img src="../static/img/coconut.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -1639,7 +1612,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">UPDATE COCONUT</h2>
-					<img src="./static/img/coconut.png" style="width: 80px;" alt="">
+					<img src="../static/img/coconut.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -1647,35 +1620,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="C">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -1707,14 +1679,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">EGGS LIST</h2>
-					<img src="./static/img/eggs.png" style="width: 100px;" alt="">
+					<img src="../static/img/eggs.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -1806,7 +1778,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">EGGS ITEMS UPDATE</h2>
-					<img src="./static/img/eggs.png" style="width: 80px;" alt="">
+					<img src="../static/img/eggs.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -1814,34 +1786,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="E">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
+							</div>
 						</table>
 				</div>
 				<div class="modal-footer">
@@ -1871,14 +1843,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">RICE LIST</h2>
-					<img src="./static/img/rice.png" style="width: 100px;" alt="">
+					<img src="../static/img/rice.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -1970,7 +1942,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">RICE UPDATE</h2>
-					<img src="./static/img/rice.png" style="width: 80px;" alt="">
+					<img src="../static/img/rice.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -1978,35 +1950,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="R">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -2038,14 +2009,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">MEAT LIST</h2>
-					<img src="./static/img/chicken-leg.png" style="width: 100px;" alt="">
+					<img src="../static/img/chicken-leg.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -2130,7 +2101,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">MEAT UPDATE</h2>
-					<img src="./static/img/chicken-leg.png" style="width: 80px;" alt="">
+					<img src="../static/img/chicken-leg.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -2138,35 +2109,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="H">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -2198,14 +2168,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">MISCELLANEOUS ITEMS</h2>
-					<img src="./static/img/gift-wrapping.png" style="width: 100px;" alt="">
+					<img src="../static/img/gift-wrapping.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -2293,7 +2263,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">Miscellaneous  Items Add</h2>
-					<img src="./static/img/gift-wrapping.png" style="width: 80px;" alt="">
+					<img src="../static/img/gift-wrapping.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -2301,35 +2271,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="M">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -2356,19 +2325,19 @@ $entry = $_SESSION['entry'];
 	<!-- end main modal wrapping papers -->
   
      <!-- Start Modal PVC items -->
-	<div class="modal fade" id="pvcItemsModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+	<div class="modal fade" id="pvcItemsModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle">
 		<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">PVC ITEMS</h2>
-					<img src="./static/img/Pvc.png" style="width: 100px;" alt="">
+					<img src="../static/img/Pvc.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -2453,7 +2422,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">UPDATE PVC ITEMS</h2>
-					<img src="./static/img/Pvc.png" style="width: 80px;" alt="">
+					<img src="../static/img/Pvc.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -2461,35 +2430,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="P">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -2520,14 +2488,14 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">MEDICINE ITEMS</h2>
-					<img src="./static/img/medicine.png" style="width: 100px;" alt="">
+					<img src="../static/img/medicine.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -2612,7 +2580,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">UPDATE MEDICINE ITEMS</h2>
-					<img src="./static/img/medicine.png" style="width: 80px;" alt="">
+					<img src="../static/img/medicine.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -2620,35 +2588,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="I">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>
@@ -2675,19 +2642,19 @@ $entry = $_SESSION['entry'];
 
 
      <!-- Start Modal cables -->
-	<div class="modal fade" id="cablesModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+	<div class="modal fade" id="cablesModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle">
 		<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">CABLES</h2>
-					<img src="./static/img/cables.png" style="width: 100px;" alt="">
+					<img src="../static/img/cables.png" style="width: 100px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<form id="veg" action="dashboard.php?stage=2" method="POST">
+					<form id="veg" method="POST">
 						<table class="table table-hover">
 							<tr>
 								<th><u>
@@ -2772,7 +2739,7 @@ $entry = $_SESSION['entry'];
 			<div class="modal-content">
 				<div class="modal-header">
 					<h2 class="modal-title text-info" id="exampleModalScrollableTitle">UPDATE CABLES</h2>
-					<img src="./static/img/cable.png" style="width: 80px;" alt="">
+					<img src="../static/img/cables.png" style="width: 80px;" alt="">
 
 					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -2780,35 +2747,34 @@ $entry = $_SESSION['entry'];
 				</div>
 				<div class="modal-body">
 					<form id="veg2" method="POST">
+						<input type="hidden" name="CatCode" value="B">
 						<table class="table table-hover">
 
-
-							<form id="food" name="food" method="POST">
-								<div class="form-group row">
-									<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
-									</div>
+							<!-- inner form removed -->
+							<div class="form-group row">
+								<label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialCode" id="MaterialCode" placeholder="Material Code">
 								</div>
-								<div class="form-group row">
-									<label for="Description" class="col-sm-2 col-form-label">Description:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Description" class="col-sm-2 col-form-label">Description:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
 								</div>
-								<div class="form-group row">
-									<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="MaterialSpec" class="col-sm-2 col-form-label">Mat Spec:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="MaterialSpec" id="MaterialSpec" placeholder="Material Spec">
 								</div>
-								<div class="form-group row">
-									<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
-									<div class="col-sm-10">
-										<input type="text" readonly class="form-control-plaintext" id="Unit" value="KGS">
-									</div>
+							</div>
+							<div class="form-group row">
+								<label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
+								<div class="col-sm-10">
+									<input type="text" readonly class="form-control-plaintext" name="Unit" id="Unit" value="KGS">
 								</div>
-
+							</div>
 
 						</table>
 				</div>

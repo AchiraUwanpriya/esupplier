@@ -109,7 +109,7 @@ include_once 'backend/allactivesuppliers_controller.php';
             Food Managment
           </li>
           <li class="sidebar-item">
-            <a class="sidebar-link" href="addfood.php">
+            <a class="sidebar-link" href="Admin_components/addfood.php">
               <i class="align-middle" data-feather="shopping-cart"></i> <span class="align-middle">Add Food</span>
             </a>
           </li>
