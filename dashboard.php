@@ -1124,7 +1124,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE  
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL)
+										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('V') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										// $tsql = "SELECT MMC_DESCRIPTION, MMC_UNIT, MMC_MATERIAL_CODE ,MMC_CAT_CODE,MMC_STATUS,mms_tenderprice_transactions.mtt_price AS MMC_PRICE
@@ -1233,7 +1233,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL)
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('S') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
@@ -1325,7 +1325,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL)
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('F') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 
@@ -1420,7 +1420,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL)
+										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('D') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 										$stmt = mysqli_query($con, $tsql);
 										if ($stmt === false) {
@@ -1510,7 +1510,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'	
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL)
+										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('O') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 										$stmt = mysqli_query($con, $tsql);
 										if ($stmt === false) {
@@ -1605,7 +1605,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL)
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('Y') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
@@ -1695,7 +1695,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL)
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('C') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
@@ -1791,7 +1791,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL)
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('E') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
@@ -1884,7 +1884,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL )
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('R') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
@@ -1983,7 +1983,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL)
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('H') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
@@ -2076,7 +2076,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL)
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A'  AND mtd_type IS NULL LIMIT 1)
 										WHERE MMC_CAT_CODE in ('M') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
@@ -2172,7 +2172,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type='PI')
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type='PI' LIMIT 1)
 										WHERE MMC_CAT_CODE in ('P') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
@@ -2272,7 +2272,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type='MI')
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type='MI' LIMIT 1)
 										WHERE MMC_CAT_CODE in ('I') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
@@ -2354,7 +2354,7 @@ include './components/timecounter.php'
                                         LEFT JOIN mms_tenderprice_transactions 
                                             ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
                                             AND mtt_supplier_code = '$suppliercode'
-                                            AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type='MI')
+                                            AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type='MI' LIMIT 1)
                                         WHERE MMC_CAT_CODE in ('I') AND MMC_STATUS = 'A' 
                                         ORDER BY MMC_DESCRIPTION ASC";
 
@@ -2462,7 +2462,7 @@ include './components/timecounter.php'
 										FROM mms_material_catalogue
 										LEFT JOIN mms_tenderprice_transactions ON mms_tenderprice_transactions.mtt_material_code = mms_material_catalogue.MMC_MATERIAL_CODE 
 										AND mtt_supplier_code = '$suppliercode'
-										AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type='CB')
+AND mtt_tender_no = (SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type='CB' LIMIT 1)
 										WHERE MMC_CAT_CODE in ('B') AND MMC_STATUS = 'A' ORDER BY MMC_DESCRIPTION ASC";
 
 										$stmt = mysqli_query($con, $tsql);
