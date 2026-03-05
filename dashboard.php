@@ -36,6 +36,21 @@ if (!isset($_SESSION['sup_category']) && isset($_SESSION['sup_code'])) {
 $user_category = $_SESSION['sup_category'] ?? '';
 // ========== Fetch the category forms for this supplier ==========
 include 'config.php';
+
+function normalizeCategoryImagePath($path) {
+    $path = trim((string)$path);
+    if ($path === '') {
+        return './static/img/9.png';
+    }
+
+    $path = str_replace('\\', '/', $path);
+    if (!preg_match('/^(https?:\/\/|\.\/|\/)/i', $path)) {
+        $path = './' . ltrim($path, '/');
+    }
+
+    return $path;
+}
+
 $categories = [];
 if ($user_category) {
     $catQuery = "SELECT cat_code, display_name, image_path, sort_order 
@@ -47,6 +62,7 @@ if ($user_category) {
     mysqli_stmt_execute($stmt);
     $catResult = mysqli_stmt_get_result($stmt);
     while ($row = mysqli_fetch_assoc($catResult)) {
+        $row['image_url'] = normalizeCategoryImagePath($row['image_path'] ?? '');
         $categories[] = $row;
     }
     mysqli_stmt_close($stmt);
@@ -289,13 +305,18 @@ include './components/timecounter.php';
                                     <fieldset>
                                         <div class="form-card">
                                             <h2 class="fs-title">Select Category</h2>
-                                            <?php foreach ($categories as $cat): ?>
-                                                <button type="button" class="btn btn-primary category-btn" 
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#modal-<?= $cat['cat_code'] ?>">
-                                                    <?= htmlspecialchars($cat['display_name']) ?>
-                                                </button>
-                                            <?php endforeach; ?>
+                                            <div class="row g-3">
+                                                <?php foreach ($categories as $cat): ?>
+                                                    <div class="col-6 col-md-4 col-lg-3">
+                                                        <button type="button" class="btn btn-light w-100 border shadow-sm category-btn h-100"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#modal-<?= htmlspecialchars($cat['cat_code']) ?>">
+                                                            <img src="<?= htmlspecialchars($cat['image_url']) ?>" style="width: 64px; height: 64px; object-fit: contain;" alt="<?= htmlspecialchars($cat['display_name']) ?>">
+                                                            <div class="mt-2 fw-semibold text-dark"><?= htmlspecialchars($cat['display_name']) ?></div>
+                                                        </button>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
                                         </div>
                                         <input type="button" name="next" class="next action-button" value="Next" />
                                     </fieldset>
@@ -314,7 +335,7 @@ include './components/timecounter.php';
                 $catCode = $cat['cat_code'];
                 $modalId = 'modal-' . $catCode;
                 $displayName = $cat['display_name'];
-                $imagePath = $cat['image_path'];
+                $imagePath = $cat['image_url'];
             ?>
             <div class="modal fade" id="<?= $modalId ?>" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
