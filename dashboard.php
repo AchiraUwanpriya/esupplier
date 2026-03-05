@@ -63,6 +63,16 @@ if ($user_category) {
     $catResult = mysqli_stmt_get_result($stmt);
     while ($row = mysqli_fetch_assoc($catResult)) {
         $row['image_url'] = normalizeCategoryImagePath($row['image_path'] ?? '');
+        
+        // Fetch the unit type for this category (first item's unit)
+        $unitQuery = "SELECT DISTINCT MMC_UNIT FROM mms_material_catalogue WHERE MMC_CAT_CODE = ? AND MMC_STATUS = 'A' LIMIT 1";
+        $unitStmt = mysqli_prepare($con, $unitQuery);
+        mysqli_stmt_bind_param($unitStmt, 's', $row['cat_code']);
+        mysqli_stmt_execute($unitStmt);
+        mysqli_stmt_bind_result($unitStmt, $unit);
+        $row['unit'] = mysqli_stmt_fetch($unitStmt) ? $unit : '';
+        mysqli_stmt_close($unitStmt);
+        
         $categories[] = $row;
     }
     mysqli_stmt_close($stmt);
@@ -353,7 +363,7 @@ include './components/timecounter.php';
                                         <tr class="fixed">
                                             <th class="bg-success">Item Name</th>
                                             <th class="bg-success">Description</th>
-                                            <th class="bg-success">Unit</th>
+                                            <th class="bg-success">Unit <?php echo ($cat['unit'] !== '') ? '(' . htmlspecialchars($cat['unit']) . ')' : ''; ?></th>
                                             <th class="bg-success">Remarks</th>
                                             <th class="bg-success">Tender Price (Rs.)</th>
                                         </tr>
