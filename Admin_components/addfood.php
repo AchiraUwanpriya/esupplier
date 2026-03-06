@@ -26,18 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST['MaterialCode'],
             $_POST['Description'],
             $_POST['MaterialSpec'],
-            $_POST['Unit'],        // Added Unit parameter
+            $_POST['Unit'],
             $_POST['Status'],
             $sup_code,
             $date_now
         );
         
-        if ($result['status']) {
-            echo $result['message'];
-            header('Refresh: 1; url=' . $_SERVER['REQUEST_URI']);
-        } else {
-            echo $result['message'];
-        }
+        $_SESSION['flash_message'] = $result['message'];
+        $_SESSION['flash_type'] = $result['status'] ? 'success' : 'error';
+        
+        header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
     
@@ -51,12 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST['Unit'],
             $_POST['CatCode']
         );
-        if ($result['status']) {
-            echo $result['message'];
-            header('Refresh: 1; url=' . $_SERVER['REQUEST_URI']);
-        } else {
-            echo $result['message'];
-        }
+        
+        $_SESSION['flash_message'] = $result['message'];
+        $_SESSION['flash_type'] = $result['status'] ? 'success' : 'error';
+        
+        header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
 }
@@ -71,7 +68,7 @@ if ($units_result && mysqli_num_rows($units_result) > 0) {
     }
 }
 
-// ============ FIXED CATEGORY LIST (matching old UI) ============
+// ============ FIXED CATEGORY LIST ============
 $categories = [
     ['code' => 'V', 'name' => 'VEGETABLE ITEMS'],
     ['code' => 'Y', 'name' => 'DRY ITEMS'],
@@ -120,8 +117,9 @@ function getIcon($code) {
     <link href="../static/css/app.css" rel="stylesheet">
     <link href="../static/css/main.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
-    <!-- Custom card styling for a professional look -->
     <style>
         .category-card {
             transition: transform 0.2s, box-shadow 0.2s;
@@ -136,13 +134,13 @@ function getIcon($code) {
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
-       .category-card .card-img-top {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    margin: 20px auto 10px;
-    display: block;
-}
+        .category-card .card-img-top {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin: 20px auto 10px;
+            display: block;
+        }
         .category-card .card-body {
             text-align: center;
             padding: 1rem 0.5rem 1.5rem;
@@ -162,13 +160,11 @@ function getIcon($code) {
         .category-card a:hover {
             color: #007bff;
         }
-        /* Responsive grid improvements */
         .row-cards {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
         }
-        /* Unit dropdown styling */
         .unit-select {
             width: 100%;
             padding: 0.375rem 2.25rem 0.375rem 0.75rem;
@@ -196,24 +192,20 @@ function getIcon($code) {
     <script src="../static/js/jquery.validate.unobtrusive.min.js"></script>
     <script src="../static/js/app.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Modal Update Script -->
     <script>
-        function myFunctionVeg() {
-            alert("Data Inserted Successfully!!!");
-        }
-
         function selectProduct(materialCode, desc, spec, unit, sts) {
             $("#MaterialCode_hidden").val(materialCode);
             $("#MaterialCode").val(materialCode);
             $('#Description').val(desc);
             $('#MaterialSpec').val(spec);
-            $('#Unit').val(unit);  // Set the unit value
+            $('#Unit').val(unit);
             $('#stsactive').prop('checked', sts === true || sts === '1' || sts === 'A');
             $('#stsinactive').prop('checked', !(sts === true || sts === '1' || sts === 'A'));
         }
 
-        // Set category code in the global add modal before opening
         function setAddModalCatCode(catCode) {
             $('#addModalCatCode').val(catCode);
         }
@@ -225,7 +217,7 @@ function getIcon($code) {
 
 <body>
     <div class="wrapper">
-        <!-- Sidebar (unchanged) -->
+        <!-- Sidebar -->
         <nav id="sidebar" class="sidebar js-sidebar">
             <div class="sidebar-content js-simplebar">
                 <a class="sidebar-brand" href="../adminview.php">
@@ -282,7 +274,7 @@ function getIcon($code) {
                 <div class="container-fluid p-0">
                     <h1 class="h3 mb-3"><strong>eSupplier Add Food</strong></h1>
 
-                    <!-- Professional category cards -->
+                    <!-- Category cards -->
                     <div class="row row-cards g-4 justify-content-center" style="padding: 20px 0;">
                         <?php foreach ($categories as $cat): 
                             $code = $cat['code'];
@@ -302,19 +294,17 @@ function getIcon($code) {
                         <?php endforeach; ?>
                     </div>
 
-                    <!-- ========== CATEGORY MODALS (items fetched from DB) ========== -->
+                    <!-- Category Modals -->
                     <?php foreach ($categories as $cat): 
                         $code = $cat['code'];
                         $catName = $cat['name'];
                         $icon = getIcon($code);
-                        // Fetch materials for this category (if any)
                         $mat_query = "SELECT MMC_MATERIAL_CODE, MMC_DESCRIPTION, MMC_MATERIAL_SPEC, MMC_UNIT, MMC_STATUS
                                       FROM mms_material_catalogue
                                       WHERE MMC_CAT_CODE = '$code'
                                       ORDER BY MMC_DESCRIPTION";
                         $mat_result = mysqli_query($con, $mat_query);
                     ?>
-                        <!-- Modal for category <?php echo $code; ?> -->
                         <div class="modal fade" id="modal_<?php echo $code; ?>" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalLabel_<?php echo $code; ?>" aria-hidden="true">
                             <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
                                 <div class="modal-content">
@@ -376,7 +366,7 @@ function getIcon($code) {
                         </div>
                     <?php endforeach; ?>
 
-                    <!-- ========== GLOBAL UPDATE MODAL ========== -->
+                    <!-- Update Modal -->
                     <div class="modal fade" id="exampleModalScrollableupdate" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -436,7 +426,7 @@ function getIcon($code) {
                         </div>
                     </div>
 
-                    <!-- ========== GLOBAL ADD MODAL ========== -->
+                    <!-- Add Modal -->
                     <div class="modal fade" id="globalAddModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="globalAddModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -489,35 +479,52 @@ function getIcon($code) {
                             </div>
                         </div>
                     </div>
-                </div>
+
+                </div> <!-- container-fluid -->
             </main>
             <?php include '../components/footer.php'; ?>
-        </div>
-    </div>
+        </div> <!-- main -->
+    </div> <!-- wrapper -->
+
+    <!-- SweetAlert2 Flash Message -->
+    <?php if (isset($_SESSION['flash_message'])): 
+        $message = $_SESSION['flash_message'];
+        $type = $_SESSION['flash_type']; // 'success' or 'error'
+        unset($_SESSION['flash_message']);
+        unset($_SESSION['flash_type']);
+    ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: '<?php echo $type; ?>',
+                title: '<?php echo $type === 'success' ? 'Success' : 'Error'; ?>',
+                text: '<?php echo addslashes($message); ?>',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+        });
+    </script>
+    <?php endif; ?>
 
     <!-- Modal functions & focus fix -->
     <script>
         function modalfunction() {
-            // alert("Records Saved Successfully!!");
+            // No alert needed
         }
         function modalclosefunction() {
-            // alert("Are You Sure!!");
+            // No alert needed
         }
 
         $(document).ready(function() {
-            // Before modal hides, blur any focused element inside it
             $('.modal').on('hide.bs.modal', function () {
                 if ($(this).find(':focus').length) {
                     $(this).find(':focus').blur();
                 }
             });
-            
-            // After modal hides, double-check and move focus to body
             $('.modal').on('hidden.bs.modal', function () {
                 if ($(this).find(':focus').length) {
                     $(this).find(':focus').blur();
                 }
-                // Move focus to a safe element (e.g., body)
                 document.body.focus();
             });
         });
