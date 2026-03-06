@@ -503,6 +503,15 @@ include './components/timecounter.php'
 		});
 	</script>
 
+    <link href="./static/css/app.css" rel="stylesheet">
+    <link href="./static/css/main.css" rel="stylesheet">
+    <style>
+        table th { position: sticky; top: -20px; background-color: green; z-index: 5; }
+        .fade-scale { transition: all .25s linear; }
+        .popup-message { display: none; bottom: 20px; right: 20px; background-color: #fff; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); animation: popupAnimation 0.5s ease-out; }
+        @keyframes popupAnimation { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+        .modal-header { position: sticky; top: 0; z-index: 20; background-color: white; }
+    </style>
 </head>
 
 <!-- <body> -->
