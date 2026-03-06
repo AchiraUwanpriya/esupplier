@@ -190,8 +190,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
         echo json_encode(['status' => $success ? 'success' : 'error']);
     } else {
-        if ($success) echo "<script>alert('Data saved successfully!');</script>";
-        else echo "<script>alert('Error occurred while saving!');</script>";
+        if ($success) {
+            echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Data saved successfully!',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            </script>";
+        } else {
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Error occurred while saving!',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'OK'
+                });
+            </script>";
+        }
     }
     exit;
 }
@@ -209,6 +232,7 @@ include './components/timecounter.php';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css" />
     <script src="./static/js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./static/js/app.js"></script>
     <link href="./static/css/app.css" rel="stylesheet">
@@ -453,17 +477,34 @@ $(document).ready(function() {
             data: formData,
             dataType: 'json',
             success: function(response) {
-                var msgSpan = $('#lb-' + catCode);
                 if (response.status === 'success') {
-                    msgSpan.text('Data Saved Successfully').fadeIn().delay(1500).fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Data saved successfully',
+                        confirmButtonColor: '#3085d6',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didClose: function() {
+                            loadPreviewData();
+                        }
+                    });
                 } else {
-                    msgSpan.text('Save Failed').fadeIn().delay(1500).fadeOut();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to save data',
+                        confirmButtonColor: '#d33'
+                    });
                 }
-                // Optionally refresh the preview tabs
-                loadPreviewData();
             },
             error: function() {
-                $('#lb-' + catCode).text('Error').fadeIn().delay(1500).fadeOut();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred while saving',
+                    confirmButtonColor: '#d33'
+                });
             }
         });
     });
