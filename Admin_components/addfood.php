@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST['MaterialCode'],
             $_POST['Description'],
             $_POST['MaterialSpec'],
+            $_POST['Unit'],        // Added Unit parameter
             $_POST['Status'],
             $sup_code,
             $date_now
@@ -57,6 +58,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo $result['message'];
         }
         exit;
+    }
+}
+
+// ============ FETCH UNITS FROM DATABASE ============
+$units_query = "SELECT unit_code, unit_name FROM mms_units WHERE unit_status = 'A' ORDER BY unit_name";
+$units_result = mysqli_query($con, $units_query);
+$units = [];
+if ($units_result && mysqli_num_rows($units_result) > 0) {
+    while ($row = mysqli_fetch_assoc($units_result)) {
+        $units[] = $row;
     }
 }
 
@@ -157,6 +168,27 @@ function getIcon($code) {
             flex-wrap: wrap;
             justify-content: center;
         }
+        /* Unit dropdown styling */
+        .unit-select {
+            width: 100%;
+            padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            background-color: #fff;
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        }
+        .unit-select:focus {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+        }
     </style>
 
     <script src="../static/js/jquery-3.3.1.min.js"></script>
@@ -176,7 +208,7 @@ function getIcon($code) {
             $("#MaterialCode").val(materialCode);
             $('#Description').val(desc);
             $('#MaterialSpec').val(spec);
-            $('#Unit').val(unit);
+            $('#Unit').val(unit);  // Set the unit value
             $('#stsactive').prop('checked', sts === true || sts === '1' || sts === 'A');
             $('#stsinactive').prop('checked', !(sts === true || sts === '1' || sts === 'A'));
         }
@@ -298,7 +330,7 @@ function getIcon($code) {
                                                     <th><u><h5 class="fw-bold">Material Code</h5></u></th>
                                                     <th><u><h5 class="fw-bold">Description</h5></u></th>
                                                     <th><u><h5 class="fw-bold">Spec</h5></u></th>
-                                                    <th><u><h5 class="fw-bold">Unit1</h5></u></th>
+                                                    <th><u><h5 class="fw-bold">Unit</h5></u></th>
                                                     <th><u><h5 class="fw-bold">Action</h5></u></th>
                                                 </tr>
                                             </thead>
@@ -358,13 +390,13 @@ function getIcon($code) {
                                                 <label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
                                                 <div class="col-sm-10">
                                                     <input type="text" class="form-control" name="MaterialCode" id="MaterialCode_hidden" hidden>
-                                                    <input type="text" class="form-control" name="MaterialCode_display" id="MaterialCode" disabled>
+                                                    <input type="text" class="form-control" name="MaterialCode" id="MaterialCode" readonly>
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <label for="Description" class="col-sm-2 col-form-label">Description:</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
+                                                    <input type="text" class="form-control" name="Description" id="Description" placeholder="Description" required>
                                                 </div>
                                             </div>
                                             <div class="form-group row">
@@ -376,20 +408,27 @@ function getIcon($code) {
                                             <div class="form-group row">
                                                 <label for="Unit" class="col-sm-2 col-form-label">Unit:</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" class="form-control-plaintext" name="Unit" id="Unit" readonly>
+                                                    <select class="unit-select" name="Unit" id="Unit" required>
+                                                        <option value="">Select Unit</option>
+                                                        <?php foreach ($units as $unit): ?>
+                                                            <option value="<?php echo $unit['unit_code']; ?>">
+                                                                <?php echo $unit['unit_name'] . ' (' . $unit['unit_code'] . ')'; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Status:</label>
                                                 <div class="col-sm-10">
-                                                    <input type='radio' name='Status' value='A' id="stsactive"> Active
+                                                    <input type='radio' name='Status' value='A' id="stsactive" checked> Active
                                                     <input type='radio' name='Status' value='I' id="stsinactive"> Inactive
                                                 </div>
                                             </div>
                                         </table>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-secondary" onclick="modalclosefunction()">Close</button>
+                                    <button type="button" class="btn btn-secondary" onclick="modalclosefunction()" data-bs-dismiss="modal">Close</button>
                                     <button type="submit" name="updatebtn" id="updatebtn" class="btn btn-success" onclick="modalfunction()">Save changes</button>
                                 </div>
                                 </form>
@@ -430,13 +469,20 @@ function getIcon($code) {
                                             <div class="form-group row">
                                                 <label for="addUnit" class="col-sm-2 col-form-label">Unit:</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" readonly class="form-control-plaintext" name="Unit" id="addUnit" value="KGS">
+                                                    <select class="unit-select" name="Unit" id="addUnit" required>
+                                                        <option value="">Select Unit</option>
+                                                        <?php foreach ($units as $unit): ?>
+                                                            <option value="<?php echo $unit['unit_code']; ?>" <?php echo ($unit['unit_code'] == 'KGS') ? 'selected' : ''; ?>>
+                                                                <?php echo $unit['unit_name'] . ' (' . $unit['unit_code'] . ')'; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </table>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-secondary" onclick="modalclosefunction()">Close</button>
+                                    <button type="button" class="btn btn-secondary" onclick="modalclosefunction()" data-bs-dismiss="modal">Close</button>
                                     <button type="submit" name="insertbtn" id="insertbtn" class="btn btn-success" onclick="modalfunction()">Save changes</button>
                                 </div>
                                 </form>
