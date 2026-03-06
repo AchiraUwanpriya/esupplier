@@ -16,29 +16,18 @@
  * @return array Result array with status and message
  */
 function insertMaterial($con, $MaterialCode, $Description, $MaterialSpec, $Unit, $CatCode) {
-    // First check if material code already exists
-    $check_query = "SELECT MMC_MATERIAL_CODE FROM mms_material_catalogue WHERE MMC_MATERIAL_CODE = '$MaterialCode'";
-    $check_result = mysqli_query($con, $check_query);
-    
-    if (mysqli_num_rows($check_result) > 0) {
-        return [
-            'status' => false,
-            'message' => "Error: Material Code '$MaterialCode' already exists in the database!"
-        ];
-    }
-    
-    $query = "INSERT INTO mms_material_catalogue 
+	$query = "INSERT INTO mms_material_catalogue 
         (MMC_MATERIAL_CODE, MMC_DESCRIPTION, MMC_MATERIAL_SPEC, MMC_UNIT, MMC_STATUS, MMC_CAT_CODE, created_date) 
         VALUES 
         ('$MaterialCode', '$Description', '$MaterialSpec', '$Unit', 'A', '$CatCode', CURDATE())";
-    
-    $query_run = mysqli_query($con, $query);
-    
-    if ($query_run) {
-        return array('status' => true, 'message' => 'Data Inserted Successfully!');
-    } else {
-        return array('status' => false, 'message' => 'Error: ' . mysqli_error($con));
-    }
+	
+	$query_run = mysqli_query($con, $query);
+	
+	if ($query_run) {
+		return array('status' => true, 'message' => 'Data Inserted Successfully!');
+	} else {
+		return array('status' => false, 'message' => 'Error: ' . mysqli_error($con));
+	}
 }
 
 /**
@@ -48,29 +37,27 @@ function insertMaterial($con, $MaterialCode, $Description, $MaterialSpec, $Unit,
  * @param string $MaterialCode Material code (primary key)
  * @param string $Description Material description
  * @param string $MaterialSpec Material specification
- * @param string $Unit Unit of measurement
  * @param string $Status Material status (A/I)
  * @param string $UpdatedBy User ID who updated
  * @param string $UpdatedDate Date of update
  * @return array Result array with status and message
  */
-function updateMaterial($con, $MaterialCode, $Description, $MaterialSpec, $Unit, $Status, $UpdatedBy, $UpdatedDate) {
-    $query = "UPDATE mms_material_catalogue SET 
-        MMC_DESCRIPTION='" . $Description . "', 
-        MMC_MATERIAL_SPEC='" . $MaterialSpec . "', 
-        MMC_UNIT='" . $Unit . "',
-        MMC_STATUS='" . $Status . "',
-        updated_by='" . $UpdatedBy . "',
-        updated_date='" . $UpdatedDate . "' 
-    WHERE MMC_MATERIAL_CODE='" . $MaterialCode . "'";
-    
-    $query_run = mysqli_query($con, $query);
-    
-    if ($query_run) {
-        return array('status' => true, 'message' => 'Data Updated Successfully!');
-    } else {
-        return array('status' => false, 'message' => 'Error: ' . mysqli_error($con));
-    }
+function updateMaterial($con, $MaterialCode, $Description, $MaterialSpec, $Status, $UpdatedBy, $UpdatedDate) {
+	$query = "UPDATE mms_material_catalogue SET 
+	    MMC_DESCRIPTION='" . $Description . "', 
+	    MMC_MATERIAL_SPEC='" . $MaterialSpec . "', 
+	    MMC_STATUS='" . $Status . "',
+	    updated_by='" . $UpdatedBy . "',
+	    updated_date='" . $UpdatedDate . "' 
+	WHERE MMC_MATERIAL_CODE='" . $MaterialCode . "'";
+	
+	$query_run = mysqli_query($con, $query);
+	
+	if ($query_run) {
+		return array('status' => true, 'message' => 'Data Updated Successfully!');
+	} else {
+		return array('status' => false, 'message' => 'Error: ' . mysqli_error($con));
+	}
 }
 
 /**
@@ -81,8 +68,8 @@ function updateMaterial($con, $MaterialCode, $Description, $MaterialSpec, $Unit,
  * @return array Result from query or false on error
  */
 function getMaterialsByCategory($con, $CatCode) {
-    $query = "SELECT * FROM mms_material_catalogue WHERE MMC_CAT_CODE = '$CatCode' AND MMC_STATUS = 'A'";
-    return mysqli_query($con, $query);
+	$query = "SELECT * FROM mms_material_catalogue WHERE MMC_CAT_CODE = '$CatCode' AND MMC_STATUS = 'A'";
+	return mysqli_query($con, $query);
 }
 
 /**
@@ -92,8 +79,8 @@ function getMaterialsByCategory($con, $CatCode) {
  * @return array Result from query or false on error
  */
 function getAllActiveMaterials($con) {
-    $query = "SELECT * FROM mms_material_catalogue WHERE MMC_STATUS = 'A' ORDER BY MMC_CAT_CODE";
-    return mysqli_query($con, $query);
+	$query = "SELECT * FROM mms_material_catalogue WHERE MMC_STATUS = 'A' ORDER BY MMC_CAT_CODE";
+	return mysqli_query($con, $query);
 }
 
 /**
@@ -104,20 +91,7 @@ function getAllActiveMaterials($con) {
  * @return array Result from query or false on error
  */
 function getMaterialByCode($con, $MaterialCode) {
-    $query = "SELECT * FROM mms_material_catalogue WHERE MMC_MATERIAL_CODE = '$MaterialCode'";
-    return mysqli_query($con, $query);
-}
-
-/**
- * Check if material code already exists (useful for validation)
- * 
- * @param object $con Database connection
- * @param string $MaterialCode Material code to check
- * @return boolean True if exists, false if not
- */
-function checkMaterialExists($con, $MaterialCode) {
-    $check_query = "SELECT MMC_MATERIAL_CODE FROM mms_material_catalogue WHERE MMC_MATERIAL_CODE = '$MaterialCode'";
-    $check_result = mysqli_query($con, $check_query);
-    return (mysqli_num_rows($check_result) > 0);
+	$query = "SELECT * FROM mms_material_catalogue WHERE MMC_MATERIAL_CODE = '$MaterialCode'";
+	return mysqli_query($con, $query);
 }
 ?>
