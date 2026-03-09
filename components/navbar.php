@@ -43,15 +43,15 @@
                 <div class="nav-link d-none d-sm-inline-block">
                     <div class="switcher notranslate">
                         <div class="selected">
-                            <a href="#" onclick="return false;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Flag_of_the_United_Kingdom.png/800px-Flag_of_the_United_Kingdom.png?20080216232030" height="24" width="24" alt="en" />
+                            <a href="#" onclick="return false;"><img src="https://flagcdn.com/w40/gb.png" data-gt-lazy-src="https://flagcdn.com/w40/gb.png" height="24" width="24" alt="en" />
                                 English</a>
                         </div>
                         <div class="option">
-                            <a href="#" onclick="doGTranslate('en|en');jQuery('div.switcher div.selected a').html(jQuery(this).html());return false;" title="English" class="nturl selected"><img data-gt-lazy-src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Flag_of_the_United_Kingdom.png/800px-Flag_of_the_United_Kingdom.png?20080216232030" height="24" width="24" alt="en" />
+                            <a href="#" onclick="doGTranslate('en|en');jQuery('div.switcher div.selected a').html(jQuery(this).html());return false;" title="English" class="nturl selected"><img src="https://flagcdn.com/w40/gb.png" data-gt-lazy-src="https://flagcdn.com/w40/gb.png" height="24" width="24" alt="en" />
                                 English</a>
-                            <a href="#" onclick="doGTranslate('en|si');jQuery('div.switcher div.selected a').html(jQuery(this).html());return false;" title="සිංහල" class="nturl"><img data-gt-lazy-src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Flag_of_Sri_Lanka.svg/800px-Flag_of_Sri_Lanka.svg.png?20221128224909" height="24" width="24" alt="si" />
+                            <a href="#" onclick="doGTranslate('en|si');jQuery('div.switcher div.selected a').html(jQuery(this).html());return false;" title="සිංහල" class="nturl"><img src="https://flagcdn.com/w40/lk.png" data-gt-lazy-src="https://flagcdn.com/w40/lk.png" height="24" width="24" alt="si" />
                                 සිංහල</a>
-                            <a href="#" onclick="doGTranslate('en|ta');jQuery('div.switcher div.selected a').html(jQuery(this).html());return false;" title="தமிழ்" class="nturl"><img data-gt-lazy-src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Flag_of_India.png/1024px-Flag_of_India.png" height="24" width="16" alt="ta" />
+                            <a href="#" onclick="doGTranslate('en|ta');jQuery('div.switcher div.selected a').html(jQuery(this).html());return false;" title="தமிழ்" class="nturl"><img src="https://flagcdn.com/w40/in.png" data-gt-lazy-src="https://flagcdn.com/w40/in.png" height="24" width="16" alt="ta" />
                                 தமிழ்</a>
                         </div>
                     </div>
@@ -61,7 +61,7 @@
 
 
 
-                    <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
+                    <a id="profileDropdownToggle" class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="./static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="" />
                         <span class="text-dark"><?php echo $_SESSION['sup_name'] ?></span>
                     </a>
@@ -86,6 +86,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
     <script>
+        // Explicitly toggle profile dropdown to avoid data-api conflicts.
+        document.addEventListener('click', function(e) {
+            var trigger = e.target.closest('#profileDropdownToggle');
+            if (!trigger) {
+                return;
+            }
+            e.preventDefault();
+            if (typeof bootstrap === 'undefined' || !bootstrap.Dropdown) {
+                return;
+            }
+            var dropdown = bootstrap.Dropdown.getOrCreateInstance(trigger);
+            dropdown.toggle();
+        });
+
         function googleTranslateElementInit2() {
             new google.translate.TranslateElement({
                     pageLanguage: "en",
