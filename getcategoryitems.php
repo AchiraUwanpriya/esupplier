@@ -27,10 +27,11 @@ if ($user_cat === 'RI') {
 
 $query = "SELECT MMC_DESCRIPTION, mtt_price 
           FROM mms_material_catalogue
-          LEFT JOIN mms_tenderprice_transactions 
+          INNER JOIN mms_tenderprice_transactions 
               ON mtt_material_code = MMC_MATERIAL_CODE 
               AND mtt_supplier_code = '$supplier_code'
               AND mtt_tender_no = $tender_subquery
+              AND mtt_status = 'A'
           WHERE MMC_CAT_CODE = '$cat_code' AND MMC_STATUS = 'A'
           ORDER BY MMC_DESCRIPTION ASC";
 

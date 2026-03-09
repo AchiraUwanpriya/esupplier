@@ -49,16 +49,17 @@ if (empty($cat_codes)) {
 // Build a comma-separated list of cat_codes for the IN clause
 $cat_list = "'" . implode("','", $cat_codes) . "'";
 
-// Query all items belonging to these categories, including their tender price if any
+// Query only saved items (items that already have a tender price row)
 $query = "SELECT 
             c.MMC_CAT_CODE,
             c.MMC_DESCRIPTION,
             t.mtt_price
           FROM mms_material_catalogue c
-          LEFT JOIN mms_tenderprice_transactions t 
+                    INNER JOIN mms_tenderprice_transactions t 
             ON t.mtt_material_code = c.MMC_MATERIAL_CODE 
             AND t.mtt_supplier_code = '$supplier_code'
             AND t.mtt_tender_no = $tender_subquery
+                        AND t.mtt_status = 'A'
           WHERE c.MMC_CAT_CODE IN ($cat_list) AND c.MMC_STATUS = 'A'
           ORDER BY c.MMC_CAT_CODE, c.MMC_DESCRIPTION";
 
@@ -74,7 +75,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     $items[] = [
         'CategoryName' => $cat_names[$row['MMC_CAT_CODE']] ?? $row['MMC_CAT_CODE'],
         'MMC_DESCRIPTION' => $row['MMC_DESCRIPTION'],
-        'mtt_price' => $row['mtt_price'] // may be null if no price entered
+        'mtt_price' => $row['mtt_price']
     ];
 }
 

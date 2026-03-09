@@ -288,7 +288,7 @@ include './components/timecounter.php';
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger btn-lg" data-bs-dismiss="modal">Close</button>
-                <input type="button" class="btn btn-success btn-lg" value="Submit a Tender" id="btndonemodal" onclick="document.getElementById('btnDoneFunc').click()" />
+                <input type="button" class="btn btn-success btn-lg" value="Submit a Tender" id="btndonemodal" />
             </div>
         </div>
     </div>
@@ -356,7 +356,9 @@ include './components/timecounter.php';
                                                 <?php endforeach; ?>
                                             </div>
                                         </div>
-                                        <input type="button" name="next" class="next action-button" value="Next" />
+                                        <input type="button" id="categoriesCheckBtn" class="btn btn-primary action-button" value="Check" data-bs-toggle="modal" data-bs-target="#previewitemlist" />
+                                        <input type="button" id="categoriesNextBtn" name="next" class="next action-button" value="Next" style="display:none;" />
+                                        <button type="button" id="btnDoneFunc" hidden></button>
                                     </fieldset>
 
                                     <!-- Page 3 - Completed -->
@@ -464,12 +466,93 @@ include './components/timecounter.php';
 <!-- JavaScript: unified form submission and preview loading -->
 <script>
 $(document).ready(function() {
+    function hasAtLeastOnePrice(form) {
+        let hasPrice = false;
+        form.find('input[name^="MMC_PRICE"]').each(function() {
+            const value = $(this).val();
+            if (value !== null && String(value).trim() !== '') {
+                hasPrice = true;
+                return false;
+            }
+        });
+        return hasPrice;
+    }
+
+    function hasInvalidPrice(form) {
+        let invalid = false;
+        form.find('input[name^="MMC_PRICE"]').each(function() {
+            const raw = $(this).val();
+            if (raw === null || String(raw).trim() === '') {
+                return;
+            }
+
+            const num = Number(raw);
+            if (!Number.isFinite(num) || num < 0) {
+                invalid = true;
+                return false;
+            }
+        });
+        return invalid;
+    }
+
+    function parseJsonResponse(response) {
+        if (typeof response === 'object') {
+            return response;
+        }
+        try {
+            return JSON.parse(response);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function closeActiveModal() {
+        const openModalEl = document.querySelector('.modal.show');
+        if (openModalEl) {
+            const modal = bootstrap.Modal.getInstance(openModalEl) || new bootstrap.Modal(openModalEl);
+            modal.hide();
+        }
+
+        const previewModalEl = document.getElementById('previewitemlist');
+        if (previewModalEl && previewModalEl.classList.contains('show')) {
+            const previewModal = bootstrap.Modal.getInstance(previewModalEl) || new bootstrap.Modal(previewModalEl);
+            previewModal.hide();
+        }
+
+        setTimeout(function() {
+            document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                backdrop.remove();
+            });
+            $('.modal').removeClass('show').css('display', '');
+            $('body').removeClass('modal-open').css('overflow', '');
+        }, 250);
+    }
+
     // Handle all category form submissions via AJAX
     $('.category-form').submit(function(event) {
         event.preventDefault();
         var form = $(this);
         var formData = form.serialize();
-        var catCode = form.data('catcode');
+
+        if (!hasAtLeastOnePrice(form)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Prices Entered',
+                text: 'Please enter at least one tender price before saving.',
+                confirmButtonColor: '#f0ad4e'
+            });
+            return;
+        }
+
+        if (hasInvalidPrice(form)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Price',
+                text: 'Prices must be valid numbers greater than or equal to 0.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
 
         $.ajax({
             type: 'POST',
@@ -478,6 +561,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
+                    closeActiveModal();
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
@@ -511,33 +595,53 @@ $(document).ready(function() {
 
     // Function to load preview data (all items and category-specific items)
     function loadPreviewData() {
-        // Load all items (you may need an additional script; here we assume allitemsinventory.php still works)
+        // Load all saved items
         $.get('allitemsinventory.php', function(response) {
             if (response) {
-                let items = JSON.parse(response);
+                const items = parseJsonResponse(response);
+                if (!Array.isArray(items)) {
+                    $('#allitems').html('');
+                    $('#btndonemodal').prop('disabled', true);
+                    $('#submitTenderMessage').show();
+                    return;
+                }
+                const pricedItems = items.filter(function(item) {
+                    return item && item.mtt_price !== null && String(item.mtt_price).trim() !== '';
+                });
                 let rows = '';
-                items.forEach(item => {
+                pricedItems.forEach(function(item) {
                     rows += `<tr><td>${item.CategoryName}</td><td>${item.MMC_DESCRIPTION}</td><td>${item.mtt_price}</td></tr>`;
                 });
                 $('#allitems').html(rows);
-                // Enable/disable submit button based on emptiness
-                if (items.length === 0) {
+
+                if (pricedItems.length === 0) {
                     $('#btndonemodal').prop('disabled', true);
                     $('#submitTenderMessage').show();
                 } else {
                     $('#btndonemodal').prop('disabled', false);
                     $('#submitTenderMessage').hide();
                 }
+            } else {
+                $('#allitems').html('');
+                $('#btndonemodal').prop('disabled', true);
+                $('#submitTenderMessage').show();
             }
         });
 
         // Load each category tab
         <?php foreach ($categories as $cat): 
             $tabId = 'pills-' . strtolower($cat['cat_code']); ?>
-        $.get('getCategoryItems.php', { cat_code: '<?= $cat['cat_code'] ?>' }, function(response) {
-            let items = JSON.parse(response);
+        $.get('getcategoryitems.php', { cat_code: '<?= $cat['cat_code'] ?>' }, function(response) {
+            const items = parseJsonResponse(response);
+            if (!Array.isArray(items)) {
+                $('#<?= $tabId ?>-items').html('');
+                return;
+            }
+            const pricedItems = items.filter(function(item) {
+                return item && item.mtt_price !== null && String(item.mtt_price).trim() !== '';
+            });
             let rows = '';
-            items.forEach(item => {
+            pricedItems.forEach(function(item) {
                 rows += `<tr><td>${item.MMC_DESCRIPTION}</td><td>${item.mtt_price}</td></tr>`;
             });
             $('#<?= $tabId ?>-items').html(rows);
@@ -550,8 +654,132 @@ $(document).ready(function() {
         loadPreviewData();
     });
 
+    // Categories step rule: Check visible, Next hidden.
+    $('#categoriesCheckBtn').show();
+    $('#categoriesNextBtn').hide();
+
+    // Submit tender from preview modal and auto-move to Completed step.
+    $('#btndonemodal').on('click', function() {
+        if ($(this).prop('disabled')) {
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: 'SuppplierDone.php',
+            data: {},
+            success: function(response) {
+                const text = String(response || '');
+                const blocked = text.indexOf('Please input and save item values before submitting the tender.') !== -1 ||
+                                text.indexOf('Database error:') !== -1;
+
+                if (blocked) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cannot Submit Yet',
+                        text: 'Please input and save item values before submitting the tender.',
+                        confirmButtonColor: '#f0ad4e'
+                    });
+                    return;
+                }
+
+                $('#categoriesCheckBtn').show();
+                $('#categoriesNextBtn').hide();
+
+                closeActiveModal();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Tender Submitted',
+                    text: 'Tender submitted successfully. Moving to completed step...',
+                    confirmButtonColor: '#3085d6',
+                    allowOutsideClick: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    didClose: function() {
+                        $('#categoriesNextBtn').trigger('click');
+                    }
+                });
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Submit Failed',
+                    text: 'An error occurred while submitting the tender.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    });
+
     // Initial load for any other purpose (optional)
     // loadPreviewData();
+
+    // ========== Form Stepper: Handle Next/Previous Button Clicks ==========
+    var current_fs, next_fs, previous_fs;
+    var opacity;
+
+    $('.next').click(function(e) {
+        e.preventDefault();
+
+        current_fs = $(this).closest('fieldset');
+        next_fs = current_fs.next();
+
+        if (next_fs.length === 0) return;
+
+        var next_index = $('fieldset').index(next_fs);
+        $('#progressbar li').eq(next_index).addClass('active');
+
+        next_fs.show();
+
+        current_fs.animate({ opacity: 0 }, {
+            step: function(now) {
+                opacity = 1 - now;
+                current_fs.css({
+                    'display': 'none',
+                    'position': 'relative'
+                });
+                next_fs.css({ 'opacity': opacity });
+            },
+            duration: 500
+        });
+
+        var steps = $('fieldset').length;
+        var percent = ((next_index + 1) / steps) * 100;
+        $('.progress-bar').css('width', percent.toFixed(0) + '%');
+    });
+
+    $('.previous').click(function(e) {
+        e.preventDefault();
+
+        current_fs = $(this).closest('fieldset');
+        previous_fs = current_fs.prev();
+
+        if (previous_fs.length === 0) return;
+
+        var current_index = $('fieldset').index(current_fs);
+        $('#progressbar li').eq(current_index).removeClass('active');
+
+        previous_fs.show();
+
+        current_fs.animate({ opacity: 0 }, {
+            step: function(now) {
+                opacity = 1 - now;
+                current_fs.css({
+                    'display': 'none',
+                    'position': 'relative'
+                });
+                previous_fs.css({ 'opacity': opacity });
+            },
+            duration: 500
+        });
+
+        var prev_index = $('fieldset').index(previous_fs);
+        var steps = $('fieldset').length;
+        var percent = ((prev_index + 1) / steps) * 100;
+        $('.progress-bar').css('width', percent.toFixed(0) + '%');
+    });
 });
 </script>
 
