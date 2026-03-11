@@ -65,9 +65,7 @@ $suppliercode = $_SESSION['sup_code'];
                     </select>
                 </div>
                 <div class="col-8">
-                    <a id="print" name="print" target="_blank">
-                        <button style="font-size: 16px" type="button" id="print" name="print" class="btn btn-success btn-lg">Print</button>
-                    </a>
+                    <button style="font-size: 16px" type="button" id="printBtn" name="print" class="btn btn-success btn-lg">Print</button>
                 </div>
 
             </div>
@@ -106,6 +104,11 @@ $suppliercode = $_SESSION['sup_code'];
             tenderId = $(this).find(":selected").val();
             console.log(tenderId);
 
+            if (!tenderId) {
+                $('#gettbdata').html('');
+                return;
+            }
+
             // Update URL with tid parameter
             var newUrl = window.location.pathname + "?tid=" + encodeURIComponent(tenderId);
             window.history.pushState({
@@ -126,15 +129,19 @@ $suppliercode = $_SESSION['sup_code'];
                             rowData += `<tr><td>${element.CategoryName}</td><td>${element.MMC_DESCRIPTION}</td><td>${element.mtt_price}</td></tr>`
                         });
                         $('#gettbdata').html(rowData);
-
-                        // Update Print button href
-                        $('#print').attr('href', 'prints/printAll.php?supid=<?php echo $_SESSION["sup_code"]; ?>&tno=' + encodeURIComponent(tenderId));
                     }
                 },
-                // error: function(response) {
-                //     console.log("error");
-                // },
             });
+        });
+
+        // Print button click handler
+        $('#printBtn').click(function() {
+            if (!tenderId) {
+                alert('Please select a tender first');
+                return;
+            }
+            // Navigate to print page with correct path
+            window.open('Public/Supplier/pages/prints/printAll.php?supid=<?php echo $_SESSION["sup_code"]; ?>&tno=' + encodeURIComponent(tenderId), '_blank');
         });
     </script>
 
