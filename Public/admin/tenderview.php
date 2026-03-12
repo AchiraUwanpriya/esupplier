@@ -1,15 +1,4 @@
-<?php
-session_start();
-?>
-<?php
-include 'config.php';
-if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_SESSION['entry'])) {
-	header('Location: admin.php');
-	exit();
-}
-
-$entry = $_SESSION['entry'];
-?>
+<?php include_once __DIR__ . '/../../backend/tenderview_controller.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +8,7 @@ $entry = $_SESSION['entry'];
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<link rel="shortcut icon" href="./static/img/2.svg" />
+	<link rel="shortcut icon" href="../../static/img/2.svg" />
 
 	<title>eSupplier-CDL</title>
 
@@ -28,15 +17,15 @@ $entry = $_SESSION['entry'];
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-	<link href="./static/css/app.css" rel="stylesheet">
-	<link href="./static/css/main.css" rel="stylesheet">
+	<link href="../../static/css/app.css" rel="stylesheet">
+	<link href="../../static/css/main.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
-	<script src="./static/js/jquery-3.3.1.min.js"></script>
-	<script src="./static/js/jquery.validate.min.js"></script>
-	<script src="./static/js/jquery.validate.unobtrusive.min.js"></script>
+	<script src="../../static/js/jquery-3.3.1.min.js"></script>
+	<script src="../../static/js/jquery.validate.min.js"></script>
+	<script src="../../static/js/jquery.validate.unobtrusive.min.js"></script>
 
-	<script src="./static/js/app.js"></script>
+	<script src="../../static/js/app.js"></script>
 
 	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
@@ -51,296 +40,6 @@ $entry = $_SESSION['entry'];
 </head>
 
 <?php
-
-$supcodevalue;
-
-//Tender Data
-$tenders = [];
-
-
-global $tsql;
-
-// $tsql = "SELECT * FROM mms_tender_details ORDER BY mtd_tender_no DESC";
-
-// $tsql = "SELECT *, 
-// 				CASE 
-// 				WHEN mtd_status = 'A' THEN 'Active' 
-// 				WHEN mtd_status = 'I' THEN 'Inactive'
-// 				ELSE mtd_status 
-// 				END AS mtd_status 
-// 				-- FROM mms_tender_details ORDER BY mtd_tender_no DESC
-// 				FROM mms_tender_details ORDER BY mtd_bidclose_date DESC";
-
-$tsql = "SELECT *, 
-       CASE 
-           WHEN mtd_status = 'A' THEN 'Active' 
-           WHEN mtd_status = 'I' THEN 'Inactive'
-           ELSE mtd_status 
-       END AS mtd_status 
-FROM mms_tender_details WHERE mtd_type is null
-ORDER BY mtd_bidclose_date DESC 
-LIMIT 10;";
-
-
-$stmt = mysqli_query($con, $tsql);
-if ($stmt === false) {
-	echo "Error in query";
-	die(print_r(mysqli_error($con), true));
-}
-while ($row = mysqli_fetch_array($stmt, MYSQLI_ASSOC)) {
-	$tender = $row;
-	$data[$row['mtd_tender_no']] = $row;
-	$tsql = "SELECT msd_tender_no,mms_suptender_details.msd_supplier_code,msd_supplier_name FROM mms_suptender_details 
-		LEFT JOIN mms_suppliers_details ON mms_suptender_details.msd_supplier_code = mms_suppliers_details.msd_supplier_code 
-		WHERE msd_tender_no = '" . $row['mtd_tender_no'] . "'";
-	$stmt2 = mysqli_query($con, $tsql);
-	if ($stmt2 === false) {
-		echo "Error in query";
-		die(print_r(mysqli_error($con), true));
-	}
-
-	$suppilers = [];
-	while ($row1 = mysqli_fetch_array($stmt2, MYSQLI_ASSOC)) {
-		$suppiler = $row1;
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT, mtt_remark, mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('V') 
-			GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt3 === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$vegitables = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($vegitables, $item);
-		}
-
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('S') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$spices = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($spices, $item);
-		}
-
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('F') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$fish = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($fish, $item);
-		}
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('D') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$dryfish = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($dryfish, $item);
-		}
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('O') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$oil = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($oil, $item);
-		}
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('Y') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$dryitems = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($dryitems, $item);
-		}
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('C') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$coconut = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($coconut, $item);
-		}
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('E') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$eggs = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($eggs, $item);
-		}
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('R') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$rice = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($rice, $item);
-		}
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('H') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$chicken = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($chicken, $item);
-		}
-
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('M') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$wrapPapers = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($wrapPapers, $item);
-		}
-       //pvc
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('P') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$pvc = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($pvc, $item);
-		}
-		//medicine
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('I') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$medicine = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($medicine, $item);
-		}
-
-		//cables
-		$tsql = "SELECT MMC_DESCRIPTION,MMC_UNIT,  mtt_remark,mtt_price FROM mms_tenderprice_transactions
-			RIGHT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code 
-			AND mms_tenderprice_transactions.mtt_supplier_code = '" . $row1['msd_supplier_code'] . "' 
-			AND mms_tenderprice_transactions.mtt_tender_no = '" . $row['mtd_tender_no'] . "'
-			WHERE MMC_CAT_CODE in ('B') GROUP BY mms_material_catalogue.MMC_MATERIAL_CODE ORDER BY MMC_DESCRIPTION ASC";
-		$stmt3 = mysqli_query($con, $tsql);
-		if ($stmt === false) {
-			echo "Error in query";
-			die(print_r(mysqli_error($con), true));
-		}
-		$cable = [];
-		while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-			array_push($cable, $item);
-		}
-
-		$items['V'] = $vegitables;
-		$items['S'] = $spices;
-		$items['F'] = $fish;
-		$items['D'] = $dryfish;
-		$items['O'] = $oil;
-
-		// new
-		$items['Y'] = $dryitems;
-		$items['C'] = $coconut;
-		$items['E'] = $eggs;
-		$items['R'] = $rice;
-		$items['H'] = $chicken;
-		$items['M'] = $wrapPapers;
-		$items['P'] = $pvc;
-		$items['I'] = $medicine;
-		$items['B'] = $cable;
-		$suppiler['items'] = $items;
-		array_push($suppilers, $suppiler);
-	}
-	$tender['suppilers'] = $suppilers;
-	array_push($tenders, $tender);
-}
-// die(" <br>".json_encode($tenders)."<br>");
 
 function renderItem($items, $cat)
 {
@@ -398,7 +97,7 @@ function renderItem($items, $cat)
 			<div class="sidebar-content js-simplebar">
 				<a class="sidebar-brand" href="adminview.php">
 					<!-- <span class="align-middle">eSupplier-CDL</span> -->
-					<center><img src="./static/img/8.png" class="mt-3" style=" width: 100%; padding-right: 30px;" alt=""></center>
+					<center><img src="../../static/img/8.png" class="mt-3" style=" width: 100%; padding-right: 30px;" alt=""></center>
 				</a>
 
 				<ul class="sidebar-nav">
@@ -469,7 +168,7 @@ function renderItem($items, $cat)
 							</a>
 
 							<a class="nav-link d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-								<img src="./static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark"><?php echo $_SESSION['name'] ?></span>
+								<img src="../../static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark"><?php echo $_SESSION['name'] ?></span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
 								<!-- <a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="user"></i> Profile</a> -->
@@ -826,7 +525,7 @@ function renderItem($items, $cat)
 			</main>
 
 			<!-- footer -->
-			<?php include './components/footer.php' ?>
+			<?php include '../../components/footer.php' ?>
 		</div>
 </body>
 

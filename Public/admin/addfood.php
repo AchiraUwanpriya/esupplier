@@ -1,109 +1,4 @@
-<?php
-session_start();
-include '../../config.php';
-
-// Admin authentication
-if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_SESSION['entry'])) {
-    header('Location: ../admin.php');
-    exit();
-}
-
-$entry = $_SESSION['entry'];
-
-// Include query functions
-require_once __DIR__ . '/../../backend/queries/material_catalogue_queries.php';
-
-// ============ PROCESS POST REQUESTS (INSERT/UPDATE) ============
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    
-    // Handle UPDATE
-    if (isset($_POST['updatebtn'])) {
-        $sup_code = $_SESSION['mobile_number'];
-        $date_now = date('Y-m-d');
-        
-        $result = updateMaterial(
-            $con,
-            $_POST['MaterialCode'],
-            $_POST['Description'],
-            $_POST['MaterialSpec'],
-            $_POST['Unit'],
-            $_POST['Status'],
-            $sup_code,
-            $date_now
-        );
-        
-        $_SESSION['flash_message'] = $result['message'];
-        $_SESSION['flash_type'] = $result['status'] ? 'success' : 'error';
-        
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit;
-    }
-    
-    // Handle INSERT
-    if (isset($_POST['insertbtn'])) {
-        $result = insertMaterial(
-            $con,
-            $_POST['MaterialCode'],
-            $_POST['Description'],
-            $_POST['MaterialSpec'],
-            $_POST['Unit'],
-            $_POST['CatCode']
-        );
-        
-        $_SESSION['flash_message'] = $result['message'];
-        $_SESSION['flash_type'] = $result['status'] ? 'success' : 'error';
-        
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit;
-    }
-}
-
-// ============ FETCH UNITS FROM DATABASE ============
-$units_query = "SELECT unit_code, unit_name FROM mms_units WHERE unit_status = 'A' ORDER BY unit_name";
-$units_result = mysqli_query($con, $units_query);
-$units = [];
-if ($units_result && mysqli_num_rows($units_result) > 0) {
-    while ($row = mysqli_fetch_assoc($units_result)) {
-        $units[] = $row;
-    }
-}
-
-// ============ FIXED CATEGORY LIST ============
-$categories = [
-    ['code' => 'V', 'name' => 'VEGETABLE ITEMS'],
-    ['code' => 'Y', 'name' => 'DRY ITEMS'],
-    ['code' => 'P', 'name' => 'PVC ITEMS'],
-    ['code' => 'S', 'name' => 'SPICES'],
-    ['code' => 'R', 'name' => 'RICE'],
-    ['code' => 'I', 'name' => 'MEDICINE ITEMS'],
-    ['code' => 'F', 'name' => 'FISH'],
-    ['code' => 'H', 'name' => 'MEAT'],
-    ['code' => 'D', 'name' => 'DRY FISH'],
-    ['code' => 'M', 'name' => 'MISCELLANEOUS ITEMS']
-];
-
-// Icon mapping - Adjusted paths
-function getIcon($code) {
-    $base_path = '../../static/img/';
-    switch ($code) {
-        case 'V': return $base_path . 'vegetable.png';
-        case 'S': return $base_path . 'spice.png';
-        case 'F': return $base_path . 'fish.png';
-        case 'D': return $base_path . 'dried-fish.png';
-        case 'Y': return $base_path . 'dried-item.png';
-        case 'C': return $base_path . 'coconut.png';
-        case 'O': return $base_path . 'coconut-oil.png';
-        case 'R': return $base_path . 'rice.png';
-        case 'H': return $base_path . 'chicken-leg.png';
-        case 'M': return $base_path . 'gift-wrapping.png';
-        case 'P': return $base_path . 'Pvc.png';
-        case 'I': return $base_path . 'medicine.png';
-        case 'E': return $base_path . 'eggs.png';
-        case 'B': return $base_path . 'cables.png';
-        default: return $base_path . '2.svg';
-    }
-}
-?>
+<?php include_once __DIR__ . '/../../backend/addfood_controller.php'; ?>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -255,11 +150,7 @@ function getIcon($code) {
                         $code = $cat['code'];
                         $catName = $cat['name'];
                         $icon = getIcon($code);
-                        $mat_query = "SELECT MMC_MATERIAL_CODE, MMC_DESCRIPTION, MMC_MATERIAL_SPEC, MMC_UNIT, MMC_STATUS
-                                      FROM mms_material_catalogue
-                                      WHERE MMC_CAT_CODE = '$code'
-                                      ORDER BY MMC_DESCRIPTION";
-                        $mat_result = mysqli_query($con, $mat_query);
+                        $catItems = $materials_by_category[$code];
                     ?>
                         <div class="modal fade" id="modal_<?php echo $code; ?>" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalLabel_<?php echo $code; ?>" aria-hidden="true">
                             <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
@@ -281,8 +172,8 @@ function getIcon($code) {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php if (mysqli_num_rows($mat_result) > 0): ?>
-                                                    <?php while ($row = mysqli_fetch_assoc($mat_result)): ?>
+                                                <?php if (!empty($catItems)): ?>
+                                                    <?php foreach ($catItems as $row): ?>
                                                         <tr>
                                                             <td><h6><?php echo $row['MMC_MATERIAL_CODE']; ?></h6></td>
                                                             <td><h6><?php echo $row['MMC_DESCRIPTION']; ?></h6></td>
@@ -301,7 +192,7 @@ function getIcon($code) {
                                                                 </a>
                                                             </td>
                                                         </tr>
-                                                    <?php endwhile; ?>
+                                                    <?php endforeach; ?>
                                                 <?php else: ?>
                                                     <tr><td colspan="5" class="text-center">No items found in this category.</td></tr>
                                                 <?php endif; ?>

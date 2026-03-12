@@ -1,122 +1,4 @@
-<?php
-session_start();
-
-if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_SESSION['entry'])) {
-    header('Location: admin.php');
-    exit();
-}
-
-include 'config.php';
-date_default_timezone_set('Asia/Colombo');
-
-$entry = $_SESSION['entry'];
-$ButtonsDisabled = ($entry == 'N');
-
-/* ================= AUTO CALCULATE NEXT TENDER ================= */
-
-function calculateNextTenderDates($con) {
-
-    $currentYear = date('Y');
-
-    $query = "SELECT mtd_end_date 
-              FROM mms_tender_details 
-              WHERE mtd_year = '$currentYear' 
-              ORDER BY mtd_end_date DESC 
-              LIMIT 1";
-
-    $result = mysqli_query($con, $query);
-
-    if (mysqli_num_rows($result) > 0) {
-
-        $row = mysqli_fetch_assoc($result);
-        $lastEndDate = $row['mtd_end_date'];
-
-        $currentEnd = new DateTime($lastEndDate);
-
-        // Move to next day after last end
-        $nextDate = clone $currentEnd;
-        $nextDate->modify('+1 day');
-
-        // If not Wednesday, move to next Wednesday
-        if ($nextDate->format('l') != 'Wednesday') {
-            $nextDate->modify('next Wednesday');
-        }
-
-        $nextStartDate = $nextDate->format('Y-m-d');
-
-    } else {
-
-        // If no tenders exist, find upcoming Wednesday
-        $today = new DateTime();
-
-        if ($today->format('l') == 'Wednesday') {
-            $nextStartDate = $today->format('Y-m-d');
-        } else {
-            $today->modify('next Wednesday');
-            $nextStartDate = $today->format('Y-m-d');
-        }
-    }
-
-    // End = start + 6 days (Tuesday)
-    $nextEndDate = date('Y-m-d', strtotime('+6 days', strtotime($nextStartDate)));
-
-    // Bid close = 1 day before end at 2:30 PM
-    $bidCloseDate = date('Y-m-d', strtotime('-1 day', strtotime($nextEndDate))) . ' 14:30';
-
-    return [
-        'year' => $currentYear,
-        'start_date' => $nextStartDate,
-        'end_date' => $nextEndDate,
-        'bid_close_date' => $bidCloseDate   // FIXED KEY NAME
-    ];
-}
-function getNextTenderNumber($startDate) {
-
-    $year = date('Y', strtotime($startDate));
-    $weekNumber = date('W', strtotime($startDate)); // ISO week number
-
-    return $year . "-Week" . (int)$weekNumber;
-}
-
-$nextDates = calculateNextTenderDates($con);
-$nextTenderNo = getNextTenderNumber($nextDates['start_date']);
-
-/* ================= INSERT ================= */
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insertbtn'])) {
-
-    $separator = "-Week";
-    $year = $_POST['year'];
-    $sdate = $_POST['sdate'];
-
-    // Auto End Date
-    $edate = date('Y-m-d', strtotime('+6 days', strtotime($sdate)));
-
-    // Auto Bid Closing
-    $mtd_bidclose_date = date('Y-m-d', strtotime('-1 day', strtotime($edate))) . ' 14:30';
-
-    $formatted_closetime = date('Y-m-d g:i A', strtotime($mtd_bidclose_date));
-
-    $createdby = $_SESSION['name'];
-    $createddate = date('Y-m-d');
-
-    $weekNumber = date('W', strtotime($sdate));
-    $tno = date('Y', strtotime($sdate)) . "-Week" . (int)$weekNumber;
-
-    mysqli_query($con, "UPDATE mms_tender_details SET mtd_status='I' WHERE mtd_year='$year'");
-
-    $query = "INSERT INTO mms_tender_details 
-              (mtd_year, mtd_tender_no, mtd_start_date, mtd_end_date, mtd_bidclose_date, mtd_status, created_by, created_date) 
-              VALUES 
-              ('$year', '$tno', '$sdate', '$edate', '$formatted_closetime', 'A', '$createdby', '$createddate')";
-
-    if (mysqli_query($con, $query)) {
-        echo "<script>alert('Records Saved Successfully!!');</script>";
-    } else {
-        echo "<script>alert('ERROR!');</script>";
-    }
-}
-?>
+<?php include_once __DIR__ . '/../../backend/addtender_controller.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -125,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insertbtn'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link rel="shortcut icon" href="./static/img/2.svg" />
+    <link rel="shortcut icon" href="../../static/img/2.svg" />
     <link rel="canonical" href="https://demo-basic.adminkit.io/" />
     <title>eSupplier-CDL - Tender Creation</title>
     
@@ -133,14 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insertbtn'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css" crossorigin="anonymous" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-    <link href="./static/css/app.css" rel="stylesheet">
-    <link href="./static/css/main.css" rel="stylesheet">
+    <link href="../../static/css/app.css" rel="stylesheet">
+    <link href="../../static/css/main.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
-    <script src="./static/js/jquery-3.3.1.min.js"></script>
-    <script src="./static/js/jquery.validate.min.js"></script>
-    <script src="./static/js/jquery.validate.unobtrusive.min.js"></script>
-    <script src="./static/js/app.js"></script>
+    <script src="../../static/js/jquery-3.3.1.min.js"></script>
+    <script src="../../static/js/jquery.validate.min.js"></script>
+    <script src="../../static/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="../../static/js/app.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
@@ -182,9 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insertbtn'])) {
 
 <body>
     <div class="wrapper">
-        <?php include './Admin_components/adminsidenav.php' ?>
+        <?php include '../../Admin_components/adminsidenav.php' ?>
         <div class="main">
-            <?php include './Admin_components/adminnavbar.php' ?>
+            <?php include '../../Admin_components/adminnavbar.php' ?>
             
             <main class="content">
                 <div class="container-fluid p-0">
@@ -267,7 +149,7 @@ Save Tender
                     </div>
                 </div>
             </main>
-            <?php include './components/footer.php' ?>
+            <?php include '../../components/footer.php' ?>
         </div>
     </div>
 
