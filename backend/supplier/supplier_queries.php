@@ -9,11 +9,35 @@ class SupplierQueries {
     }
     
     public function getSupplierByMobile($mobile) {
-        $tsql = "SELECT * FROM mms_supplier_pending_details WHERE msd_mobileno = ?";
-        $stmt = $this->db->prepare($tsql);
-        $stmt->bind_param("s", $mobile);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
+        // First check active/approved suppliers table
+        $tsql1 = "SELECT msd_supplier_code, msd_supplier_name, msd_mobileno, msd_status, msd_supply_category
+                  FROM mms_suppliers_details 
+                  WHERE msd_mobileno = ?
+                  LIMIT 1";
+        
+        $stmt1 = $this->db->prepare($tsql1);
+        if ($stmt1) {
+            $stmt1->bind_param("s", $mobile);
+            $stmt1->execute();
+            $result1 = $stmt1->get_result();
+            if ($result1 && $result1->num_rows > 0) {
+                return $result1->fetch_assoc();
+            }
+        }
+
+        // Then check pending suppliers table
+        $tsql2 = "SELECT msd_supplier_code, msd_supplier_name, msd_mobileno, msd_status, msd_supply_category
+                  FROM mms_supplier_pending_details 
+                  WHERE msd_mobileno = ?
+                  LIMIT 1";
+        
+        $stmt2 = $this->db->prepare($tsql2);
+        if (!$stmt2) return null;
+        
+        $stmt2->bind_param("s", $mobile);
+        $stmt2->execute();
+        $result2 = $stmt2->get_result();
+        return $result2 ? $result2->fetch_assoc() : null;
     }
     
     public function getSupplierById($id) {
@@ -119,6 +143,56 @@ class SupplierQueries {
             return ['success' => true, 'message' => 'Supplier removed successfully'];
         } catch (Throwable $exception) {
             return ['success' => false, 'message' => 'Delete failed: ' . $exception->getMessage()];
+        }
+    }
+
+    public function checkMobileExists($mobile) {
+        // Check in active suppliers
+        $query1 = "SELECT count(msd_mobileno) AS numbercount FROM mms_suppliers_details WHERE msd_mobileno = ?";
+        $stmt1 = $this->db->prepare($query1);
+        $stmt1->bind_param("s", $mobile);
+        $stmt1->execute();
+        $row1 = $stmt1->get_result()->fetch_object();
+
+        // Check in pending suppliers
+        $query2 = "SELECT count(msd_mobileno) AS numbercount FROM mms_supplier_pending_details WHERE msd_mobileno = ?";
+        $stmt2 = $this->db->prepare($query2);
+        $stmt2->bind_param("s", $mobile);
+        $stmt2->execute();
+        $row2 = $stmt2->get_result()->fetch_object();
+
+        return ($row1->numbercount != 0 || $row2->numbercount != 0);
+    }
+
+    public function registerSupplier($data) {
+        $uid = time();
+        $createddate = date('Y-m-d');
+        
+        $query = "INSERT INTO mms_supplier_pending_details 
+                 (msd_supplier_code, msd_supplier_name, msd_email_address, msd_mobileno, msd_supply_category, msd_supply_category_des, msd_address, msd_status, created_date) 
+                 VALUES (?, UPPER(?), ?, ?, ?, ?, UPPER(?), 'I', ?)";
+        
+        $stmt = $this->db->prepare($query);
+        if (!$stmt) {
+            return ['success' => false, 'message' => $this->db->error];
+        }
+
+        $stmt->bind_param(
+            "isssssss",
+            $uid,
+            $data['supname'],
+            $data['email'],
+            $data['mobile'],
+            $data['supcat'],
+            $data['description'],
+            $data['address'],
+            $createddate
+        );
+
+        if ($stmt->execute()) {
+            return ['success' => true, 'message' => 'Successfully Registered! We will get back to you soon!'];
+        } else {
+            return ['success' => false, 'message' => $stmt->error];
         }
     }
 }

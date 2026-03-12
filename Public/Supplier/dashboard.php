@@ -1,26 +1,31 @@
-
-
-
 <?php
+
+
 session_start();
 date_default_timezone_set('Asia/Colombo');
 
-include_once 'helper.php';
+// Root of the project (two levels up from Public/Supplier/)
+$__root = __DIR__ . '/../../';
+
+// Base URL prefix for HTML links/assets resolved in components
+$sbase = '../../';
+
+require_once $__root . 'helper.php';
 
 if (!isset($_SESSION['sup_code'])) {
     header('Location: index.php');
     exit();
 }
 if (!isset($_SESSION['sup_status']) || $_SESSION['sup_status'] === "A") {
-    header('Location: profile.php');
+    header('Location: ' . $sbase . 'profile.php');
     exit();
 }
 
 // Ensure category is in session
 if (!isset($_SESSION['sup_category']) && isset($_SESSION['sup_code'])) {
-    require_once 'backend/common/config.php';
+    require_once $__root . 'backend/common/config.php';
     $supplier_code = $_SESSION['sup_code'];
-    
+
     $query = "SELECT msd_supply_category FROM mms_supplier_pending_details WHERE msd_supplier_code = '$supplier_code'";
     $result = mysqli_query($con, $query);
     if ($result && mysqli_num_rows($result) > 0) {
@@ -37,28 +42,26 @@ if (!isset($_SESSION['sup_category']) && isset($_SESSION['sup_code'])) {
 }
 
 $user_category = $_SESSION['sup_category'] ?? '';
-// ========== Fetch the category forms for this supplier ==========
-require_once 'backend/common/config.php';
+
+require_once $__root . 'backend/common/config.php';
 
 function normalizeCategoryImagePath($path) {
     $path = trim((string)$path);
     if ($path === '') {
-        return './static/img/9.png';
+        return '../../static/img/9.png';
     }
-
     $path = str_replace('\\', '/', $path);
     if (!preg_match('/^(https?:\/\/|\.\/|\/)/i', $path)) {
         $path = './' . ltrim($path, '/');
     }
-
     return $path;
 }
 
 $categories = [];
 if ($user_category) {
-    $catQuery = "SELECT cat_code, display_name, image_path, sort_order 
-                 FROM mms_category_forms 
-                 WHERE supplier_category = ? 
+    $catQuery = "SELECT cat_code, display_name, image_path, sort_order
+                 FROM mms_category_forms
+                 WHERE supplier_category = ?
                  ORDER BY sort_order";
     $stmt = mysqli_prepare($con, $catQuery);
     mysqli_stmt_bind_param($stmt, 's', $user_category);
@@ -66,8 +69,7 @@ if ($user_category) {
     $catResult = mysqli_stmt_get_result($stmt);
     while ($row = mysqli_fetch_assoc($catResult)) {
         $row['image_url'] = normalizeCategoryImagePath($row['image_path'] ?? '');
-        
-        // Fetch the unit type for this category (first item's unit)
+
         $unitQuery = "SELECT DISTINCT MMC_UNIT FROM mms_material_catalogue WHERE MMC_CAT_CODE = ? AND MMC_STATUS = 'A' LIMIT 1";
         $unitStmt = mysqli_prepare($con, $unitQuery);
         mysqli_stmt_bind_param($unitStmt, 's', $row['cat_code']);
@@ -75,19 +77,16 @@ if ($user_category) {
         mysqli_stmt_bind_result($unitStmt, $unit);
         $row['unit'] = mysqli_stmt_fetch($unitStmt) ? $unit : '';
         mysqli_stmt_close($unitStmt);
-        
+
         $categories[] = $row;
     }
     mysqli_stmt_close($stmt);
 }
-// ===============================================================
 
-// POST handling (updated to work with dynamic categories)
+// POST handling
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['insert'] === 'category_save') {
     $success = true;
     $cat_code = $_POST['cat_code'] ?? '';
-    // Optional: verify that this cat_code is allowed for the user's category
-    // (you can query mms_category_forms again)
 
     $user_category = $_SESSION['sup_category'] ?? '';
     if ($user_category === '') {
@@ -100,7 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
         exit;
     }
 
-    // fetch the active tender for this category
     if ($user_category === 'RI') {
         $tnStmt = mysqli_prepare($con, "SELECT mtd_tender_no, mtd_year FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL LIMIT 1");
     } else {
@@ -126,7 +124,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
     $sup_code = $suppliercode;
     $date_now = date('Y-m-d g:i A');
 
-    // prepared statements
     $selectStmt = mysqli_prepare($con, "SELECT mtt_price, mtt_remark FROM mms_tenderprice_transactions WHERE mtt_year=? AND mtt_tender_no=? AND mtt_supplier_code=? AND mtt_material_code=? AND mtt_status='A' LIMIT 1");
     $deleteStmt = mysqli_prepare($con, "DELETE FROM mms_tenderprice_transactions WHERE mtt_supplier_code=? AND mtt_material_code=? AND mtt_status='A' AND mtt_tender_no=?");
     $updateStmt = mysqli_prepare($con, "UPDATE mms_tenderprice_transactions SET mtt_remark=?, mtt_price=?, updated_by=?, updated_date=? WHERE mtt_year=? AND mtt_tender_no=? AND mtt_supplier_code=? AND mtt_material_code=? AND mtt_status='A'");
@@ -145,13 +142,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
         if ($MMC_MATERIAL_CODE === '') continue;
 
         if ($MMC_PRICE === null) {
-            // delete existing
             mysqli_stmt_bind_param($deleteStmt, 'sss', $suppliercode, $MMC_MATERIAL_CODE, $tenderNo);
             if (!mysqli_stmt_execute($deleteStmt)) { $success = false; }
             continue;
         }
 
-        // check existing
         mysqli_stmt_bind_param($selectStmt, 'ssss', $tenderYear, $tenderNo, $suppliercode, $MMC_MATERIAL_CODE);
         if (!mysqli_stmt_execute($selectStmt)) { $success = false; continue; }
         mysqli_stmt_store_result($selectStmt);
@@ -164,7 +159,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
             $existingRemark = null;
         }
 
-        // skip if unchanged
         if ($existingPrice !== null && (string)$existingPrice === (string)$MMC_PRICE && (string)$existingRemark === (string)$MMC_REMARK) {
             continue;
         }
@@ -179,12 +173,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
         }
     }
 
-    // close statements
     mysqli_stmt_close($selectStmt);
     mysqli_stmt_close($deleteStmt);
     mysqli_stmt_close($updateStmt);
     mysqli_stmt_close($insertStmt);
-
     mysqli_close($con);
 
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
@@ -199,9 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'OK'
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        location.reload();
-                    }
+                    if (result.isConfirmed) { location.reload(); }
                 });
             </script>";
         } else {
@@ -219,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
     exit;
 }
 
-include './components/timecounter.php';
+include $__root . 'components/timecounter.php';
 ?>
 <!DOCTYPE html>
 <html>
@@ -227,16 +217,16 @@ include './components/timecounter.php';
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" href="./static/img/9.png" />
+    <link rel="shortcut icon" href="../../static/img/9.png" />
     <title>eSupplier-CDPLC</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css" />
-    <script src="./static/js/jquery-3.3.1.min.js"></script>
+    <script src="../../static/js/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./static/js/app.js"></script>
-    <link href="./static/css/app.css" rel="stylesheet">
-    <link href="./static/css/main.css" rel="stylesheet">
+    <script src="../../static/js/app.js"></script>
+    <link href="../../static/css/app.css" rel="stylesheet">
+    <link href="../../static/css/main.css" rel="stylesheet">
     <style>
         table th { position: sticky; top: -20px; background-color: green; z-index: 5; }
         .fade-scale { transition: all .25s linear; }
@@ -261,7 +251,7 @@ include './components/timecounter.php';
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab">All List</button>
                     </li>
-                    <?php foreach ($categories as $cat): 
+                    <?php foreach ($categories as $cat):
                         $tabId = 'pills-' . strtolower($cat['cat_code']); ?>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="<?= $tabId ?>-tab" data-bs-toggle="pill" data-bs-target="#<?= $tabId ?>" type="button" role="tab"><?= htmlspecialchars($cat['display_name']) ?></button>
@@ -275,7 +265,7 @@ include './components/timecounter.php';
                             <tbody id="allitems"></tbody>
                         </table>
                     </div>
-                    <?php foreach ($categories as $cat): 
+                    <?php foreach ($categories as $cat):
                         $tabId = 'pills-' . strtolower($cat['cat_code']); ?>
                     <div class="tab-pane fade" id="<?= $tabId ?>" role="tabpanel">
                         <table class="table table-hover table-bordered border-primary">
@@ -295,9 +285,9 @@ include './components/timecounter.php';
 </div>
 
 <div class="wrapper">
-    <?php include './components/sidenav.php'; ?>
+    <?php include $__root . 'components/sidenav.php'; ?>
     <div class="main">
-        <?php include './components/navbar.php'; ?>
+        <?php include $__root . 'components/navbar.php'; ?>
         <main class="content">
             <div class="container-fluid p-0">
                 <div class="container-fluid">
@@ -314,10 +304,10 @@ include './components/timecounter.php';
                     <div class="row justify-content-center">
                         <div class="col-12 col-sm-10 col-md-10 col-lg-6 col-xl-12 p-0 mt-3 mb-2">
                             <div class="card px-0 pb-0">
-                                <center><img class="center pt-2" src="./static/img/cdl_logo.png" style="width: 15%" alt=""></center>
+                                <center><img class="center pt-2" src="../../static/img/cdl_logo.png" style="width: 15%" alt=""></center>
                                 <h3 class="text-center" style="color: blue;">
                                     <strong>
-                                        <?php 
+                                        <?php
                                         echo $user_category === "PI" ? "Tender For the Supply of PVC Items" :
                                             ($user_category === "MI" ? "Tender For the Supply of Medicine Items" :
                                             ($user_category === "CB" ? "Tender For the Supply of Cables" :
@@ -337,7 +327,7 @@ include './components/timecounter.php';
                                     </div><br>
 
                                     <!-- Page 1 - Approve (Terms) -->
-                                    <?php require('pages/approve.php'); ?>
+                                    <?php require($__root . 'pages/approve.php'); ?>
 
                                     <!-- Page 2 - Categories (dynamic buttons) -->
                                     <fieldset>
@@ -362,7 +352,7 @@ include './components/timecounter.php';
                                     </fieldset>
 
                                     <!-- Page 3 - Completed -->
-                                    <?php require('pages/completed.php'); ?>
+                                    <?php require($__root . 'pages/completed.php'); ?>
                                 </form>
                             </div>
                         </div>
@@ -371,7 +361,7 @@ include './components/timecounter.php';
             </div>
 
             <!-- Dynamically generated modals for each category -->
-            <?php foreach ($categories as $cat): 
+            <?php foreach ($categories as $cat):
                 $catCode = $cat['cat_code'];
                 $modalId = 'modal-' . $catCode;
                 $displayName = $cat['display_name'];
@@ -400,7 +390,6 @@ include './components/timecounter.php';
                                     </thead>
                                     <tbody>
                                     <?php
-                                    // Query items for this cat_code
                                     $suppliercode = $_SESSION['sup_code'];
                                     if ($user_category === 'RI') {
                                         $tenderSubquery = "(SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL LIMIT 1)";
@@ -410,8 +399,8 @@ include './components/timecounter.php';
                                     $itemQuery = "SELECT MMC_DESCRIPTION, MMC_UNIT, MMC_MATERIAL_SPEC, MMC_MATERIAL_CODE, MMC_CAT_CODE,
                                                          mtt_price AS MMC_PRICE, mtt_remark AS MMC_REMARK
                                                   FROM mms_material_catalogue
-                                                  LEFT JOIN mms_tenderprice_transactions 
-                                                      ON mtt_material_code = MMC_MATERIAL_CODE 
+                                                  LEFT JOIN mms_tenderprice_transactions
+                                                      ON mtt_material_code = MMC_MATERIAL_CODE
                                                       AND mtt_supplier_code = '$suppliercode'
                                                       AND mtt_tender_no = $tenderSubquery
                                                   WHERE MMC_CAT_CODE = '$catCode' AND MMC_STATUS = 'A'
@@ -430,11 +419,11 @@ include './components/timecounter.php';
                                                 <input type="hidden" name="MMC_UNIT[<?= $idx ?>]" value="<?= htmlspecialchars($row['MMC_UNIT']) ?>">
                                             </td>
                                             <td>
-                                                <input class="form-control" style="text-align: right;" type="text" 
+                                                <input class="form-control" style="text-align: right;" type="text"
                                                        name="MMC_REMARK[<?= $idx ?>]" value="<?= htmlspecialchars($row['MMC_REMARK']) ?>" placeholder="Remark">
                                             </td>
                                             <td>
-                                                <input class="form-control" style="text-align: right;" type="number" step="0.01" 
+                                                <input class="form-control" style="text-align: right;" type="number" step="0.01"
                                                        name="MMC_PRICE[<?= $idx ?>]" value="<?= htmlspecialchars($row['MMC_PRICE']) ?>" placeholder="Price">
                                             </td>
                                             <td style="display:none">
@@ -459,7 +448,7 @@ include './components/timecounter.php';
             <?php endforeach; ?>
 
         </main>
-        <?php include './components/footer.php'; ?>
+        <?php include $__root . 'components/footer.php'; ?>
     </div>
 </div>
 
@@ -470,10 +459,7 @@ $(document).ready(function() {
         let hasPrice = false;
         form.find('input[name^="MMC_PRICE"]').each(function() {
             const value = $(this).val();
-            if (value !== null && String(value).trim() !== '') {
-                hasPrice = true;
-                return false;
-            }
+            if (value !== null && String(value).trim() !== '') { hasPrice = true; return false; }
         });
         return hasPrice;
     }
@@ -482,28 +468,16 @@ $(document).ready(function() {
         let invalid = false;
         form.find('input[name^="MMC_PRICE"]').each(function() {
             const raw = $(this).val();
-            if (raw === null || String(raw).trim() === '') {
-                return;
-            }
-
+            if (raw === null || String(raw).trim() === '') return;
             const num = Number(raw);
-            if (!Number.isFinite(num) || num < 0) {
-                invalid = true;
-                return false;
-            }
+            if (!Number.isFinite(num) || num < 0) { invalid = true; return false; }
         });
         return invalid;
     }
 
     function parseJsonResponse(response) {
-        if (typeof response === 'object') {
-            return response;
-        }
-        try {
-            return JSON.parse(response);
-        } catch (e) {
-            return null;
-        }
+        if (typeof response === 'object') return response;
+        try { return JSON.parse(response); } catch (e) { return null; }
     }
 
     function closeActiveModal() {
@@ -512,45 +486,29 @@ $(document).ready(function() {
             const modal = bootstrap.Modal.getInstance(openModalEl) || new bootstrap.Modal(openModalEl);
             modal.hide();
         }
-
         const previewModalEl = document.getElementById('previewitemlist');
         if (previewModalEl && previewModalEl.classList.contains('show')) {
             const previewModal = bootstrap.Modal.getInstance(previewModalEl) || new bootstrap.Modal(previewModalEl);
             previewModal.hide();
         }
-
         setTimeout(function() {
-            document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
-                backdrop.remove();
-            });
+            document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) { backdrop.remove(); });
             $('.modal').removeClass('show').css('display', '');
             $('body').removeClass('modal-open').css('overflow', '');
         }, 250);
     }
 
-    // Handle all category form submissions via AJAX
     $('.category-form').submit(function(event) {
         event.preventDefault();
         var form = $(this);
         var formData = form.serialize();
 
         if (!hasAtLeastOnePrice(form)) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'No Prices Entered',
-                text: 'Please enter at least one tender price before saving.',
-                confirmButtonColor: '#f0ad4e'
-            });
+            Swal.fire({ icon: 'warning', title: 'No Prices Entered', text: 'Please enter at least one tender price before saving.', confirmButtonColor: '#f0ad4e' });
             return;
         }
-
         if (hasInvalidPrice(form)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Price',
-                text: 'Prices must be valid numbers greater than or equal to 0.',
-                confirmButtonColor: '#d33'
-            });
+            Swal.fire({ icon: 'error', title: 'Invalid Price', text: 'Prices must be valid numbers greater than or equal to 0.', confirmButtonColor: '#d33' });
             return;
         }
 
@@ -562,189 +520,86 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.status === 'success') {
                     closeActiveModal();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Data saved successfully',
-                        confirmButtonColor: '#3085d6',
-                        timer: 2000,
-                        timerProgressBar: true,
-                        didClose: function() {
-                            loadPreviewData();
-                        }
-                    });
+                    Swal.fire({ icon: 'success', title: 'Success!', text: 'Data saved successfully', confirmButtonColor: '#3085d6', timer: 2000, timerProgressBar: true, didClose: function() { loadPreviewData(); } });
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Failed to save data',
-                        confirmButtonColor: '#d33'
-                    });
+                    Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to save data', confirmButtonColor: '#d33' });
                 }
             },
             error: function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'An error occurred while saving',
-                    confirmButtonColor: '#d33'
-                });
+                Swal.fire({ icon: 'error', title: 'Error!', text: 'An error occurred while saving', confirmButtonColor: '#d33' });
             }
         });
     });
 
-    // Function to load preview data (all items and category-specific items)
     function loadPreviewData() {
-        // Load all saved items
-        $.get('allitemsinventory.php', function(response) {
+        $.get('../../allitemsinventory.php', function(response) {
             if (response) {
                 const items = parseJsonResponse(response);
-                if (!Array.isArray(items)) {
-                    $('#allitems').html('');
-                    $('#btndonemodal').prop('disabled', true);
-                    $('#submitTenderMessage').show();
-                    return;
-                }
-                const pricedItems = items.filter(function(item) {
-                    return item && item.mtt_price !== null && String(item.mtt_price).trim() !== '';
-                });
+                if (!Array.isArray(items)) { $('#allitems').html(''); $('#btndonemodal').prop('disabled', true); $('#submitTenderMessage').show(); return; }
+                const pricedItems = items.filter(function(item) { return item && item.mtt_price !== null && String(item.mtt_price).trim() !== ''; });
                 let rows = '';
-                pricedItems.forEach(function(item) {
-                    rows += `<tr><td>${item.CategoryName}</td><td>${item.MMC_DESCRIPTION}</td><td>${item.mtt_price}</td></tr>`;
-                });
+                pricedItems.forEach(function(item) { rows += `<tr><td>${item.CategoryName}</td><td>${item.MMC_DESCRIPTION}</td><td>${item.mtt_price}</td></tr>`; });
                 $('#allitems').html(rows);
-
-                if (pricedItems.length === 0) {
-                    $('#btndonemodal').prop('disabled', true);
-                    $('#submitTenderMessage').show();
-                } else {
-                    $('#btndonemodal').prop('disabled', false);
-                    $('#submitTenderMessage').hide();
-                }
-            } else {
-                $('#allitems').html('');
-                $('#btndonemodal').prop('disabled', true);
-                $('#submitTenderMessage').show();
-            }
+                if (pricedItems.length === 0) { $('#btndonemodal').prop('disabled', true); $('#submitTenderMessage').show(); }
+                else { $('#btndonemodal').prop('disabled', false); $('#submitTenderMessage').hide(); }
+            } else { $('#allitems').html(''); $('#btndonemodal').prop('disabled', true); $('#submitTenderMessage').show(); }
         });
 
-        // Load each category tab
-        <?php foreach ($categories as $cat): 
+        <?php foreach ($categories as $cat):
             $tabId = 'pills-' . strtolower($cat['cat_code']); ?>
-        $.get('getcategoryitems.php', { cat_code: '<?= $cat['cat_code'] ?>' }, function(response) {
+        $.get('../../getcategoryitems.php', { cat_code: '<?= $cat['cat_code'] ?>' }, function(response) {
             const items = parseJsonResponse(response);
-            if (!Array.isArray(items)) {
-                $('#<?= $tabId ?>-items').html('');
-                return;
-            }
-            const pricedItems = items.filter(function(item) {
-                return item && item.mtt_price !== null && String(item.mtt_price).trim() !== '';
-            });
+            if (!Array.isArray(items)) { $('#<?= $tabId ?>-items').html(''); return; }
+            const pricedItems = items.filter(function(item) { return item && item.mtt_price !== null && String(item.mtt_price).trim() !== ''; });
             let rows = '';
-            pricedItems.forEach(function(item) {
-                rows += `<tr><td>${item.MMC_DESCRIPTION}</td><td>${item.mtt_price}</td></tr>`;
-            });
+            pricedItems.forEach(function(item) { rows += `<tr><td>${item.MMC_DESCRIPTION}</td><td>${item.mtt_price}</td></tr>`; });
             $('#<?= $tabId ?>-items').html(rows);
         });
         <?php endforeach; ?>
     }
 
-    // Load preview data when modal is opened
-    $('#previewitemlist').on('show.bs.modal', function() {
-        loadPreviewData();
-    });
+    $('#previewitemlist').on('show.bs.modal', function() { loadPreviewData(); });
 
-    // Categories step rule: Check visible, Next hidden.
     $('#categoriesCheckBtn').show();
     $('#categoriesNextBtn').hide();
 
-    // Submit tender from preview modal and auto-move to Completed step.
     $('#btndonemodal').on('click', function() {
-        if ($(this).prop('disabled')) {
-            return;
-        }
-
+        if ($(this).prop('disabled')) return;
         $.ajax({
             type: 'POST',
-            url: 'SuppplierDone.php',
+            url: '../../SuppplierDone.php',
             data: {},
             success: function(response) {
                 const text = String(response || '');
-                const blocked = text.indexOf('Please input and save item values before submitting the tender.') !== -1 ||
-                                text.indexOf('Database error:') !== -1;
-
+                const blocked = text.indexOf('Please input and save item values before submitting the tender.') !== -1 || text.indexOf('Database error:') !== -1;
                 if (blocked) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Cannot Submit Yet',
-                        text: 'Please input and save item values before submitting the tender.',
-                        confirmButtonColor: '#f0ad4e'
-                    });
+                    Swal.fire({ icon: 'warning', title: 'Cannot Submit Yet', text: 'Please input and save item values before submitting the tender.', confirmButtonColor: '#f0ad4e' });
                     return;
                 }
-
                 $('#categoriesCheckBtn').show();
                 $('#categoriesNextBtn').hide();
-
                 closeActiveModal();
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Tender Submitted',
-                    text: 'Tender submitted successfully. Moving to completed step...',
-                    confirmButtonColor: '#3085d6',
-                    allowOutsideClick: false,
-                    timer: 1500,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                    didClose: function() {
-                        $('#categoriesNextBtn').trigger('click');
-                    }
-                });
+                Swal.fire({ icon: 'success', title: 'Tender Submitted', text: 'Tender submitted successfully. Moving to completed step...', confirmButtonColor: '#3085d6', allowOutsideClick: false, timer: 1500, timerProgressBar: true, showConfirmButton: false, didClose: function() { $('#categoriesNextBtn').trigger('click'); } });
             },
             error: function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Submit Failed',
-                    text: 'An error occurred while submitting the tender.',
-                    confirmButtonColor: '#d33'
-                });
+                Swal.fire({ icon: 'error', title: 'Submit Failed', text: 'An error occurred while submitting the tender.', confirmButtonColor: '#d33' });
             }
         });
     });
 
-    // Initial load for any other purpose (optional)
-    // loadPreviewData();
-
-    // ========== Form Stepper: Handle Next/Previous Button Clicks ==========
+    // ========== Form Stepper ==========
     var current_fs, next_fs, previous_fs;
     var opacity;
 
     $('.next').click(function(e) {
         e.preventDefault();
-
         current_fs = $(this).closest('fieldset');
         next_fs = current_fs.next();
-
         if (next_fs.length === 0) return;
-
         var next_index = $('fieldset').index(next_fs);
         $('#progressbar li').eq(next_index).addClass('active');
-
         next_fs.show();
-
-        current_fs.animate({ opacity: 0 }, {
-            step: function(now) {
-                opacity = 1 - now;
-                current_fs.css({
-                    'display': 'none',
-                    'position': 'relative'
-                });
-                next_fs.css({ 'opacity': opacity });
-            },
-            duration: 500
-        });
-
+        current_fs.animate({ opacity: 0 }, { step: function(now) { opacity = 1 - now; current_fs.css({'display':'none','position':'relative'}); next_fs.css({'opacity': opacity}); }, duration: 500 });
         var steps = $('fieldset').length;
         var percent = ((next_index + 1) / steps) * 100;
         $('.progress-bar').css('width', percent.toFixed(0) + '%');
@@ -752,29 +607,13 @@ $(document).ready(function() {
 
     $('.previous').click(function(e) {
         e.preventDefault();
-
         current_fs = $(this).closest('fieldset');
         previous_fs = current_fs.prev();
-
         if (previous_fs.length === 0) return;
-
         var current_index = $('fieldset').index(current_fs);
         $('#progressbar li').eq(current_index).removeClass('active');
-
         previous_fs.show();
-
-        current_fs.animate({ opacity: 0 }, {
-            step: function(now) {
-                opacity = 1 - now;
-                current_fs.css({
-                    'display': 'none',
-                    'position': 'relative'
-                });
-                previous_fs.css({ 'opacity': opacity });
-            },
-            duration: 500
-        });
-
+        current_fs.animate({ opacity: 0 }, { step: function(now) { opacity = 1 - now; current_fs.css({'display':'none','position':'relative'}); previous_fs.css({'opacity': opacity}); }, duration: 500 });
         var prev_index = $('fieldset').index(previous_fs);
         var steps = $('fieldset').length;
         var percent = ((prev_index + 1) / steps) * 100;
@@ -784,7 +623,7 @@ $(document).ready(function() {
 </script>
 
 <!-- Timer script and others -->
-<script src="js/sessionUnset.js"></script>
-<script src="js/translate.js"></script>
+<script src="../../js/sessionUnset.js"></script>
+<script src="../../js/translate.js"></script>
 </body>
 </html>
