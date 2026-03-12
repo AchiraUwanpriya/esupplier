@@ -3,7 +3,7 @@
 
 <?php
 session_start();
-include 'config.php';
+require_once 'backend/common/config.php';
 
 // Ensure supplier is logged in
 if (!isset($_SESSION['sup_code'])) {

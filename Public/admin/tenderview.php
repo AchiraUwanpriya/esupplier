@@ -93,97 +93,11 @@ function renderItem($items, $cat)
 <body>
 
 	<div class="wrapper">
-		<nav id="sidebar" class="sidebar js-sidebar">
-			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="adminview.php">
-					<!-- <span class="align-middle">eSupplier-CDL</span> -->
-					<center><img src="../../static/img/8.png" class="mt-3" style=" width: 100%; padding-right: 30px;" alt=""></center>
-				</a>
-
-				<ul class="sidebar-nav">
-					<li class="sidebar-header">
-						Supplier Managment
-					</li>
-					<li class="sidebar-item ">
-						<a class="sidebar-link" href="allsuppliersview.php">
-							<i class="align-middle" data-feather="user-check"></i> <span class="align-middle">Pending Suppliers</span>
-						</a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="allactivesuppliersview.php">
-							<i class="align-middle" data-feather="users"></i> <span class="align-middle">Registered Suppliers</span>
-						</a>
-					</li>
-
-					<li class="sidebar-header">
-						Tender Managment
-					</li>
-					<li class="sidebar-item active">
-						<a class="sidebar-link" href="tenderview.php">
-							<i class="align-middle" data-feather="trending-up"></i> <span class="align-middle">Tenders</span>
-						</a>
-					</li>
-					<li class="sidebar-item">
-						 <a class="sidebar-link" href="monthlytenderview.php">
-							<i class="align-middle" data-feather="trending-up"></i> <span class="align-middle">Monthly Tenders</span>
-						</a>
-					</li>
-					
-					<?php if ($entry != 'N') : ?>
-						<li class="sidebar-header">
-							Food Managment
-						</li>
-						<li class="sidebar-item">
-							<a class="sidebar-link" href="Admin_components/addfood.php">
-								<i class="align-middle" data-feather="shopping-cart"></i> <span class="align-middle">Add Food</span>
-							</a>
-						</li>
-					<?php endif; ?>
-				</ul>
-
-				<div class="sidebar-cta">
-					<div class="sidebar-cta-content">
-						<div class="d-grid">
-							<a href="adminlogout.php" class="btn btn-primary" onclick="logoutfunction()">Logout</a>
-
-						</div>
-					</div>
-				</div>
-			</div>
-		</nav>
+		<?php include 'components/adminsidenav.php'; ?>
 
 		<div class="main">
-			<nav class="navbar navbar-expand navbar-light navbar-bg">
-				<a class="sidebar-toggle js-sidebar-toggle">
-					<i class="hamburger align-self-center"></i>
-				</a>
-				<a href="" style="color: blue; font-weight: bolder; text-decoration: none;">
-					HELLO <?php echo $_SESSION['name'] ?>! WELCOME TO eSupplier-CDPLC ADMIN DASHBOARD!!!
-				</a>
-				<div class="navbar-collapse collapse">
-					<ul class="navbar-nav navbar-align">
-						<li class="nav-item dropdown">
-							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
-								<i class="align-middle" data-feather="settings"></i>
-							</a>
+			<?php include 'components/adminnavbar.php'; ?>
 
-							<a class="nav-link d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-								<img src="../../static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark"><?php echo $_SESSION['name'] ?></span>
-							</a>
-							<div class="dropdown-menu dropdown-menu-end">
-								<!-- <a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="user"></i> Profile</a> -->
-								<!-- <a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a> -->
-								<div class="dropdown-divider"> </div>
-								<!-- <a class="dropdown-item" href="logout.php" onclick="logoutfunction()">Log out</a> -->
-								<a href="logout.php" class="dropdown-item" onclick="logoutfunction()">Logout</a>
-							</div>
-						</li>
-					</ul>
-				</div>
-			</nav>
 			<?php
 			foreach ($tenders as $tender) {
 			?>
@@ -309,7 +223,7 @@ function renderItem($items, $cat)
 										<li class="nav-item" role="presentation">
 											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_M" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Miscellaneous Items</button>
 										</li>
-                                         <!-- pvc -->
+										 <!-- pvc -->
 										<li class="nav-item" role="presentation">
 											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_P" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">PVC Items</button>
 										</li>

@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION['sup_code'])) {
   header('Location: index.php');
 }
-include 'config.php';
+require_once 'backend/common/config.php';
 include_once 'helper.php';
 $suppliercode = $_SESSION['sup_code'];
 function runquery($query)
@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <h5 class="h6 card-title">About</h5>
 
                   <?php
-                  include 'config.php';
+                  require_once 'backend/common/config.php';
                   $suppliercode = $_SESSION['sup_code'];
                   $tsql = "SELECT * FROM mms_suppliers_details WHERE msd_supplier_code = '$suppliercode'";
 
@@ -594,7 +594,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <br>
                     <!-- up03 -->
                     <?php
-                    include 'config.php';
+                    require_once 'backend/common/config.php';
                     $suppliercode = $_SESSION['sup_code'];
                     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -763,7 +763,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </tr>
                       </thead>
                       <?php
-                      include 'config.php';
+                      require_once 'backend/common/config.php';
                       $tsql = "SELECT DISTINCT MMC_CAT_CODE,(SELECT mtc_description FROM mms_tendermaterial_categories WHERE mtc_cat_code = MMC_CAT_CODE) AS CATDESC FROM mms_tenderprice_transactions LEFT JOIN mms_material_catalogue ON mms_material_catalogue.MMC_MATERIAL_CODE = mms_tenderprice_transactions.mtt_material_code WHERE mms_tenderprice_transactions.mtt_supplier_code = '$suppliercode'";
                       $stmt = mysqli_query($con, $tsql);
                       while ($row = mysqli_fetch_array($stmt, MYSQLI_ASSOC)) {
@@ -808,7 +808,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <tbody>
                           <?php
 
-                          include 'config.php';
+                          require_once 'backend/common/config.php';
                           $tsql = "SELECT msd_serial_no,msd_file_name,msd_file_path,msd_status from mms_supplier_attachments where msd_sup_code = '$suppliercode' ";
 
                           $stmt = mysqli_query($con, $tsql);

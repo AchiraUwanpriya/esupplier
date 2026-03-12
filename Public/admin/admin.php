@@ -2,27 +2,27 @@
 session_start();
 ?>
 <?php
-include 'config.php';
+require_once '../../backend/common/config.php';
 
 
-if (isset($_SESSION['msd_supplier_name'])) {
-  header("Location: dashboard.php");
-}
-if (isset($_POST['submit'])) {
+// if (isset($_SESSION['msd_supplier_name'])) {
+//   header("Location: dashboard.php");
+// }
+// if (isset($_POST['submit'])) {
 
-  $msd_supplier_name = $_POST["msd_supplier_name"];
-  $tsql = "SELECT msd_supplier_code,msd_mobileno,msd_supplier_name
-  FROM mms_supplier_pending_details";
-  $stmt = mysqli_query($con, $tsql);
-  if ($stmt->num_rows > 0) {
-    $user = mysqli_fetch_array($stmt);
+//   $msd_supplier_name = $_POST["msd_supplier_name"];
+//   $tsql = "SELECT msd_supplier_code,msd_mobileno,msd_supplier_name
+//   FROM mms_supplier_pending_details";
+//   $stmt = mysqli_query($con, $tsql);
+//   if ($stmt->num_rows > 0) {
+//     $user = mysqli_fetch_array($stmt);
 
-    $_SESSION["msd_supplier_name"] = $msd_supplier_name;
-    header("Location: dashboard.php");
-  } else {
-    // echo "<script>alert('Invalid User.')</script>";
-  }
-}
+//     $_SESSION["msd_supplier_name"] = $msd_supplier_name;
+//     header("Location: dashboard.php");
+//   } else {
+//     // echo "<script>alert('Invalid User.')</script>";
+//   }
+// }
 ?>
 
 
@@ -58,36 +58,34 @@ if (isset($_POST['submit'])) {
     }
   </style>
 
-  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
-  <link rel="shortcut icon" href="./static/img/9.png" />
-  <link rel="stylesheet" href="./static/css/login.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
+  <link rel="shortcut icon" href="../../static/img/9.png?v=<?php echo time(); ?>" />
+  <link rel="stylesheet" href="../../static/css/login.css?v=<?php echo time(); ?>" />
 
 
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <!-- <script src="./static/js/jquery-3.3.1.min.js"></script> -->
-  <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
+  <script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 
-  <script src="./static/js/jquery.validate.min.js"></script>
-  <script src="./static/js/jquery.validate.unobtrusive.min.js"></script>
+  <script src="../../static/js/jquery.validate.min.js"></script>
+  <script src="../../static/js/jquery.validate.unobtrusive.min.js"></script>
 
   <title>eSupplier-CDPLC</title>
 
   <!-- insert function -->
   <script>
+    // Set base URL for AJAX calls from Public/admin folder (root is two levels up)
+    var baseURL = '../../';
     $(document).ready(function() {
       $('#insertbtn').click(function(e) {
         e.preventDefault();
         $.ajax({
           type: "post",
-          url: "supRegistration.php",
+          url: baseURL + "supRegistration.php",
           data: $('#insertsup').serialize(),
           dataType: "text",
           success: function(response) {
-            $('#messagedisplay').html(data);
-          },
-
-          success: function(data) {
-            $('#messagedisplay').html(data);
+            $('#messagedisplay').html(response);
           },
         })
       })
@@ -104,12 +102,14 @@ if (isset($_POST['submit'])) {
       <div class="signin-signup">
         <form id="frm-mobile-verification" style="padding-top: 50px; justify-content: center;" class="sign-in-form">
           <!-- <center><img src="img/2.svg" style="height: 60px; width: 100%;"  alt=""></center>  -->
-          <img class="mb-4" src="static/img/9.png" width="50%" alt="">
+          <img class="mb-4" src="../../static/img/9.png" width="50%" alt="">
           <br>
           <h2 class="title">Sign in</h2>
+          <h2 style="color: #5995fd;">Administrator</h2>
+          <br>
           <div class="input-field">
-            <i class="fas fa-phone-alt"></i>
-            <input type="number" id="mobile" placeholder="Mobile Number" maxlength="10" />
+            <i class="fas fa-user-alt"></i>
+            <input type="snumber" id="servicenumber" placeholder="Service Number" maxlength="7" />
           </div>
           <div class="error" style="color: red; font-weight: bold;"></div>
 
@@ -121,20 +121,20 @@ if (isset($_POST['submit'])) {
             <i class="fa fa-spinner fa-spin"></i>Loading! Please Wait....
           </button>
 
-          <!-- Login buttons - both buttons needed  -->
-          <input id="submit" type="button" name="submit" class="" onclick="sendOTP();" style="visibility: hidden; height: 1px;" />
-          <input value="Login" class="btn btnSubmit solid" type="button" name="submit" id="submit" onclick="sendOTP();"  />
-          
+          <!-- Loader OnClick  -->
+          <!-- <input value="Login" class="btn btnSubmit solid" type="submit" name="submit" id="submit" onclick="sendOTP()" /> -->
 
+          <input id="submit" type="button" name="submit" class="" onclick="sendAdminOTP();" style="visibility: hidden; height: 1px;" />
+          <input value="Login" class="btn btnSubmit solid" type="button" name="submit" id="submit" onclick="sendAdminOTP();" />
 
         </form>
 
         <?php
-        include 'supRegistration.php';
+        include '../../supRegistration.php';
         ?>
 
         <form id="insertsup" method="post" class="sign-up-form">
-          <img class="mb-4" src="static/img/9.png" width="20%" alt="">
+          <img class="mb-4" src="../../static/img/9.png" width="20%" alt="">
           <h2 class="title">Register</h2>
           <b>
             <p id="messagedisplay"></p>
@@ -150,7 +150,6 @@ if (isset($_POST['submit'])) {
             <select class="form-select" name="supcat" id="supcat" required>
               <option selected value="RI">Ration Items</option>
               <option selected value="PI">Pvc Items</option>
-
             </select>
           </div>
           <div class="input-field">
@@ -181,20 +180,22 @@ if (isset($_POST['submit'])) {
     <div class="panels-container">
       <div class="panel left-panel">
         <div class="content">
-          <img class="mb-5 pb-4" src="static/img/dockyardlogo.png" width="50%" alt="">
+          <img class="mb-5 pb-4" src="../../static/img/dockyardlogo.png" width="50%" alt="">
           <br>
-          <p>
-            Please use this LOGIN-IN to place a tender and select the categories as required to proceed !!!
-          </p>
-          <button class="btn transparent" id="sign-up-btn">
+          <h3 style="font-weight: 400;">
+            Please use your service number to login to the system!
+          </h3>
+          <br>
+          <!-- <button class="btn transparent" id="sign-up-btn">
             Register
-          </button>
+          </button> -->
+          <img src="../../static/img/adminuser.svg" style="" class="image" alt="" />
         </div>
-        <img src="./static/img/loginimage.svg" class="image" alt="" />
+
       </div>
       <div class="panel right-panel">
         <div class="content">
-          <img class="mb-5 pb-4" src="static/img/dockyardlogo.png" width="50%" alt="">
+          <img class="mb-5 pb-4" src="../../static/img/dockyardlogo.png" width="50%" alt="">
           <h3>Register to SIGN-In</h3>
           <p>
             If you have an account please use SIGN-IN to login and proceed the tender
@@ -203,7 +204,7 @@ if (isset($_POST['submit'])) {
             Login
           </button>
         </div>
-        <img src="./static/img/registrationNew.svg" class="image" alt="" />
+        <img src="../../static/img/registrationNew.svg" class="image" alt="" />
       </div>
     </div>
   </div>
@@ -213,9 +214,9 @@ if (isset($_POST['submit'])) {
     $("#mobile1").attr("maxlength", 10);
   </script>
 
-  <script src="./static/js/login.js"></script>
-  <script src="./static/js/showhideelement.js"></script>
-  <script src="js/verification.js"></script>
+  <script src="../../static/js/login.js?v=<?php echo time(); ?>"></script>
+  <script src="../../static/js/showhideelement.js?v=<?php echo time(); ?>"></script>
+  <script src="../../js/adminverification.js?v=<?php echo time(); ?>"></script>
 
 </body>
 

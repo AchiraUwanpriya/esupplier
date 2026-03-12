@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+require_once 'backend/common/config.php';
 date_default_timezone_set("Asia/Colombo");
 function runquery($query)
 {

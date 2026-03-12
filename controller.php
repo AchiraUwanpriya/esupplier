@@ -89,7 +89,7 @@ class Controller
     function mobileNumberExists($mobileNuber)
     {
         // isActive=1, isPending=-1, isnotExist=0
-        include 'config.php';
+        include 'backend/common/config.php';
         $tsql = "SELECT msd_mobileno,msd_status FROM mms_suppliers_details WHERE msd_mobileno=$mobileNuber
                 UNION SELECT msd_mobileno,msd_status FROM mms_supplier_pending_details WHERE msd_mobileno=$mobileNuber 
                 LIMIT 1";
@@ -106,7 +106,7 @@ class Controller
     function setSessionSupCode()
     {
         if ($_SESSION['mobile_number']) {
-            include 'config.php';
+            include 'backend/common/config.php';
             $sql = "SELECT msd_supplier_code, msd_supplier_name, msd_status, msd_supply_category
             FROM mms_suppliers_details
             WHERE msd_mobileno =" . $_SESSION['mobile_number'];

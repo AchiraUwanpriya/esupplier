@@ -1,4 +1,5 @@
-<?php include 'config.php'; ?>
+<?php require_once 'backend/common/config.php';
+ ?>
 
 <!DOCTYPE html>
 <html lang="en">

@@ -3,7 +3,7 @@
 
 <?php
 session_start();
-include 'config.php';
+require_once 'backend/common/config.php';
 
 if (!isset($_SESSION['sup_code'])) {
     http_response_code(403);

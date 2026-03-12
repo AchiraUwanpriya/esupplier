@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once 'config.php';
+require_once 'backend/common/config.php';
 
 $tender_no = $_GET["tender_no"];
 $query = "SELECT DISTINCT mtt_supplier_code, msd_supplier_name 

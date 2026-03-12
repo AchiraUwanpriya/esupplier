@@ -1,6 +1,6 @@
 <?php
 
-include 'config.php';
+require_once 'backend/common/config.php';
 
 $func = isset($_REQUEST['func']) ? $_REQUEST['func'] : "";
 switch (strtolower($func)) {

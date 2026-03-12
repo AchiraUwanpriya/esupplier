@@ -2,7 +2,7 @@
 session_start();
 ?>
 <?php
-include '../config.php';
+require_once '../backend/common/config.php';
 
 
 // if (isset($_SESSION['msd_supplier_name'])) {
@@ -58,9 +58,9 @@ include '../config.php';
     }
   </style>
 
-  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
-  <link rel="shortcut icon" href="../static/img/9.png" />
-  <link rel="stylesheet" href="../static/css/login.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
+  <link rel="shortcut icon" href="../static/img/9.png?v=<?php echo time(); ?>" />
+  <link rel="stylesheet" href="../static/css/login.css?v=<?php echo time(); ?>" />
 
 
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
@@ -74,7 +74,7 @@ include '../config.php';
 
   <!-- insert function -->
   <script>
-    // Set base URL for AJAX calls from Public folder
+    // Set base URL for AJAX calls from Public folder (root is one level up)
     var baseURL = '../';
     
     $(document).ready(function() {
@@ -215,9 +215,9 @@ include '../config.php';
     $("#mobile1").attr("maxlength", 10);
   </script>
 
-  <script src="../static/js/login.js"></script>
-  <script src="../static/js/showhideelement.js"></script>
-  <script src="adminverification-public.js"></script>
+  <script src="../static/js/login.js?v=<?php echo time(); ?>"></script>
+  <script src="../static/js/showhideelement.js?v=<?php echo time(); ?>"></script>
+  <script src="../js/adminverification.js?v=<?php echo time(); ?>"></script>
 
 </body>
 

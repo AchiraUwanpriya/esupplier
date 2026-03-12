@@ -16,19 +16,19 @@ $entry = $_SESSION['entry'] ?? 'N';
                 </a>
             </li>
             <li class="sidebar-item" id="registered-suppliers">
-                <a class="sidebar-link" href="../../allactivesuppliersview.php">
+                <a class="sidebar-link" href="allactivesuppliersview.php">
                     <i class="align-middle" data-feather="users"></i> <span class="align-middle">Registered Suppliers</span>
                 </a>
             </li>
 
             <li class="sidebar-header">Tender Managment</li>
             <li class="sidebar-item" id="tenders">
-                <a class="sidebar-link" href="../../tenderview.php">
+                <a class="sidebar-link" href="tenderview.php">
                     <i class="align-middle" data-feather="trending-up"></i> <span class="align-middle">Tenders</span>
                 </a>
             </li>
-            <li class="sidebar-item">
-                <a class="sidebar-link" href="../../monthlytenderview.php">
+            <li class="sidebar-item" id="monthly-tenders">
+                <a class="sidebar-link" href="monthlytenderview.php">
                     <i class="align-middle" data-feather="trending-up"></i> <span class="align-middle">Monthly Tenders</span>
                 </a>
             </li>
@@ -36,7 +36,7 @@ $entry = $_SESSION['entry'] ?? 'N';
             <?php if ($entry != 'N') : ?>
                 <li class="sidebar-header">Food Managment</li>
                 <li class="sidebar-item" id="add-food">
-                    <a class="sidebar-link" href="../../Admin_components/addfood.php">
+                    <a class="sidebar-link" href="addfood.php">
                         <i class="align-middle" data-feather="shopping-cart"></i> <span class="align-middle">Add Food</span>
                     </a>
                 </li>
@@ -46,7 +46,7 @@ $entry = $_SESSION['entry'] ?? 'N';
         <div class="sidebar-cta">
             <div class="sidebar-cta-content">
                 <div class="d-grid">
-                    <a href="../../admin.php" class="btn btn-primary" onclick="logoutfunction()">Logout</a>
+                    <a href="admin.php" class="btn btn-primary" onclick="logoutfunction()">Logout</a>
                 </div>
             </div>
         </div>
@@ -72,7 +72,7 @@ $entry = $_SESSION['entry'] ?? 'N';
     function logoutfunction() {
         let text = 'Please Confirm To Logout!!';
         if (confirm(text) === true) {
-            window.location = '../../logoutadmin.php';
+            window.location = 'logoutadmin.php';
         }
     }
 </script>

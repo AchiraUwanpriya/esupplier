@@ -2,6 +2,8 @@ function sendOTP() {
   $(".error").html("").hide();
   var number = $("#mobile").val();
   var snumber = $("#servicenumber").val();
+  
+  var resolvedBaseURL = (typeof baseURL !== 'undefined') ? baseURL : "";
 
   $("#loadbutton").show();
   $("#submit").prop("disabled", true);
@@ -12,30 +14,43 @@ function sendOTP() {
       action: "send_otp",
     };
     $.ajax({
-      url: "controller.php",
+      url: resolvedBaseURL + "controller.php",
       type: "POST",
       data: input,
       success: function (response) {
-        //console.log('response', response);
         $("#loadbutton").hide();
         if (response === "block") {
           stop();
           $(".error").html("User Does Not Exists!!!");
           $(".error").show();
+          $("#submit").prop("disabled", false);
         } else if (response === "pending") {
           stop();
           $(".error").html("User Approval Is Pending!!!");
           $(".error").show();
+          $("#submit").prop("disabled", false);
         } else {
           $(".container").html(response);
+          // Fix relative paths in injected content
+          $(".container").find("img, script, link").each(function() {
+            var attr = $(this).is("img") || $(this).is("script") ? "src" : "href";
+            var val = $(this).attr(attr);
+            if (val && !val.startsWith("http") && !val.startsWith("/") && !val.startsWith("..") && !val.startsWith(".")) {
+               $(this).attr(attr, resolvedBaseURL + val);
+            }
+          });
         }
       },
+      error: function() {
+        $("#loadbutton").hide();
+        $("#submit").prop("disabled", false);
+      }
     });
   } else {
     $("#loadbutton").hide();
     $(".error").html("Please enter a valid number!");
     $(".error").show();
-    stop();
+    $("#submit").prop("disabled", false);
   }
 }
 
@@ -43,53 +58,43 @@ function verifyOTP() {
   $(".error").html("").hide();
   $(".success").html("").hide();
   var otp = $("#mobileOtp").val();
+  
+  var resolvedBaseURL = (typeof baseURL !== 'undefined') ? baseURL : "";
 
-  //
-  if (otp.length == 5 && otp != null) {
+  if (otp && otp.length == 5) {
     var input = {
       otp: otp,
       action: "verify_otp",
     };
     $.ajax({
-      url: "controller.php",
+      url: resolvedBaseURL + "controller.php",
       type: "POST",
       dataType: "json",
       data: input,
       success: function (response) {
-        // console.log(response);
         if (response.type == "success") {
-          // alert(response.message);
-          // $(".").html(response.message)
-          // $(".").show();
-          if (response.status === "A") {
-            // Redirect with proper path handling
-            if (window.location.pathname.includes("/Public/")) {
-              window.location.href = "../profile.php";
-            } else {
-              window.location.href = "profile.php";
-            }
+          var targetName = (response.status === "A") ? "profile.php" : "dashboard.php";
+          
+          // Clean redirect logic
+          var path = window.location.pathname;
+          var redirectPath = "";
+          
+          if (path.includes("/Public/")) {
+              redirectPath = "../" + targetName;
           } else {
-            if (window.location.pathname.includes("/Public/")) {
-              window.location.href = "../dashboard.php";
-            } else {
-              window.location.href = "dashboard.php";
-            }
+              redirectPath = targetName;
           }
-          // window.location.href = "dashboard.php";
+          
+          window.location.href = redirectPath;
         } else {
-          // $("." + response.type).html(response.message);
-          // $("." + response.type).show();
-          $(".error").html("Please enter the OTP");
-          $(".error").show();
-          //
+          $(".error").html(response.message || "Verification failed").show();
         }
       },
-      // error : function() {
-      // 	alert("ss");
-      // }
+      error: function() {
+        $(".error").html("Connection error").show();
+      }
     });
   } else {
-    $(".error").html("You have entered wrong OTP.");
-    $(".error").show();
+    $(".error").html("Please enter a valid OTP.").show();
   }
 }

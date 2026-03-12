@@ -6,7 +6,7 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
 	exit();
 }
 
-include 'config.php';
+include '../../config.php';
 
 $entry = $_SESSION['entry'];
 $ButtonsDisabled = ($entry == 'N');
@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<link rel="preconnect" href="https://fonts.gstatic.com">
-	<link rel="shortcut icon" href="./static/img/2.svg" />
+	<link rel="shortcut icon" href="../../static/img/2.svg" />
 
 	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
 
@@ -106,16 +106,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-	<link href="./static/css/app.css" rel="stylesheet">
-	<link href="./static/css/main.css" rel="stylesheet">
+	<link href="../../static/css/app.css" rel="stylesheet">
+	<link href="../../static/css/main.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 
-	<script src="./static/js/jquery-3.3.1.min.js"></script>
-	<script src="./static/js/jquery.validate.min.js"></script>
-	<script src="./static/js/jquery.validate.unobtrusive.min.js"></script>
+	<script src="../../static/js/jquery-3.3.1.min.js"></script>
+	<script src="../../static/js/jquery.validate.min.js"></script>
+	<script src="../../static/js/jquery.validate.unobtrusive.min.js"></script>
 
-	<script src="./static/js/app.js"></script>
+	<script src="../../static/js/app.js"></script>
 
 	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
@@ -127,9 +127,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
 
 	<div class="wrapper">
-		<?php include './Admin_components/adminsidenav.php' ?>
+		<?php include 'components/adminsidenav.php' ?>
 		<div class="main">
-			<?php include './Admin_components/adminnavbar.php' ?>
+			<?php include 'components/adminnavbar.php' ?>
 			<!-- dashboard content -->
 			<main class="content">
 				<div class="container-fluid p-0">
@@ -191,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 					</form>
 				</div>
 			</main>
-			<?php include './components/footer.php' ?>
+			<?php include 'components/adminfooter.php' ?>
 		</div>
 	</div>
 

@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION['sup_code'])) {
     header('Location: index.php');
 }
-include 'config.php';
+require_once 'backend/common/config.php';
 include_once 'helper.php';
 $suppliercode = $_SESSION['sup_code'];
 

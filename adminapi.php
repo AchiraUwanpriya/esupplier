@@ -95,7 +95,7 @@ class Controller
 
     function adminMobileNumberExists($service_number)
     {
-        include 'config.php';
+        include 'backend/common/config.php';
         $tsql1 = "SELECT mobile_number, admin_status FROM mms_admin_details WHERE service_number = '$service_number'";
         $stmt = mysqli_query($con, $tsql1);
 
@@ -117,7 +117,7 @@ class Controller
     function setSession()
     {
         if ($_SESSION['mobile_number']) {
-            include 'config.php';
+            include 'backend/common/config.php';
             $sql = "SELECT `service_number`,`name`,`admin_status`,`entry` FROM `mms_admin_details` WHERE mobile_number =" . $_SESSION['mobile_number'];
             if ($stmt = mysqli_query($con, $sql)) {
                 while ($row = mysqli_fetch_row($stmt)) {

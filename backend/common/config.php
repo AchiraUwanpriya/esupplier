@@ -1,18 +1,26 @@
 <?php
-// config.php
+// backend/common/config.php
 
-define('DB_HOST', 'localhost:3306');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'esup');
+// Database Credentials
+$db_host = 'localhost:3306';
+$db_user = 'root';
+$db_pass = '';
+$db_name = 'esup';
 
-define('RECAPTCHA_SECRET', '6LeyhpcgAAAAAEdH8eXbOd2HGIPQbhB_jeeKYjlH');
-define('RECAPTCHA_SITE', '6LeyhpcgAAAAAAwsDOsKlWMVpwvmorC6sJ6oLNRz');
+// Define constants using the if(!defined(...)) pattern
+if (!defined('DB_HOST')) define('DB_HOST', $db_host);
+if (!defined('DB_USER')) define('DB_USER', $db_user);
+if (!defined('DB_PASS')) define('DB_PASS', $db_pass);
+if (!defined('DB_NAME')) define('DB_NAME', $db_name);
 
-// Your existing database connection
-$con = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+// reCAPTCHA Keys
+if (!defined('RECAPTCHA_SECRET')) define('RECAPTCHA_SECRET', '6LeyhpcgAAAAAEdH8eXbOd2HGIPQbhB_jeeKYjlH');
+if (!defined('RECAPTCHA_SITE')) define('RECAPTCHA_SITE', '6LeyhpcgAAAAAAwsDOsKlWMVpwvmorC6sJ6oLNRz');
 
-if (!$con) {
-    die("Connection failed: " . mysqli_connect_error());
+// Establish Connection
+$con = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 ?>

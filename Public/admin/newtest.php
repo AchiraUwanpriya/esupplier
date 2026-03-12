@@ -4,7 +4,7 @@ session_start();
 // }
 ?>
 <?php
-include 'config.php';
+include '../../config.php';
 
 if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_SESSION['entry'])) {
 	header('Location: admin.php');
@@ -12,7 +12,7 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
 }
 
 $entry = $_SESSION['entry'];
-?>
+?> 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,8 +22,7 @@ $entry = $_SESSION['entry'];
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<link rel="shortcut icon" href="./static/img/2.svg" />
-
+	<link rel="shortcut icon" href="../../static/img/2.svg" />
 	<title>eSupplier-CDL</title>
 
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -31,15 +30,15 @@ $entry = $_SESSION['entry'];
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-	<link href="./static/css/app.css" rel="stylesheet">
-	<link href="./static/css/main.css" rel="stylesheet">
+	<link href="../../static/css/app.css" rel="stylesheet">
+	<link href="../../static/css/main.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
-	<script src="./static/js/jquery-3.3.1.min.js"></script>
-	<script src="./static/js/jquery.validate.min.js"></script>
-	<script src="./static/js/jquery.validate.unobtrusive.min.js"></script>
+	<script src="../../static/js/jquery-3.3.1.min.js"></script>
+	<script src="../../static/js/jquery.validate.min.js"></script>
+	<script src="../../static/js/jquery.validate.unobtrusive.min.js"></script>
 
-	<script src="./static/js/app.js"></script>
+	<script src="../../static/js/app.js"></script>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -91,101 +90,9 @@ $entry = $_SESSION['entry'];
 
 <body>
 	<div class="wrapper">
-		<nav id="sidebar" class="sidebar js-sidebar">
-			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="adminview.php">
-					<!-- <span class="align-middle">eSupplier-CDL</span> -->
-					<center><img src="./static/img/8.png" class="mt-3" style=" width: 100%; padding-right: 30px;" alt=""></center>
-				</a>
-
-				<ul class="sidebar-nav">
-					<li class="sidebar-header">
-						Supplier Managment
-					</li>
-					<li class="sidebar-item ">
-						<a class="sidebar-link" href="allsuppliersview.php">
-							<i class="align-middle" data-feather="user-check"></i> <span class="align-middle">Pending Suppliers</span>
-						</a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="allactivesuppliersview.php">
-							<i class="align-middle" data-feather="users"></i> <span class="align-middle">Registered Suppliers</span>
-						</a>
-					</li>
-
-					<li class="sidebar-header">
-						Tender Managment
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="tenderview.php">
-							<i class="align-middle" data-feather="trending-up"></i> <span class="align-middle">Tenders</span>
-						</a>
-					</li>
-					<li class="sidebar-item active">
-						 <a class="sidebar-link" href="monthlytenderview.php">
-							<i class="align-middle" data-feather="trending-up"></i> <span class="align-middle">Monthly Tenders</span>
-						</a>
-					</li>
-                                        <?php if ($entry != 'N') : ?>
-					<li class="sidebar-header">
-						Food Managment
-					</li>
-					<li class="sidebar-item active">
-						<a class="sidebar-link" href="Admin_components/addfood.php">
-							<i class="align-middle" data-feather="shopping-cart"></i> <span class="align-middle">Add Food</span>
-						</a>
-					</li>
-                                        <?php endif; ?>
-				</ul>
-
-				<div class="sidebar-cta">
-					<div class="sidebar-cta-content">
-						<div class="d-grid">
-							<a href="adminlogout.php" class="btn btn-primary" onclick="logoutfunction()">Logout</a>
-
-						</div>
-					</div>
-				</div>
-			</div>
-		</nav>
-		<script>
-			function logoutfunction() {
-				alert("Please Confirm To Logout!!");
-			}
-		</script>
+		<?php include 'components/adminsidenav.php'; ?>
 		<div class="main">
-			
-			<nav class="navbar navbar-expand navbar-light navbar-bg">
-				<a class="sidebar-toggle js-sidebar-toggle">
-					<i class="hamburger align-self-center"></i>
-				</a>
-				<a href="" style="color: blue; font-weight: bolder; text-decoration: none;">
-					HELLO <?php echo $_SESSION['name'] ?>! WELCOME TO eSupplier-CDPLC ADMIN DASHBOARD!!!
-				</a>
-				<div class="navbar-collapse collapse">
-					<ul class="navbar-nav navbar-align">
-						<li class="nav-item dropdown">
-							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
-								<i class="align-middle" data-feather="settings"></i>
-							</a>
-
-							<a class="nav-link d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-								<img src="./static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark"><?php echo $_SESSION['name'] ?></span>
-							</a>
-							<div class="dropdown-menu dropdown-menu-end">
-								<!-- <a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="user"></i> Profile</a> -->
-								<!-- <a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a> -->
-								<div class="dropdown-divider"> </div>
-								<!-- <a class="dropdown-item" href="logout.php" onclick="logoutfunction()">Log out</a> -->
-								<a href="logout.php" class="dropdown-item" onclick="logoutfunction()">Logout</a>
-							</div>
-						</li>
-					</ul>
-				</div>
-			</nav>
+			<?php include 'components/adminnavbar.php'; ?>
 
 			<!-- dashboard content -->
 			<main class="content">
@@ -416,14 +323,14 @@ $entry = $_SESSION['entry'];
 				</div>
 			</main>
 			<!-- footer -->
-			<?php include './components/footer.php' ?>
+			<?php include 'components/adminfooter.php'; ?>
 		</div>
 	</div>
 	</form>
 
 	<!-- UPDATE MODAL -->
 	<?php
-	include 'config.php';
+	include '../../config.php';
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 		if (isset($_POST['updatebtn'])) {
@@ -455,7 +362,7 @@ $entry = $_SESSION['entry'];
 
 	<?php
 
-	include 'config.php';
+	include '../../config.php';
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 		if (isset($_POST['insertbtn'])) {

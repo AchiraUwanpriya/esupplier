@@ -6,7 +6,7 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
     exit();
 }
 
-include_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/common/config.php';
 include_once __DIR__ . '/queries/addtender_queries.php';
 
 date_default_timezone_set('Asia/Colombo');

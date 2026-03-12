@@ -2,7 +2,7 @@
 session_start();
 ?>
 <?php
-include 'config.php';
+require_once 'backend/common/config.php';
 ?>
 
 <!DOCTYPE html>

@@ -64,9 +64,9 @@
 
 <body>
     <div class="wrapper">
-        <?php include '../../Admin_components/adminsidenav.php' ?>
+        <?php include 'components/adminsidenav.php' ?>
         <div class="main">
-            <?php include '../../Admin_components/adminnavbar.php' ?>
+            <?php include 'components/adminnavbar.php' ?>
             
             <main class="content">
                 <div class="container-fluid p-0">

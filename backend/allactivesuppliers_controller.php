@@ -1,7 +1,7 @@
 <?php
 // Controller for allactivesuppliersview - handles session/checks and write handlers
 session_start();
-include_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/common/config.php';
 include_once __DIR__ . '/../helper.php';
 
 $updatedate = date('Y-m-d');

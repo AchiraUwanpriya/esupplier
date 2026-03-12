@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_SESSION['entry'])) {
-    header('Location: ../../admin.php');
+    header('Location: admin.php');
     exit();
 }
 
@@ -79,10 +79,10 @@ $viewButtonDisabled = ($entry === 'N');
 </head>
 <body>
     <div class="wrapper">
-        <?php require_once __DIR__ . '/components/adminsidenav.php'; ?>
+        <?php include 'components/adminsidenav.php'; ?>
 
         <div class="main">
-            <?php require_once __DIR__ . '/components/adminnavbar.php'; ?>
+            <?php include 'components/adminnavbar.php'; ?>
 
             <!-- dashboard content -->
             <main class="content">
@@ -159,7 +159,7 @@ $viewButtonDisabled = ($entry === 'N');
             </main>
 
             <!-- footer -->
-            <?php require_once __DIR__ . '/components/adminfooter.php'; ?>
+            <?php include 'components/adminfooter.php'; ?>
         </div>
     </div>
 

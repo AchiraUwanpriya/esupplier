@@ -6,7 +6,7 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
     exit();
 }
 
-include_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/common/config.php';
 include_once __DIR__ . '/queries/monthlytenderview_queries.php';
 
 $entry = $_SESSION['entry'];
@@ -31,6 +31,10 @@ if (isset($_GET['type'])) {
             break;
     }
 }
+
+// Variables for view filters
+$relevant_categories = getRelevantCategories($mtd_type);
+$current_cat = $_GET['category'] ?? ($relevant_categories[0] ?? null);
 
 // Function to get category name based on code
 function getCategoryName($cat_code) {

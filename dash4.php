@@ -16,7 +16,7 @@ if (isset($_SESSION['sup_category'])) {
 
 $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : '';
 
-include 'config.php';
+require_once 'backend/common/config.php';
 
  
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

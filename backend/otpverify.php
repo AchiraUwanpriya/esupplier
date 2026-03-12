@@ -2,7 +2,7 @@
 session_start();
 ?>
 <?php
-include 'config.php';
+require_once 'common/config.php';
 
 if (isset($_POST['insert'])) {
   $tsql = "SELECT msd_supplier_code,msd_mobileno,msd_supplier_name
@@ -27,7 +27,7 @@ if (isset($_POST['insert'])) {
   <link rel="stylesheet" href="./static/css/login.css" />
   <title>eSupplier-CDPLC</title>
 
-  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
   <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
 
 </head>

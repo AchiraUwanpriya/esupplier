@@ -18,7 +18,7 @@ if (!isset($_SESSION['sup_status']) || $_SESSION['sup_status'] === "A") {
 
 // Ensure category is in session
 if (!isset($_SESSION['sup_category']) && isset($_SESSION['sup_code'])) {
-    include 'config.php';
+    require_once 'backend/common/config.php';
     $supplier_code = $_SESSION['sup_code'];
     
     $query = "SELECT msd_supply_category FROM mms_supplier_pending_details WHERE msd_supplier_code = '$supplier_code'";
@@ -38,7 +38,7 @@ if (!isset($_SESSION['sup_category']) && isset($_SESSION['sup_code'])) {
 
 $user_category = $_SESSION['sup_category'] ?? '';
 // ========== Fetch the category forms for this supplier ==========
-include 'config.php';
+require_once 'backend/common/config.php';
 
 function normalizeCategoryImagePath($path) {
     $path = trim((string)$path);

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/common/config.php';
 
 // Admin authentication
 if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_SESSION['entry'])) {

@@ -2,7 +2,7 @@
 session_start();
 ?>
 <?php
-include 'config.php';
+require_once 'backend/common/config.php';
 
 
 if (isset($_SESSION['msd_supplier_name'])) {
@@ -58,9 +58,9 @@ if (isset($_POST['submit'])) {
     }
   </style>
 
-  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
-  <link rel="shortcut icon" href="./static/img/9.png" />
-  <link rel="stylesheet" href="./static/css/login.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
+  <link rel="shortcut icon" href="./static/img/9.png?v=<?php echo time(); ?>" />
+  <link rel="stylesheet" href="./static/css/login.css?v=<?php echo time(); ?>" />
 
 
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
@@ -74,21 +74,18 @@ if (isset($_POST['submit'])) {
 
   <!-- insert function -->
   <script>
+    var baseURL = "./";
     $(document).ready(function() {
       $('#insertbtn').click(function(e) {
         e.preventDefault();
         $.ajax({
           type: "post",
-          url: "supRegistration.php",
+          url: baseURL + "supRegistration.php",
           data: $('#insertsup').serialize(),
           dataType: "text",
           success: function(response) {
-            $('#messagedisplay').html(data);
-          },
-
-          success: function(data) {
-            $('#messagedisplay').html(data);
-          },
+            $('#messagedisplay').html(response);
+          }
         })
       })
     });
@@ -214,9 +211,9 @@ if (isset($_POST['submit'])) {
     $("#mobile1").attr("maxlength", 10);
   </script>
 
-  <script src="./static/js/login.js"></script>
-  <script src="./static/js/showhideelement.js"></script>
-  <script src="js/verification.js"></script>
+  <script src="./static/js/login.js?v=<?php echo time(); ?>"></script>
+  <script src="./static/js/showhideelement.js?v=<?php echo time(); ?>"></script>
+  <script src="js/verification.js?v=<?php echo time(); ?>"></script>
 
 </body>
 

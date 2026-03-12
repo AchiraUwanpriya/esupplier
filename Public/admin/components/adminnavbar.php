@@ -25,7 +25,7 @@
     function logoutfunction() {
         let text = 'Please Confirm To Logout!!';
         if (confirm(text) === true) {
-            window.location = '../../logoutadmin.php';
+            window.location = 'logoutadmin.php';
         }
     }
 </script>

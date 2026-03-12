@@ -1,7 +1,7 @@
 <?php
 session_start();
 $user_category = isset($_SESSION['sup_category']) ? $_SESSION['sup_category'] : '';
-include 'config.php';
+require_once 'backend/common/config.php';
 date_default_timezone_set('Asia/Colombo');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
