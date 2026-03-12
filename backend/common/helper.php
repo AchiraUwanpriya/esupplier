@@ -186,4 +186,13 @@ class Helper {
         return 'General Items';
     }
 }
+
+/**
+ * Utility function for retrieving values from arrays with a default value
+ */
+if (!function_exists('getvalue')) {
+    function getvalue($row, $key, $default = "") {
+        return isset($row[$key]) ? $row[$key] : $default;
+    }
+}
 ?>

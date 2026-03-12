@@ -12,7 +12,7 @@ function sendAdminOTP() {
       action: "send_otp",
     };
     $.ajax({
-      url: resolvedBaseURL + "adminapi.php",
+      url: resolvedBaseURL + "backend/admin_auth_controller.php",
       type: "POST",
       data: input,
       success: function (response) {
@@ -57,7 +57,7 @@ function verifyAdminOTP() {
       action: "verify_otp",
     };
     $.ajax({
-      url: resolvedBaseURL + "adminapi.php",
+      url: resolvedBaseURL + "backend/admin_auth_controller.php",
       type: "POST",
       dataType: "json",
       data: input,

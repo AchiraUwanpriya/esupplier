@@ -3,7 +3,7 @@ session_start();
 require_once '../../backend/common/config.php';
 
 if (isset($_SESSION['msd_supplier_name'])) {
-    header("Location: ../../dashboard.php");
+    header("Location: dashboard.php");
     exit();
 }
 ?>
@@ -35,8 +35,8 @@ if (isset($_SESSION['msd_supplier_name'])) {
   </style>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
-  <link rel="shortcut icon" href="../../static/img/9.png" />
-  <link rel="stylesheet" href="../../static/css/login.css" />
+  <link rel="shortcut icon" href="../../static/img/9.png?v=<?= time(); ?>" />
+  <link rel="stylesheet" href="../../static/css/login.css?v=<?= time(); ?>" />
 
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
@@ -46,7 +46,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
   <title>eSupplier-CDPLC | Supplier Login</title>
 
   <script>
-    var baseURL = "../../backend/auth/supplier_auth.php";
+    var baseURL = "../../";
     $(document).ready(function() {
       // Registration AJAX
       $('#insertbtn').click(function(e) {
@@ -54,7 +54,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
         var formData = $('#insertsup').serialize() + "&action=register";
         $.ajax({
           type: "post",
-          url: baseURL,
+          url: baseURL + "backend/auth/supplier_auth.php",
           data: formData,
           dataType: "text",
           success: function(response) {
@@ -62,44 +62,9 @@ if (isset($_SESSION['msd_supplier_name'])) {
           }
         })
       });
-
-      // Login function
-      window.sendOTP = function() {
-        var mobile = $('#mobile').val();
-        if(mobile == "") {
-          $('.error').html("Please enter mobile number");
-          return;
-        }
-        
-        $('#loadbutton').show();
-        $('.btnSubmit').hide();
-
-        $.ajax({
-          type: "post",
-          url: baseURL,
-          data: {
-            action: 'login',
-            mobile: mobile
-          },
-          dataType: "json",
-          success: function(response) {
-            if(response.success) {
-              window.location.href = response.redirect;
-            } else {
-              $('.error').html(response.message);
-              $('#loadbutton').hide();
-              $('.btnSubmit').show();
-            }
-          },
-          error: function() {
-             $('.error').html("Connection error");
-             $('#loadbutton').hide();
-             $('.btnSubmit').show();
-          }
-        });
-      };
     });
   </script>
+  <script src="../../js/verification.js?v=<?= time(); ?>"></script>
 </head>
 
 <body>
@@ -192,8 +157,8 @@ if (isset($_SESSION['msd_supplier_name'])) {
     </div>
   </div>
 
-  <script src="../../static/js/login.js"></script>
-  <script src="../../static/js/showhideelement.js"></script>
+  <script src="../../static/js/login.js?v=<?= time(); ?>"></script>
+  <script src="../../static/js/showhideelement.js?v=<?= time(); ?>"></script>
   <script>
     $("#mobile_reg").attr("maxlength", 10);
   </script>

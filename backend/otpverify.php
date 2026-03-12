@@ -4,18 +4,8 @@ session_start();
 <?php
 require_once 'common/config.php';
 
-if (isset($_POST['insert'])) {
-  $tsql = "SELECT msd_supplier_code,msd_mobileno,msd_supplier_name
-  FROM mms_supplier_pending_details";
-  $stmt = mysqli_query($con, $tsql);
-  if ($stmt) {
-    $user = mysqli_fetch_assoc($stmt);
-    $_SESSION["msd_supplier_code"] = $user['msd_supplier_code'];
-    $_SESSION["msd_supplier_name"] = $user['msd_supplier_name'];
-  } else {
-    header("Location: dashboard.php");
-  }
-}
+// Removed the block that redirects to dashboard.php based on $_POST['insert']
+// because it was causing automatic redirects when OTP page loaded via AJAX
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,8 +13,8 @@ if (isset($_POST['insert'])) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="./static/img/2.svg" />
-  <link rel="stylesheet" href="./static/css/login.css" />
+  <link rel="shortcut icon" href="static/img/2.svg" />
+  <link rel="stylesheet" href="static/css/login.css" />
   <title>eSupplier-CDPLC</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
@@ -41,7 +31,7 @@ if (isset($_POST['insert'])) {
 
         <form id="frm-mobile-verification" class="sign-in-form">
           <!-- <center><img src="img/2.svg" style="height: 60px; width: 100%;"  alt=""></center>  -->
-          <img class="mb-4" src="/esupplier/static/img/9.png" width="50%" alt="">
+          <img class="mb-4" src="static/img/9.png" width="50%" alt="">
           <br><br>
           <h2 class="title">Enter Your OTP Number</h2>
           <p>We have sent a 5 digit otp number to your mobile.</p>
@@ -85,7 +75,7 @@ if (isset($_POST['insert'])) {
     <div class="panels-container">
       <div class="panel left-panel">
         <div class="content">
-          <img class="mb-5 pb-4" src="/esupplier/static/img/dockyardlogo.png" width="50%" alt="">
+          <img class="mb-5 pb-4" src="static/img/dockyardlogo.png" width="50%" alt="">
           <p>
             Please use this LOGIN-IN to place a tender and select the categories as required to proceed !!!
           </p>
@@ -114,11 +104,11 @@ if (isset($_POST['insert'])) {
 
   <!-- <script src="./static/js/jquery-3.3.1.min.js"></script> -->
 
-  <script src="./static/js/login.js"></script>
-  <script src="./static/js/showhideelement.js"></script>
-  <script src="./js/verification.js"></script>
-  <!-- <script src="./js/adminverification.js"></script> -->
-  <script src="./js/otpexpire.js"></script>
+  <script src="static/js/login.js"></script>
+  <script src="static/js/showhideelement.js"></script>
+  <script src="js/verification.js"></script>
+  <!-- <script src="js/adminverification.js"></script> -->
+  <script src="js/otpexpire.js"></script>
   
   <!-- Load scripts with path correction -->
   <script>
@@ -154,7 +144,7 @@ if (isset($_POST['insert'])) {
           if (duration < 1) {
             timerEl.innerText = "0:00";
             alert('OTP session expired. Please try again.');
-            window.location = window.location.pathname.includes('/Public/') ? '../index.php' : 'index.php';
+            window.location.reload();
           } else {
             var Minutes = parseInt(duration / 60);
             var Seconds = (duration % 60);

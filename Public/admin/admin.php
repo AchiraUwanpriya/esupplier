@@ -81,7 +81,7 @@ require_once '../../backend/common/config.php';
         e.preventDefault();
         $.ajax({
           type: "post",
-          url: baseURL + "supRegistration.php",
+          url: "../Supplier/supRegistration.php",
           data: $('#insertsup').serialize(),
           dataType: "text",
           success: function(response) {
@@ -130,7 +130,7 @@ require_once '../../backend/common/config.php';
         </form>
 
         <?php
-        include '../../supRegistration.php';
+        include '../Supplier/supRegistration.php';
         ?>
 
         <form id="insertsup" method="post" class="sign-up-form">

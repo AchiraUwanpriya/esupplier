@@ -2,7 +2,7 @@
 // Controller for allactivesuppliersview - handles session/checks and write handlers
 session_start();
 require_once __DIR__ . '/common/config.php';
-include_once __DIR__ . '/../helper.php';
+include_once __DIR__ . '/common/helper.php';
 
 $updatedate = date('Y-m-d');
 

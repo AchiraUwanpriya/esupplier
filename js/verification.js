@@ -13,8 +13,14 @@ function sendOTP() {
       service_number: snumber,
       action: "send_otp",
     };
+    var path = window.location.pathname;
+    var controllerUrl = "backend/auth_controller.php";
+    if (path.includes("/Supplier/")) {
+        controllerUrl = "../../backend/auth_controller.php";
+    }
+
     $.ajax({
-      url: resolvedBaseURL + "controller.php",
+      url: controllerUrl,
       type: "POST",
       data: input,
       success: function (response) {
@@ -66,8 +72,14 @@ function verifyOTP() {
       otp: otp,
       action: "verify_otp",
     };
+    var path = window.location.pathname;
+    var controllerUrl = "backend/auth_controller.php";
+    if (path.includes("/Supplier/")) {
+        controllerUrl = "../../backend/auth_controller.php";
+    }
+  
     $.ajax({
-      url: resolvedBaseURL + "controller.php",
+      url: controllerUrl,
       type: "POST",
       dataType: "json",
       data: input,
@@ -79,10 +91,12 @@ function verifyOTP() {
           var path = window.location.pathname;
           var redirectPath = "";
           
-          if (path.includes("/Public/")) {
-              redirectPath = "../" + targetName;
-          } else {
+          if (path.includes("/Supplier/")) {
               redirectPath = targetName;
+          } else if (path.includes("/Public/")) {
+              redirectPath = "Supplier/" + targetName;
+          } else {
+              redirectPath = "Public/Supplier/" + targetName;
           }
           
           window.location.href = redirectPath;

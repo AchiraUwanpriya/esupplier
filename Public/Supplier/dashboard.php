@@ -10,40 +10,30 @@ $__root = __DIR__ . '/../../';
 // Base URL prefix for HTML links/assets resolved in components
 $sbase = '../../';
 
-require_once $__root . 'helper.php';
+require_once $__root . 'backend/common/helper.php';
 
 if (!isset($_SESSION['sup_code'])) {
     header('Location: index.php');
     exit();
 }
 if (!isset($_SESSION['sup_status']) || $_SESSION['sup_status'] === "A") {
-    header('Location: ' . $sbase . 'profile.php');
+    header('Location: profile.php');
     exit();
 }
 
+require_once $__root . 'backend/supplier/dashboard_queries.php';
+$dashboardQueries = new DashboardQueries();
+
 // Ensure category is in session
 if (!isset($_SESSION['sup_category']) && isset($_SESSION['sup_code'])) {
-    require_once $__root . 'backend/common/config.php';
     $supplier_code = $_SESSION['sup_code'];
-
-    $query = "SELECT msd_supply_category FROM mms_supplier_pending_details WHERE msd_supplier_code = '$supplier_code'";
-    $result = mysqli_query($con, $query);
-    if ($result && mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
-        $_SESSION['sup_category'] = $row['msd_supply_category'];
-    } else {
-        $query = "SELECT msd_supply_category FROM mms_suppliers_details WHERE msd_supplier_code = '$supplier_code'";
-        $result = mysqli_query($con, $query);
-        if ($result && mysqli_num_rows($result) > 0) {
-            $row = mysqli_fetch_assoc($result);
-            $_SESSION['sup_category'] = $row['msd_supply_category'];
-        }
+    $category = $dashboardQueries->getSupplierCategory($supplier_code);
+    if ($category) {
+        $_SESSION['sup_category'] = $category;
     }
 }
 
 $user_category = $_SESSION['sup_category'] ?? '';
-
-require_once $__root . 'backend/common/config.php';
 
 function normalizeCategoryImagePath($path) {
     $path = trim((string)$path);
@@ -59,28 +49,12 @@ function normalizeCategoryImagePath($path) {
 
 $categories = [];
 if ($user_category) {
-    $catQuery = "SELECT cat_code, display_name, image_path, sort_order
-                 FROM mms_category_forms
-                 WHERE supplier_category = ?
-                 ORDER BY sort_order";
-    $stmt = mysqli_prepare($con, $catQuery);
-    mysqli_stmt_bind_param($stmt, 's', $user_category);
-    mysqli_stmt_execute($stmt);
-    $catResult = mysqli_stmt_get_result($stmt);
-    while ($row = mysqli_fetch_assoc($catResult)) {
+    $fetchedCategories = $dashboardQueries->getCategoriesBySupplierCategory($user_category);
+    foreach ($fetchedCategories as $row) {
         $row['image_url'] = normalizeCategoryImagePath($row['image_path'] ?? '');
-
-        $unitQuery = "SELECT DISTINCT MMC_UNIT FROM mms_material_catalogue WHERE MMC_CAT_CODE = ? AND MMC_STATUS = 'A' LIMIT 1";
-        $unitStmt = mysqli_prepare($con, $unitQuery);
-        mysqli_stmt_bind_param($unitStmt, 's', $row['cat_code']);
-        mysqli_stmt_execute($unitStmt);
-        mysqli_stmt_bind_result($unitStmt, $unit);
-        $row['unit'] = mysqli_stmt_fetch($unitStmt) ? $unit : '';
-        mysqli_stmt_close($unitStmt);
-
+        $row['unit'] = $dashboardQueries->getUnitForCategory($row['cat_code']);
         $categories[] = $row;
     }
-    mysqli_stmt_close($stmt);
 }
 
 // POST handling
@@ -99,20 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
         exit;
     }
 
-    if ($user_category === 'RI') {
-        $tnStmt = mysqli_prepare($con, "SELECT mtd_tender_no, mtd_year FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL LIMIT 1");
-    } else {
-        $tnStmt = mysqli_prepare($con, "SELECT mtd_tender_no, mtd_year FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type = ? LIMIT 1");
-        mysqli_stmt_bind_param($tnStmt, 's', $user_category);
-    }
-    mysqli_stmt_execute($tnStmt);
-    mysqli_stmt_bind_result($tnStmt, $tenderNo, $tenderYear);
-    $fetched = mysqli_stmt_fetch($tnStmt);
-    mysqli_stmt_close($tnStmt);
+    $activeTender = $dashboardQueries->getActiveTender($user_category);
 
-    if (!$fetched) {
+    if (!$activeTender) {
         $response = ['status' => 'error', 'message' => 'No active tender for your category'];
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
             echo json_encode($response);
         } else {
             echo "<script>alert('No active tender found');</script>";
@@ -120,64 +85,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
         exit;
     }
 
+    $tenderNo = $activeTender['mtd_tender_no'];
+    $tenderYear = $activeTender['mtd_year'];
+    
+    // Initialize display variables for the tender info section
+    $tNumber = $tenderNo;
+    $bidclose_date = $activeTender['mtd_bidclose_date'] ?? 'N/A';
+    $stardate = $activeTender['mtd_start_date'] ?? 'N/A';
+    $enddate = $activeTender['mtd_end_date'] ?? 'N/A';
+    
     $suppliercode = $_SESSION['sup_code'];
-    $sup_code = $suppliercode;
-    $date_now = date('Y-m-d g:i A');
 
-    $selectStmt = mysqli_prepare($con, "SELECT mtt_price, mtt_remark FROM mms_tenderprice_transactions WHERE mtt_year=? AND mtt_tender_no=? AND mtt_supplier_code=? AND mtt_material_code=? AND mtt_status='A' LIMIT 1");
-    $deleteStmt = mysqli_prepare($con, "DELETE FROM mms_tenderprice_transactions WHERE mtt_supplier_code=? AND mtt_material_code=? AND mtt_status='A' AND mtt_tender_no=?");
-    $updateStmt = mysqli_prepare($con, "UPDATE mms_tenderprice_transactions SET mtt_remark=?, mtt_price=?, updated_by=?, updated_date=? WHERE mtt_year=? AND mtt_tender_no=? AND mtt_supplier_code=? AND mtt_material_code=? AND mtt_status='A'");
-    $insertStmt = mysqli_prepare($con, "INSERT INTO mms_tenderprice_transactions (mtt_year,mtt_tender_no,mtt_supplier_code,mtt_material_code,mtt_remark,mtt_price,mtt_status,created_by,created_date) VALUES (?,?,?,?,?,?,?,?,?)");
-
+    $itemsData = [];
     $rowCount = isset($_POST['MMC_DESCRIPTION']) ? count($_POST['MMC_DESCRIPTION']) : 0;
 
     for ($x = 0; $x < $rowCount; $x++) {
-        $MMC_DESCRIPTION = $_POST['MMC_DESCRIPTION'][$x] ?? '';
-        $MMC_UNIT = $_POST['MMC_UNIT'][$x] ?? '';
-        $MMC_REMARK = (isset($_POST['MMC_REMARK'][$x]) && $_POST['MMC_REMARK'][$x] !== '') ? $_POST['MMC_REMARK'][$x] : null;
-        $MMC_PRICE = (isset($_POST['MMC_PRICE'][$x]) && $_POST['MMC_PRICE'][$x] !== '') ? $_POST['MMC_PRICE'][$x] : null;
-        $MMC_MATERIAL_CODE = $_POST['MMC_MATERIAL_CODE'][$x] ?? '';
-        $MMC_CAT_CODE = $_POST['MMC_CAT_CODE'][$x] ?? '';
-
-        if ($MMC_MATERIAL_CODE === '') continue;
-
-        if ($MMC_PRICE === null) {
-            mysqli_stmt_bind_param($deleteStmt, 'sss', $suppliercode, $MMC_MATERIAL_CODE, $tenderNo);
-            if (!mysqli_stmt_execute($deleteStmt)) { $success = false; }
-            continue;
-        }
-
-        mysqli_stmt_bind_param($selectStmt, 'ssss', $tenderYear, $tenderNo, $suppliercode, $MMC_MATERIAL_CODE);
-        if (!mysqli_stmt_execute($selectStmt)) { $success = false; continue; }
-        mysqli_stmt_store_result($selectStmt);
-
-        if (mysqli_stmt_num_rows($selectStmt) > 0) {
-            mysqli_stmt_bind_result($selectStmt, $existingPrice, $existingRemark);
-            mysqli_stmt_fetch($selectStmt);
-        } else {
-            $existingPrice = null;
-            $existingRemark = null;
-        }
-
-        if ($existingPrice !== null && (string)$existingPrice === (string)$MMC_PRICE && (string)$existingRemark === (string)$MMC_REMARK) {
-            continue;
-        }
-
-        if ($existingPrice !== null) {
-            mysqli_stmt_bind_param($updateStmt, 'sdssssss', $MMC_REMARK, $MMC_PRICE, $sup_code, $date_now, $tenderYear, $tenderNo, $suppliercode, $MMC_MATERIAL_CODE);
-            if (!mysqli_stmt_execute($updateStmt)) { $success = false; }
-        } else {
-            $status = 'A';
-            mysqli_stmt_bind_param($insertStmt, 'sssssdsss', $tenderYear, $tenderNo, $suppliercode, $MMC_MATERIAL_CODE, $MMC_REMARK, $MMC_PRICE, $status, $sup_code, $date_now);
-            if (!mysqli_stmt_execute($insertStmt)) { $success = false; }
-        }
+        $itemsData[] = [
+            'MMC_MATERIAL_CODE' => $_POST['MMC_MATERIAL_CODE'][$x] ?? '',
+            'MMC_PRICE' => (isset($_POST['MMC_PRICE'][$x]) && $_POST['MMC_PRICE'][$x] !== '') ? $_POST['MMC_PRICE'][$x] : null,
+            'MMC_REMARK' => (isset($_POST['MMC_REMARK'][$x]) && $_POST['MMC_REMARK'][$x] !== '') ? $_POST['MMC_REMARK'][$x] : null
+        ];
     }
 
-    mysqli_stmt_close($selectStmt);
-    mysqli_stmt_close($deleteStmt);
-    mysqli_stmt_close($updateStmt);
-    mysqli_stmt_close($insertStmt);
-    mysqli_close($con);
+    $success = $dashboardQueries->saveTenderPrices($tenderYear, $tenderNo, $suppliercode, $itemsData);
 
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
         echo json_encode(['status' => $success ? 'success' : 'error']);
@@ -209,7 +139,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insert']) && $_POST['i
     exit;
 }
 
-include $__root . 'components/timecounter.php';
+// Ensure variables are defined if not in POST
+if (!isset($tNumber) && isset($user_category)) {
+    $activeTender = $dashboardQueries->getActiveTender($user_category);
+    if ($activeTender) {
+        $tNumber = $activeTender['mtd_tender_no'] ?? 'N/A';
+        $bidclose_date = $activeTender['mtd_bidclose_date'] ?? 'N/A';
+        $stardate = $activeTender['mtd_start_date'] ?? 'N/A';
+        $enddate = $activeTender['mtd_end_date'] ?? 'N/A';
+    } else {
+        $tNumber = $bidclose_date = $stardate = $enddate = 'N/A';
+    }
+}
+
+include './components/timecounter.php';
 ?>
 <!DOCTYPE html>
 <html>
@@ -285,9 +228,9 @@ include $__root . 'components/timecounter.php';
 </div>
 
 <div class="wrapper">
-    <?php include $__root . 'components/sidenav.php'; ?>
+    <?php include './components/sidenav.php'; ?>
     <div class="main">
-        <?php include $__root . 'components/navbar.php'; ?>
+        <?php include './components/navbar.php'; ?>
         <main class="content">
             <div class="container-fluid p-0">
                 <div class="container-fluid">
@@ -391,23 +334,9 @@ include $__root . 'components/timecounter.php';
                                     <tbody>
                                     <?php
                                     $suppliercode = $_SESSION['sup_code'];
-                                    if ($user_category === 'RI') {
-                                        $tenderSubquery = "(SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type IS NULL LIMIT 1)";
-                                    } else {
-                                        $tenderSubquery = "(SELECT mtd_tender_no FROM mms_tender_details WHERE mtd_status = 'A' AND mtd_type = '$user_category' LIMIT 1)";
-                                    }
-                                    $itemQuery = "SELECT MMC_DESCRIPTION, MMC_UNIT, MMC_MATERIAL_SPEC, MMC_MATERIAL_CODE, MMC_CAT_CODE,
-                                                         mtt_price AS MMC_PRICE, mtt_remark AS MMC_REMARK
-                                                  FROM mms_material_catalogue
-                                                  LEFT JOIN mms_tenderprice_transactions
-                                                      ON mtt_material_code = MMC_MATERIAL_CODE
-                                                      AND mtt_supplier_code = '$suppliercode'
-                                                      AND mtt_tender_no = $tenderSubquery
-                                                  WHERE MMC_CAT_CODE = '$catCode' AND MMC_STATUS = 'A'
-                                                  ORDER BY MMC_DESCRIPTION ASC";
-                                    $itemResult = mysqli_query($con, $itemQuery);
+                                    $categoryItems = $dashboardQueries->getCategoryItems($catCode, $suppliercode, $user_category);
                                     $idx = 0;
-                                    while ($row = mysqli_fetch_assoc($itemResult)): ?>
+                                    foreach ($categoryItems as $row): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($row['MMC_DESCRIPTION']) ?>
                                                 <input type="hidden" name="MMC_DESCRIPTION[<?= $idx ?>]" value="<?= htmlspecialchars($row['MMC_DESCRIPTION']) ?>">
@@ -431,7 +360,7 @@ include $__root . 'components/timecounter.php';
                                                 <input type="hidden" name="MMC_CAT_CODE[<?= $idx ?>]" value="<?= htmlspecialchars($row['MMC_CAT_CODE']) ?>">
                                             </td>
                                         </tr>
-                                    <?php $idx++; endwhile; ?>
+                                    <?php $idx++; endforeach; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -448,7 +377,7 @@ include $__root . 'components/timecounter.php';
             <?php endforeach; ?>
 
         </main>
-        <?php include $__root . 'components/footer.php'; ?>
+        <?php include './components/footer.php'; ?>
     </div>
 </div>
 
@@ -532,7 +461,7 @@ $(document).ready(function() {
     });
 
     function loadPreviewData() {
-        $.get('../../allitemsinventory.php', function(response) {
+        $.get('allitemsinventory.php', function(response) {
             if (response) {
                 const items = parseJsonResponse(response);
                 if (!Array.isArray(items)) { $('#allitems').html(''); $('#btndonemodal').prop('disabled', true); $('#submitTenderMessage').show(); return; }
@@ -547,7 +476,7 @@ $(document).ready(function() {
 
         <?php foreach ($categories as $cat):
             $tabId = 'pills-' . strtolower($cat['cat_code']); ?>
-        $.get('../../getcategoryitems.php', { cat_code: '<?= $cat['cat_code'] ?>' }, function(response) {
+        $.get('getcategoryitems.php', { cat_code: '<?= $cat['cat_code'] ?>' }, function(response) {
             const items = parseJsonResponse(response);
             if (!Array.isArray(items)) { $('#<?= $tabId ?>-items').html(''); return; }
             const pricedItems = items.filter(function(item) { return item && item.mtt_price !== null && String(item.mtt_price).trim() !== ''; });
@@ -567,7 +496,7 @@ $(document).ready(function() {
         if ($(this).prop('disabled')) return;
         $.ajax({
             type: 'POST',
-            url: '../../SuppplierDone.php',
+            url: 'SuppplierDone.php',
             data: {},
             success: function(response) {
                 const text = String(response || '');

@@ -149,7 +149,7 @@ Save Tender
                     </div>
                 </div>
             </main>
-            <?php include '../../components/footer.php' ?>
+            <?php include 'components/adminfooter.php' ?>
         </div>
     </div>
 

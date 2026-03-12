@@ -1,25 +1,21 @@
 <?php
 // File: pages/category_terms.php
 
-// Database connection check
-if (!isset($con)) {
-    include dirname(__DIR__) . '/config.php';
-}
-
 // Include helper functions
-include_once dirname(__DIR__) . '/helper.php';
+require_once dirname(__DIR__) . '/backend/common/config.php';
+require_once dirname(__DIR__) . '/backend/common/helper.php';
 
 // Get supplier code from session
 $supplier_code = isset($_SESSION['sup_code']) ? $_SESSION['sup_code'] : '';
 
 // Get the supplier's actual category name
-$supplier_category = getSupplierCategoryName($con, $supplier_code);
+$supplier_category = Helper::getSupplierCategoryName($con, $supplier_code);
 
 // Get category ID from supplier code
-$cat_id = getCategoryIdFromSupplierCode($con, $supplier_code);
+$cat_id = Helper::getCategoryIdFromSupplierCode($con, $supplier_code);
 
 // Get category name from ID (for display)
-$category_name = getCategoryNameFromId($con, $cat_id);
+$category_name = Helper::getCategoryNameFromId($con, $cat_id);
 
 // Debug output (visible in page source)
 echo "<!-- DEBUG INFO -->";

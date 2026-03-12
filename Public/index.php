@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../config.php';
+include '../backend/common/config.php';
 
 if (isset($_SESSION['msd_supplier_name'])) {
     header("Location: ../dashboard.php");
@@ -48,7 +48,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
         e.preventDefault();
         $.ajax({
           type: "post",
-          url: "supRegistration.php",
+          url: "Supplier/supRegistration.php",
           data: $('#insertsup').serialize(),
           dataType: "text",
           success: function(response) {
@@ -93,7 +93,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
         </form>
 
         <?php
-        include '../supRegistration.php';
+        include './Supplier/supRegistration.php';
         ?>
 
         <form id="insertsup" method="post" class="sign-up-form">

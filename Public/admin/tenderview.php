@@ -108,7 +108,6 @@ function renderItem($items, $cat)
 							<div class="modal-header">
 								<h4 class="modal-title fw-bold" id="exampleModalToggleLabel">Supplier List</h4>
 								<a href="fullpricelist.php?tender_no=<?= $tender['mtd_tender_no'] ?>">
-									<!-- <a href="fullpricelist_update.php"> -->
 									<button type="submit" class="btn btn-success" style="margin-left: 500px">Full Price Schedule</button>
 								</a>
 								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -439,7 +438,7 @@ function renderItem($items, $cat)
 			</main>
 
 			<!-- footer -->
-			<?php include '../../components/footer.php' ?>
+			<?php include 'components/adminfooter.php' ?>
 		</div>
 </body>
 
