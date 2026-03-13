@@ -38,13 +38,16 @@ $user_category = $_SESSION['sup_category'] ?? '';
 function normalizeCategoryImagePath($path) {
     $path = trim((string)$path);
     if ($path === '') {
-        return '../static/img/9.png';
+        return '../../static/img/9.png';
     }
     $path = str_replace('\\', '/', $path);
-    if (!preg_match('/^(https?:\/\/|\.\/|\/)/i', $path)) {
-        $path = './' . ltrim($path, '/');
+    if (preg_match('/^(https?:\/\/|\.\.\/|\/)/i', $path)) {
+        return $path;
     }
-    return $path;
+    if (strpos($path, 'static/img/') === false) {
+        $path = 'static/img/' . ltrim($path, '/');
+    }
+    return '../../' . ltrim($path, '/');
 }
 
 $categories = [];

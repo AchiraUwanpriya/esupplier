@@ -1,4 +1,4 @@
-﻿body {
+body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     
 }
@@ -45,12 +45,13 @@ p {
         box-sizing: border-box;
         width: 100%;
         margin: 0;
-        padding-bottom: 20px;
+        padding: 0 40px 20px 40px;
         position: relative
     }
 
 .form-card {
-    text-align: left
+    text-align: left;
+    padding-bottom: 30px;
 }
 
 #msform fieldset:not(:first-of-type) {
