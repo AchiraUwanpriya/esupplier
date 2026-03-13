@@ -100,7 +100,7 @@ foreach ($categories as $cat) {
 
 // Icon mapping function
 function getIcon($code) {
-    $base_path = '../../static/img/';
+    $base_path = '../static/img/';
     switch ($code) {
         case 'V': return $base_path . 'vegetable.png';
         case 'S': return $base_path . 'spice.png';

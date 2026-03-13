@@ -1,7 +1,7 @@
 <?php
 session_start();
 $suppliercode = $_SESSION['sup_code']; // This is 'CDPLC' from session
-include_once '../../../config.php';
+include_once '../../../backend/common/config.php';
 
 header('Content-Type: application/json');
 

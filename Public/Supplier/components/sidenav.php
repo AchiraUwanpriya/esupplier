@@ -44,7 +44,7 @@ $sbase = isset($sbase) ? $sbase : '';
             <div class="sidebar-cta">
                 <div class="sidebar-cta-content">
                     <div class="d-grid">
-                        <a class="btn btn-primary" onclick="logoutfunction()">Logout</a>
+                        <a href="javascript:void(0)" class="btn btn-primary" onclick="logoutfunction()">Logout</a>
                     </div>
                 </div>
             </div>
@@ -53,9 +53,8 @@ $sbase = isset($sbase) ? $sbase : '';
 
     <script>
         function logoutfunction() {
-            let text = "Please Confirm To Logout!!";
-            if (confirm(text) == true) {
-                window.location = "<?= $sbase ?>logout.php";
+            if (confirm("Please Confirm To Logout!!")) {
+                window.location.href = "logout.php";
             }
         }
     </script>

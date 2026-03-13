@@ -12,10 +12,10 @@
             </a>
 
             <a class="nav-link d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-                <img src="../../static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="User" /> <span class="text-dark"><?php echo $_SESSION['name']; ?></span>
+                <img src="../static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="User" /> <span class="text-dark"><?php echo $_SESSION['name']; ?></span>
             </a>
             <div class="dropdown-menu dropdown-menu-end">
-                <a class="dropdown-item" href="#" onclick="logoutfunction()">Log out</a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="logoutfunction()">Log out</a>
             </div>
         </ul>
     </div>
@@ -23,9 +23,8 @@
 
 <script>
     function logoutfunction() {
-        let text = 'Please Confirm To Logout!!';
-        if (confirm(text) === true) {
-            window.location = 'logoutadmin.php';
+        if (confirm('Please Confirm To Logout!!')) {
+            window.location.href = 'logoutadmin.php';
         }
     }
 </script>

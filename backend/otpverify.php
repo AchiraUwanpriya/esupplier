@@ -83,7 +83,7 @@ require_once 'common/config.php';
               Sign up
             </button> -->
         </div>
-        <img src="/esupplier/static/img/loginimage.svg" class="image" alt="" />
+        <img src="/esupplier/Public/static/img/loginimage.svg" class="image" alt="" />
       </div>
       <div class="panel right-panel">
         <div class="content">
@@ -95,7 +95,7 @@ require_once 'common/config.php';
             Sign in
           </button> -->
         </div>
-        <img src="/esupplier/static/img/loginimage.svg" class="image" alt="" />
+        <img src="/esupplier/Public/static/img/loginimage.svg" class="image" alt="" />
       </div>
     </div>
   </div>

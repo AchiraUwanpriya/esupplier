@@ -3,7 +3,7 @@
 session_start();
 session_destroy();
 
-header("Location: admin.php");
+header("Location: ../admin.php");
 
 
 ?>

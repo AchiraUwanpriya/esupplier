@@ -3,8 +3,8 @@ session_start();
 if (!isset($_SESSION['sup_code'])) {
     header('Location: index.php');
 }
-include '../../../config.php';
-include_once '../../../helper.php';
+include '../../../backend/common/config.php';
+include_once '../../../backend/common/helper.php';
 $suppliercode = $_SESSION['sup_code']; // 'CDPLC'
 
 // Map CDPLC to numeric supplier ID
@@ -20,18 +20,18 @@ $currentYear = date('Y');
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" href="../../../static/img/9.png" />
+    <link rel="shortcut icon" href="../../static/img/9.png" />
     <title>eSupplier-CDPLC - Tender Prices</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../../../static/css/main.css" rel="stylesheet">
-    <link href="../../../static/css/app.css" rel="stylesheet">
+    <link href="../../static/css/main.css" rel="stylesheet">
+    <link href="../../static/css/app.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 </head>
 <body>
     <div class="wrapper">
-        <?php include '../../../components/sidenav.php' ?>
+        <?php include '../components/sidenav.php' ?>
         <div class="main">
-            <?php include '../../../components/navbar.php' ?>
+            <?php include '../components/navbar.php' ?>
 
             <!--Select Tender No -->
             <br>
@@ -100,7 +100,7 @@ $currentYear = date('Y');
                 </table>
             </div>
 
-            <?php include '../../../components/footer.php' ?>
+            <?php include '../components/footer.php' ?>
         </div>
     </div>
 
@@ -166,8 +166,8 @@ $currentYear = date('Y');
         });
     </script>
 
-    <script src="../../../js/sessionUnset.js"></script>
-    <script src="../../../static/js/app.js"></script>
-    <script src="../../../js/translate.js"></script>
+    <script src="../../js/sessionUnset.js"></script>
+    <script src="../../static/js/app.js"></script>
+    <script src="../../js/translate.js"></script>
 </body>
 </html>

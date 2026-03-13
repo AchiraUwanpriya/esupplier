@@ -38,7 +38,7 @@ $user_category = $_SESSION['sup_category'] ?? '';
 function normalizeCategoryImagePath($path) {
     $path = trim((string)$path);
     if ($path === '') {
-        return '../../static/img/9.png';
+        return '../static/img/9.png';
     }
     $path = str_replace('\\', '/', $path);
     if (!preg_match('/^(https?:\/\/|\.\/|\/)/i', $path)) {
@@ -160,16 +160,16 @@ include './components/timecounter.php';
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" href="../../static/img/9.png" />
+    <link rel="shortcut icon" href="../static/img/9.png" />
     <title>eSupplier-CDPLC</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css" />
-    <script src="../../static/js/jquery-3.3.1.min.js"></script>
+    <script src="../static/js/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../../static/js/app.js"></script>
-    <link href="../../static/css/app.css" rel="stylesheet">
-    <link href="../../static/css/main.css" rel="stylesheet">
+    <script src="../static/js/app.js"></script>
+    <link href="../static/css/app.css" rel="stylesheet">
+    <link href="../static/css/main.css" rel="stylesheet">
     <style>
         table th { position: sticky; top: -20px; background-color: green; z-index: 5; }
         .fade-scale { transition: all .25s linear; }
@@ -247,7 +247,7 @@ include './components/timecounter.php';
                     <div class="row justify-content-center">
                         <div class="col-12 col-sm-10 col-md-10 col-lg-6 col-xl-12 p-0 mt-3 mb-2">
                             <div class="card px-0 pb-0">
-                                <center><img class="center pt-2" src="../../static/img/cdl_logo.png" style="width: 15%" alt=""></center>
+                                <center><img class="center pt-2" src="../static/img/cdl_logo.png" style="width: 15%" alt=""></center>
                                 <h3 class="text-center" style="color: blue;">
                                     <strong>
                                         <?php
@@ -270,7 +270,7 @@ include './components/timecounter.php';
                                     </div><br>
 
                                     <!-- Page 1 - Approve (Terms) -->
-                                    <?php require($__root . 'pages/approve.php'); ?>
+                                    <?php require(__DIR__ . '/pages/approve.php'); ?>
 
                                     <!-- Page 2 - Categories (dynamic buttons) -->
                                     <fieldset>
@@ -295,7 +295,7 @@ include './components/timecounter.php';
                                     </fieldset>
 
                                     <!-- Page 3 - Completed -->
-                                    <?php require($__root . 'pages/completed.php'); ?>
+                                    <?php require(__DIR__ . '/pages/completed.php'); ?>
                                 </form>
                             </div>
                         </div>
@@ -552,7 +552,7 @@ $(document).ready(function() {
 </script>
 
 <!-- Timer script and others -->
-<script src="../../js/sessionUnset.js"></script>
-<script src="../../js/translate.js"></script>
+<script src="../js/sessionUnset.js"></script>
+<script src="../js/translate.js"></script>
 </body>
 </html>

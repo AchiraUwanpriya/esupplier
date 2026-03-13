@@ -4,7 +4,7 @@ $entry = $_SESSION['entry'] ?? 'N';
 <nav id="sidebar" class="sidebar js-sidebar">
     <div class="sidebar-content js-simplebar">
         <a class="sidebar-brand" href="adminview.php">
-            <center><img src="../../static/img/8.png" class="mt-3" style="width: 100%; padding-right: 30px;" alt=""></center>
+            <center><img src="../static/img/8.png" class="mt-3" style="width: 100%; padding-right: 30px;" alt=""></center>
         </a>
 
         <ul class="sidebar-nav">
@@ -46,7 +46,7 @@ $entry = $_SESSION['entry'] ?? 'N';
         <div class="sidebar-cta">
             <div class="sidebar-cta-content">
                 <div class="d-grid">
-                    <a href="admin.php" class="btn btn-primary" onclick="logoutfunction()">Logout</a>
+                    <a href="javascript:void(0)" class="btn btn-primary" onclick="logoutfunction()">Logout</a>
                 </div>
             </div>
         </div>
@@ -70,9 +70,8 @@ $entry = $_SESSION['entry'] ?? 'N';
     });
 
     function logoutfunction() {
-        let text = 'Please Confirm To Logout!!';
-        if (confirm(text) === true) {
-            window.location = 'logoutadmin.php';
+        if (confirm('Please Confirm To Logout!!')) {
+            window.location.href = 'logoutadmin.php';
         }
     }
 </script>

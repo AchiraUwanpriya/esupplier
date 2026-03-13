@@ -1,39 +1,24 @@
-function sendOTP() {
+function sendAdminOTP() {
   $(".error").html("").hide();
-  var number = $("#mobile").val();
   var snumber = $("#servicenumber").val();
   
   var resolvedBaseURL = (typeof baseURL !== 'undefined') ? baseURL : "";
 
   $("#loadbutton").show();
   $("#submit").prop("disabled", true);
-  if ((number && number.length === 10) || (snumber && snumber.length === 7)) {
+  if (snumber && snumber.length === 7) {
     var input = {
-      mobile_number: number,
       service_number: snumber,
       action: "send_otp",
     };
-    var path = window.location.pathname;
-    var controllerUrl = "backend/auth_controller.php";
-    if (path.includes("/Supplier/")) {
-        controllerUrl = "../../backend/auth_controller.php";
-    }
-
     $.ajax({
-      url: controllerUrl,
+      url: resolvedBaseURL + "backend/admin_auth_controller.php",
       type: "POST",
       data: input,
       success: function (response) {
         $("#loadbutton").hide();
         if (response === "block") {
-          stop();
-          $(".error").html("User Does Not Exists!!!");
-          $(".error").show();
-          $("#submit").prop("disabled", false);
-        } else if (response === "pending") {
-          stop();
-          $(".error").html("User Approval Is Pending!!!");
-          $(".error").show();
+          $(".error").html("User Does Not Exists!!!").show();
           $("#submit").prop("disabled", false);
         } else {
           $(".container").html(response);
@@ -54,13 +39,12 @@ function sendOTP() {
     });
   } else {
     $("#loadbutton").hide();
-    $(".error").html("Please enter a valid number!");
-    $(".error").show();
+    $(".error").html("Please enter a valid number!").show();
     $("#submit").prop("disabled", false);
   }
 }
 
-function verifyOTP() {
+function verifyAdminOTP() {
   $(".error").html("").hide();
   $(".success").html("").hide();
   var otp = $("#mobileOtp").val();
@@ -72,34 +56,14 @@ function verifyOTP() {
       otp: otp,
       action: "verify_otp",
     };
-    var path = window.location.pathname;
-    var controllerUrl = "backend/auth_controller.php";
-    if (path.includes("/Supplier/")) {
-        controllerUrl = "../../backend/auth_controller.php";
-    }
-  
     $.ajax({
-      url: controllerUrl,
+      url: resolvedBaseURL + "backend/admin_auth_controller.php",
       type: "POST",
       dataType: "json",
       data: input,
       success: function (response) {
         if (response.type == "success") {
-          var targetName = (response.status === "A") ? "profile.php" : "dashboard.php";
-          
-          // Clean redirect logic
-          var path = window.location.pathname;
-          var redirectPath = "";
-          
-          if (path.includes("/Supplier/")) {
-              redirectPath = targetName;
-          } else if (path.includes("/Public/")) {
-              redirectPath = "Supplier/" + targetName;
-          } else {
-              redirectPath = "Public/Supplier/" + targetName;
-          }
-          
-          window.location.href = redirectPath;
+          window.location.href = resolvedBaseURL + "Public/admin/adminview.php";
         } else {
           $(".error").html(response.message || "Verification failed").show();
         }

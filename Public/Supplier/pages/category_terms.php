@@ -2,8 +2,7 @@
 // File: public/supplier/pages/category_terms.php
 
 // Include database connection and helper from backend
-require_once dirname(__DIR__, 3) . '/config.php';
-require_once dirname(__DIR__, 3) . '/backend/common/db.php';
+require_once dirname(__DIR__, 3) . '/backend/common/config.php';
 require_once dirname(__DIR__, 3) . '/backend/common/helper.php';
 
 // Get database connection

@@ -3,7 +3,7 @@ session_start();
 include '../backend/common/config.php';
 
 if (isset($_SESSION['msd_supplier_name'])) {
-    header("Location: ../dashboard.php");
+    header("Location: Supplier/dashboard.php");
     exit();
 }
 ?>
@@ -30,36 +30,37 @@ if (isset($_SESSION['msd_supplier_name'])) {
     }
   </style>
 
-  <script src="https://kit.fontawesome.co<!-- m/64d58efce2.js" crossorigin="anonymous"></script>
-  <link rel="shortcut icon" href="../static/img/9.png" /> 
-  <link rel="stylesheet" href="../static/css/login.css" />
+  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
+  <link rel="shortcut icon" href="static/img/9.png" /> 
+  <link rel="stylesheet" href="static/css/login.css" />
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  <!-- <script src="../static/js/jquery-3.3.1.min.js"></!--> 
-  <script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
-  <script src="../static/js/jquery.validate.min.js"></script>
-  <script src="../static/js/jquery.validate.unobtrusive.min.js"></script>
+  <!-- <script src="static/js/jquery-3.3.1.min.js"></!--> 
+  <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
+  <script src="static/js/jquery.validate.min.js"></script>
+  <script src="static/js/jquery.validate.unobtrusive.min.js"></script>
   
+  <script>
+    var baseURL = "../";
+  </script>
   <title>eSupplier-CDPLC</title>
 
   <!-- insert function -->
   <script>
     $(document).ready(function() {
+      // Registration AJAX
       $('#insertbtn').click(function(e) {
         e.preventDefault();
+        var formData = $('#insertsup').serialize() + "&action=register";
         $.ajax({
           type: "post",
-          url: "Supplier/supRegistration.php",
-          data: $('#insertsup').serialize(),
+          url: baseURL + "backend/auth/supplier_auth.php",
+          data: formData,
           dataType: "text",
           success: function(response) {
-            $('#messagedisplay').html(data);
-          },
-
-          success: function(data) {
-            $('#messagedisplay').html(data);
-          },
+            $('#messagedisplay').html(response);
+          }
         })
-      })
+      });
     });
   </script>
 </head>
@@ -69,8 +70,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
     <div class="forms-container">
       <div class="signin-signup">
         <form id="frm-mobile-verification" style="padding-top: 50px; justify-content: center;" class="sign-in-form">
-          <!-- <center><img src="img/2.svg" style="height: 60px; width: 100%;"  alt=""></center>  -->
-          <img class="mb-4" src="../static/img/9.png" width="50%" alt="">
+          <img class="mb-4" src="static/img/9.png" width="50%" alt="">
           <br>
           <h2 class="title">Sign in</h2>
           <div class="input-field">
@@ -87,17 +87,12 @@ if (isset($_SESSION['msd_supplier_name'])) {
             <i class="fa fa-spinner fa-spin"></i>Loading! Please Wait....
           </button>
 
-          <!-- Login buttons - both buttons needed  -->
-          <input id="submit" type="button" name="submit" class="" onclick="sendOTP();" style="visibility: hidden; height: 1px;" />
-          <input value="Login" class="btn btnSubmit solid" type="button" name="submit" id="submit" onclick="sendOTP();"  />
+          <input value="Login" class="btn btnSubmit solid" type="button" name="submit" id="submit" onclick="sendOTP();" />
         </form>
 
-        <?php
-        include './Supplier/supRegistration.php';
-        ?>
 
         <form id="insertsup" method="post" class="sign-up-form">
-          <img class="mb-4" src="../static/img/9.png" width="20%" alt="">
+          <img class="mb-4" src="static/img/9.png" width="20%" alt="">
           <h2 class="title">Register</h2>
           <b>
             <p id="messagedisplay"></p>
@@ -142,7 +137,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
     <div class="panels-container">
       <div class="panel left-panel">
         <div class="content">
-          <img class="mb-5 pb-4" src="../static/img/dockyardlogo.png" width="50%" alt="">
+          <img class="mb-5 pb-4" src="static/img/dockyardlogo.png" width="50%" alt="">
           <br>
           <p>
             Please use this LOGIN-IN to place a tender and select the categories as required to proceed !!!
@@ -151,11 +146,11 @@ if (isset($_SESSION['msd_supplier_name'])) {
             Register
           </button>
         </div>
-        <img src="../static/img/loginimage.svg" class="image" alt="" />
+        <img src="static/img/loginimage.svg" class="image" alt="" />
       </div>
       <div class="panel right-panel">
         <div class="content">
-          <img class="mb-5 pb-4" src="../static/img/dockyardlogo.png" width="50%" alt="">
+          <img class="mb-5 pb-4" src="static/img/dockyardlogo.png" width="50%" alt="">
           <h3>Register to SIGN-In</h3>
           <p>
             If you have an account please use SIGN-IN to login and proceed the tender
@@ -164,7 +159,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
             Login
           </button>
         </div>
-        <img src="../static/img/registrationNew.svg" class="image" alt="" />
+        <img src="static/img/registrationNew.svg" class="image" alt="" />
       </div>
     </div>
   </div>
@@ -211,35 +206,9 @@ if (isset($_SESSION['msd_supplier_name'])) {
     }
   </script>
 
-  <script src="../static/js/login.js"></script>
-  <script src="../static/js/showhideelement.js"></script>
-  <script src="../js/verification.js"></script>
-
-  <!-- Fix AJAX paths for Public subfolder -->
-  <script>
-    // Override the AJAX calls to use correct paths
-    var originalAjax = $.ajax;
-    $.ajax = function(settings) {
-      // If URL is relative and not http(s)
-      if (settings.url && !settings.url.startsWith('http')) {
-        // Check if it's a PHP file without a path prefix
-        if (settings.url.endsWith('.php') && !settings.url.includes('/')) {
-          settings.url = '../' + settings.url;
-        }
-      }
-      return originalAjax.apply(this, arguments);
-    };
-  </script>
-
-  <script>
-    // Fix redirects for dashboard.php and profile.php
-    // Intercept all AJAX success callbacks
-    document.addEventListener('DOMContentLoaded', function() {
-      // Override common redirect patterns
-      var originalLocation = window.location.href;
-      window.basePath = '../';
-    });
-  </script>
+  <script src="static/js/login.js"></script>
+  <script src="static/js/showhideelement.js"></script>
+  <script src="js/verification.js?v=<?= time(); ?>"></script>
 
 </body>
 

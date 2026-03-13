@@ -519,7 +519,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <?php if (isset($_GET['error5'])) : ?>
                           <p style="color:red"><?php echo $_GET['error5']; ?></p>
                         <?php endif ?>
-                        <form action="../../attachments/upload_vat_details.php" method="post" enctype="multipart/form-data">
+                        <form action="./attachments/upload_vat_details.php" method="post" enctype="multipart/form-data">
 
                           <input type="file" class="mb-3 btn btn-success" name="my_imagevat">
                           <br>
@@ -534,7 +534,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <?php if (isset($_GET['error6'])) : ?>
                           <p style="color:red"><?php echo $_GET['error6']; ?></p>
                         <?php endif ?>
-                        <form action="../../attachments/upload_svat_details.php" method="post" enctype="multipart/form-data">
+                        <form action="./attachments/upload_svat_details.php" method="post" enctype="multipart/form-data">
 
                           <input type="file" class="mb-3 btn btn-success" name="my_imagesvat">
                           <br>

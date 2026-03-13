@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<link rel="preconnect" href="https://fonts.gstatic.com">
-	<link rel="shortcut icon" href="../../static/img/2.svg" />
+	<link rel="shortcut icon" href="../static/img/2.svg" />
 	<title>eSupplier-CDL</title>
 
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -58,17 +58,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-	<link href="../../static/css/app.css" rel="stylesheet">
-	<link href="../../static/css/main.css" rel="stylesheet">
+	<link href="../static/css/app.css" rel="stylesheet">
+	<link href="../static/css/main.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 
 
-	<script src="../../static/js/jquery-3.3.1.min.js"></script>
-	<script src="../../static/js/jquery.validate.min.js"></script>
-	<script src="../../static/js/jquery.validate.unobtrusive.min.js"></script>
+	<script src="../static/js/jquery-3.3.1.min.js"></script>
+	<script src="../static/js/jquery.validate.min.js"></script>
+	<script src="../static/js/jquery.validate.unobtrusive.min.js"></script>
 
-	<script src="../../static/js/app.js"></script>
+	<script src="../static/js/app.js"></script>
 
 	<script>
 		function myFunctionVeg() {

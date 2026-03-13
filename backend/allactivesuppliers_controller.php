@@ -7,7 +7,7 @@ include_once __DIR__ . '/common/helper.php';
 $updatedate = date('Y-m-d');
 
 if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_SESSION['entry'])) {
-  header('Location: admin.php');
+  header('Location: ../admin.php');
   exit();
 }
 

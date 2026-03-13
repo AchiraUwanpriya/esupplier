@@ -59,16 +59,15 @@ require_once '../backend/common/config.php';
   </style>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
-  <link rel="shortcut icon" href="../static/img/9.png?v=<?php echo time(); ?>" />
-  <link rel="stylesheet" href="../static/css/login.css?v=<?php echo time(); ?>" />
+  <link rel="shortcut icon" href="static/img/9.png?v=<?php echo time(); ?>" />
+  <link rel="stylesheet" href="static/css/login.css?v=<?php echo time(); ?>" />
 
 
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  <!-- <script src="../static/js/jquery-3.3.1.min.js"></script> -->
-  <script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
-
-  <script src="../static/js/jquery.validate.min.js"></script>
-  <script src="../static/js/jquery.validate.unobtrusive.min.js"></script>
+  <!-- <script src="static/js/jquery-3.3.1.min.js"></script> -->
+  <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
+  <script src="static/js/jquery.validate.min.js"></script>
+  <script src="static/js/jquery.validate.unobtrusive.min.js"></script>
 
   <title>eSupplier-CDPLC</title>
 
@@ -78,18 +77,21 @@ require_once '../backend/common/config.php';
     var baseURL = '../';
     
     $(document).ready(function() {
+      // Admin registration is usually not done via public form, 
+      // but keeping the logic shell if needed for sub-admins
       $('#insertbtn').click(function(e) {
         e.preventDefault();
+        var formData = $('#insertsup').serialize() + "&action=admin_register";
         $.ajax({
           type: "post",
-          url: "Supplier/supRegistration.php",
-          data: $('#insertsup').serialize(),
+          url: baseURL + "backend/auth/admin_auth.php",
+          data: formData,
           dataType: "text",
           success: function(response) {
             $('#messagedisplay').html(response);
           }
         })
-      })
+      });
     });
   </script>
 
@@ -103,7 +105,7 @@ require_once '../backend/common/config.php';
       <div class="signin-signup">
         <form id="frm-mobile-verification" style="padding-top: 50px; justify-content: center;" class="sign-in-form">
           <!-- <center><img src="img/2.svg" style="height: 60px; width: 100%;"  alt=""></center>  -->
-          <img class="mb-4" src="../static/img/9.png" width="50%" alt="">
+          <img class="mb-4" src="static/img/9.png" width="50%" alt="">
           <br>
           <h2 class="title">Sign in</h2>
           <h2 style="color: #5995fd;">Administrator</h2>
@@ -130,12 +132,9 @@ require_once '../backend/common/config.php';
 
         </form>
 
-        <?php
-        include './Supplier/supRegistration.php';
-        ?>
 
         <form id="insertsup" method="post" class="sign-up-form">
-          <img class="mb-4" src="../static/img/9.png" width="20%" alt="">
+          <img class="mb-4" src="static/img/9.png" width="20%" alt="">
           <h2 class="title">Register</h2>
           <b>
             <p id="messagedisplay"></p>
@@ -181,7 +180,7 @@ require_once '../backend/common/config.php';
     <div class="panels-container">
       <div class="panel left-panel">
         <div class="content">
-          <img class="mb-5 pb-4" src="../static/img/dockyardlogo.png" width="50%" alt="">
+          <img class="mb-5 pb-4" src="static/img/dockyardlogo.png" width="50%" alt="">
           <br>
           <h3 style="font-weight: 400;">
             Please use your service number to login to the system!
@@ -190,13 +189,13 @@ require_once '../backend/common/config.php';
           <!-- <button class="btn transparent" id="sign-up-btn">
             Register
           </button> -->
-          <img src="../static/img/adminuser.svg" style="" class="image" alt="" />
+          <img src="static/img/adminuser.svg" style="" class="image" alt="" />
         </div>
 
       </div>
       <div class="panel right-panel">
         <div class="content">
-          <img class="mb-5 pb-4" src="../static/img/dockyardlogo.png" width="50%" alt="">
+          <img class="mb-5 pb-4" src="static/img/dockyardlogo.png" width="50%" alt="">
           <h3>Register to SIGN-In</h3>
           <p>
             If you have an account please use SIGN-IN to login and proceed the tender
@@ -205,7 +204,7 @@ require_once '../backend/common/config.php';
             Login
           </button>
         </div>
-        <img src="../static/img/registrationNew.svg" class="image" alt="" />
+        <img src="static/img/registrationNew.svg" class="image" alt="" />
       </div>
     </div>
   </div>
@@ -215,9 +214,9 @@ require_once '../backend/common/config.php';
     $("#mobile1").attr("maxlength", 10);
   </script>
 
-  <script src="../static/js/login.js?v=<?php echo time(); ?>"></script>
-  <script src="../static/js/showhideelement.js?v=<?php echo time(); ?>"></script>
-  <script src="../js/adminverification.js?v=<?php echo time(); ?>"></script>
+  <script src="static/js/login.js?v=<?php echo time(); ?>"></script>
+  <script src="static/js/showhideelement.js?v=<?php echo time(); ?>"></script>
+  <script src="js/adminverification.js?v=<?php echo time(); ?>"></script>
 
 </body>
 

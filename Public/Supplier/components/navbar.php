@@ -60,7 +60,7 @@ $sbase = isset($sbase) ? $sbase : '';
                         <a class="dropdown-item" href="profile.php"><i class="align-middle me-1" data-feather="user"></i>
                             Profile</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" onclick="logoutfunction()">Logout</a>
+                        <a class="dropdown-item" href="javascript:void(0)" onclick="logoutfunction()">Logout</a>
                     </div>
                 </li>
             </ul>
@@ -88,9 +88,8 @@ $sbase = isset($sbase) ? $sbase : '';
         }
 
         function logoutfunction() {
-            let text = "Please Confirm To Logout!!";
-            if (confirm(text) == true) {
-                window.location = "<?= $sbase ?>logout.php";
+            if (confirm("Please Confirm To Logout!!")) {
+                window.location.href = "logout.php";
             }
         }
 
