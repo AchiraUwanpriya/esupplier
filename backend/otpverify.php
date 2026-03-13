@@ -110,83 +110,34 @@ require_once 'common/config.php';
   <!-- <script src="js/adminverification.js"></script> -->
   <script src="js/otpexpire.js"></script>
   
-  <!-- Load scripts with path correction -->
   <script>
-    // Fix script loading for AJAX-injected content
-    (function fixScripts() {
-      var scripts = [
-        './static/js/login.js',
-        './static/js/showhideelement.js', 
-        './js/verification.js',
-        './js/otpexpire.js'
-      ];
-      
-      // If in Public subfolder, these already loaded, if not loaded, load with correct path
-      if (!window.loginJsLoaded && typeof $ !== 'undefined') {
-        window.loginJsLoaded = true;
-        // Scripts are loaded above
-      }
-    })();
-  </script>
-  <script>
-    // Ensure timer starts immediately when OTP form is loaded
-    var initializeTimerNow = function() {
+    (function() {
       var timerEl = document.getElementById('timer');
-      if (timerEl && !window.otpTimerStarted) {
-        window.otpTimerStarted = true;
-        var duration = 90;
-        
-        // Show initial time
-        timerEl.innerText = "1:30";
-        
-        var updateTimer = function() {
-          duration--;
-          if (duration < 1) {
-            timerEl.innerText = "0:00";
-            alert('OTP session expired. Please try again.');
-            window.location.reload();
-          } else {
-            var Minutes = parseInt(duration / 60);
-            var Seconds = (duration % 60);
-            if (Seconds < 10) {
-              Seconds = '0' + Seconds;
-            }
-            timerEl.innerText = Minutes + ":" + Seconds;
-          }
-        };
-        
-        // Update timer every second
-        setInterval(updateTimer, 1000);
-      }
-    };
-    
-    // Try multiple methods to ensure timer starts
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeTimerNow);
-    } else {
-      initializeTimerNow();
-    }
-    
-    // Also try with jQuery if available
-    if (typeof jQuery !== 'undefined') {
-      jQuery(document).ready(initializeTimerNow);
-    }
-    
-    // And try immediately with setTimeout
-    setTimeout(initializeTimerNow, 100);
-    
-    // Handle Enter key in OTP input
-    document.addEventListener('DOMContentLoaded', function() {
+      if (!timerEl) return;
+      
+      var duration = 90;
+      var countdown = setInterval(function() {
+        duration--;
+        if (duration < 1) {
+          clearInterval(countdown);
+          alert('OTP session expired. Please try again.');
+          window.location.reload();
+        } else {
+          var mins = parseInt(duration / 60);
+          var secs = duration % 60;
+          timerEl.innerText = mins + ":" + (secs < 10 ? "0" + secs : secs);
+        }
+      }, 1000);
+      
+      // Handle Enter key
       var otpInput = document.getElementById('mobileOtp');
       if (otpInput) {
         otpInput.addEventListener('keydown', function(e) {
           if (e.keyCode == 13 || e.key == 'Enter') {
             e.preventDefault();
-            if (typeof verifyOTP === 'function') {
-              verifyOTP();
-            }
+            if (typeof verifyOTP === 'function') verifyOTP();
           }
         });
       }
-    });
-  </script>
+    })();
+  </script>

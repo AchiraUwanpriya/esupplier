@@ -26,7 +26,17 @@ function sendOTP() {
                 document.querySelector('.error').innerHTML = 'Your account is pending approval.';
             } else {
                 // Success - inject the OTP verification form returned by backend
-                document.querySelector('.container').innerHTML = response;
+                // Use jQuery .html() to ensure script tags in response are executed
+                $(".container").html(response);
+                
+                // Fix relative paths in injected content if necessary
+                $(".container").find("img, script, link").each(function() {
+                    var attr = $(this).is("img") || $(this).is("script") ? "src" : "href";
+                    var val = $(this).attr(attr);
+                    if (val && !val.startsWith("http") && !val.startsWith("/") && !val.startsWith("..") && !val.startsWith(".")) {
+                       $(this).attr(attr, resolvedBaseURL + val);
+                    }
+                });
             }
         },
         error: function() {
