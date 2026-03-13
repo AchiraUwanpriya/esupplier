@@ -50,7 +50,7 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
 
 function renderItem($items, $cat)
 {
-	if ($items && $items[$cat]) {
+	if ($items && isset($items[$cat]) && $items[$cat]) {
 ?>
 		<table id="<?= $cat ?>" class="table table-hover table-bordered border-primary">
 			<thead>
@@ -109,12 +109,12 @@ function renderItem($items, $cat)
 			foreach ($tenders as $tender) {
 			?>
 				<!-- modal 1 for showing suppliers according to the selected tender -->
-				<div class="modal fade" id="tender_<?= $tender['mtd_tender_no'] ?>" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+				<div class="modal fade" id="tender_<?= $tender['id_safe'] ?>" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
 					<div class="modal-dialog modal-lg modal-dialog-top">
 						<div class="modal-content">
 							<div class="modal-header">
 								<h4 class="modal-title fw-bold" id="exampleModalToggleLabel">Supplier List</h4>
-								<a href="fullpricelist.php?tender_no=<?= $tender['mtd_tender_no'] ?>">
+								<a href="fullpricelist.php?tender_no=<?= urlencode($tender['mtd_tender_no']) ?>">
 									<button type="submit" class="btn btn-success" style="margin-left: 500px">Full Price Schedule</button>
 								</a>
 								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -136,20 +136,19 @@ function renderItem($items, $cat)
 											</tr>
 										</thead>
 
+										<tbody>
 										<?php
 										foreach ($tender['suppilers'] as $suppiler) {
 										?>
-											<tbody>
 												<tr>
 													<td><?= $suppiler['msd_supplier_code'] ?></td>
 													<td><?= $suppiler['msd_supplier_name'] ?></td>
-													<td><button class="btn btn-primary" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">View Prices</button></td>
+													<td><button class="btn btn-primary" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">View Prices</button></td>
 												</tr>
-											</tbody>
-
 										<?php
 										}
 										?>
+										</tbody>
 									</table>
 								</div>
 							</div>
@@ -170,7 +169,7 @@ function renderItem($items, $cat)
 				foreach ($tender['suppilers'] as $suppiler) {
 			?>
 					<!-- modal 2 for showing entered price by supplier -->
-					<div class="modal fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+					<div class="modal fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
 
 						<div class="modal-dialog modal-dialog-top  modal-xl">
 							<div class="modal-content">
@@ -193,154 +192,154 @@ function renderItem($items, $cat)
 								<div class="modal-body">
 									<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
 										<li class="nav-item" role="presentation">
-											<button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_V" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Vegetables</button>
+											<button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_V" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Vegetables</button>
 										</li>
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_S" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Spices</button>
+											<button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_S" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Spices</button>
 										</li>
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_F" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Fish</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_F" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Fish</button>
 										</li>
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_D" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Dry Fish</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_D" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Dry Fish</button>
 										</li>
 										<!-- <li class="nav-item" role="presentation"> -->
-										<!-- <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_O" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Coconut oil and Creamer</button> -->
+										<!-- <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_O" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Coconut oil and Creamer</button> -->
 										<!-- </li> -->
 										<!--  -->
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_Y" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Dry Items</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_Y" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Dry Items</button>
 										</li>
 										<!-- <li class="nav-item" role="presentation"> -->
-										<!-- <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_C" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Coconut</button> -->
+										<!-- <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_C" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Coconut</button> -->
 										<!-- </li> -->
 										<!-- <li class="nav-item" role="presentation"> -->
-										<!-- <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_E" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Eggs</button> -->
+										<!-- <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_E" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Eggs</button> -->
 										<!-- </li> -->
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_R" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Rice</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_R" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Rice</button>
 										</li>
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_H" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Meat</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_H" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Meat</button>
 										</li>
 										<!-- <li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_W" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Wrapping papers</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_W" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Wrapping papers</button>
 										</li> -->
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_M" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Miscellaneous Items</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_M" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Miscellaneous Items</button>
 										</li>
 										 <!-- pvc -->
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_P" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">PVC Items</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_P" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">PVC Items</button>
 										</li>
 										<!-- medicine -->
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_I" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Medicine Items</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_I" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Medicine Items</button>
 										</li>
 										<!-- cables -->
 										<li class="nav-item" role="presentation">
-											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_B" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Cables</button>
+											<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_B" type="button" role="tab" aria-controls="pills-dryfish" aria-selected="false">Cables</button>
 										</li>
 									</ul>
 									<div class="tab-content" id="pills-tabContent">
-										<div class="tab-pane fade show active" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_V" role="tabpanel" aria-labelledby="pills-home-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printveg.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?> " target="_blank">
+										<div class="tab-pane fade show active" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_V" role="tabpanel" aria-labelledby="pills-home-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=V" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'V') ?>
 										</div>
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_S" role="tabpanel" aria-labelledby="pills-profile-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printspices.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_S" role="tabpanel" aria-labelledby="pills-profile-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=S" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'S') ?>
 										</div>
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_F" role="tabpanel" aria-labelledby="pills-contact-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printfish.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_F" role="tabpanel" aria-labelledby="pills-contact-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=F" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'F') ?>
 										</div>
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_D" role="tabpanel" aria-labelledby="pills-dryfish-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printdryfish.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_D" role="tabpanel" aria-labelledby="pills-dryfish-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=D" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'D') ?>
 										</div>
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_O" role="tabpanel" aria-labelledby="pills-riceoil-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printroc.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_O" role="tabpanel" aria-labelledby="pills-riceoil-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=O" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'O') ?>
 										</div>
 										<!-- new categories -->
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_Y" role="tabpanel" aria-labelledby="pills-riceoil-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printdryitems.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_Y" role="tabpanel" aria-labelledby="pills-riceoil-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=Y" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'Y') ?>
 										</div>
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_C" role="tabpanel" aria-labelledby="pills-riceoil-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printcoconut.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_C" role="tabpanel" aria-labelledby="pills-riceoil-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=C" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'C') ?>
 										</div>
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_E" role="tabpanel" aria-labelledby="pills-riceoil-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printeggs.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_E" role="tabpanel" aria-labelledby="pills-riceoil-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=E" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'E') ?>
 										</div>
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_R" role="tabpanel" aria-labelledby="pills-riceoil-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printrice.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_R" role="tabpanel" aria-labelledby="pills-riceoil-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=R" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'R') ?>
 										</div>
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_H" role="tabpanel" aria-labelledby="pills-riceoil-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printchicken.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_H" role="tabpanel" aria-labelledby="pills-riceoil-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=H" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'H') ?>
 										</div>
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_M" role="tabpanel" aria-labelledby="pills-riceoil-tab">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printmitems.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_M" role="tabpanel" aria-labelledby="pills-riceoil-tab">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=M" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'M') ?>
 										</div>
 										<!-- pvc -->
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_P" role="tabpanel" aria-labelledby="">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printmitems.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_P" role="tabpanel" aria-labelledby="">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=M" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'P') ?>
 										</div>
 										<!-- medicine -->
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_I" role="tabpanel" aria-labelledby="">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printmitems.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_I" role="tabpanel" aria-labelledby="">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=M" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'I') ?>
 										</div>
 										<!-- cables -->
-										<div class="tab-pane fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>_B" role="tabpanel" aria-labelledby="">
-											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-											<a href="prints/printmitems.php?supid=<?php echo $supcodevalue ?>&tno=<?php echo $tendernovalue ?>" target="_blank">
+										<div class="tab-pane fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>_B" role="tabpanel" aria-labelledby="">
+											<button style="float: right; margin-left: 10px;" class="btn btn-danger mb-2" href="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+											<a href="prints/print_tender.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=M" target="_blank">
 												<button style="float: right;" type="button" class="btn btn-outline-success mb-2">Print</button>
 											</a>
 											<?php renderItem($suppiler['items'], 'B') ?>
@@ -427,7 +426,7 @@ function renderItem($items, $cat)
 														<td class="text-center"><?php echo $tender['mtd_bidclose_date']; ?></td>
 														<td class="text-center"><?php echo $tender['mtd_status']; ?></td>
 														<td class="text-center">
-															<a class="btn btn-primary <?php if ($viewButtonDisabled) echo 'disabled'; ?>" data-bs-toggle="modal" href="#tender_<?= $tender['mtd_tender_no'] ?>" role="button">View</a>
+															<a class="btn btn-primary <?php if ($viewButtonDisabled) echo 'disabled'; ?>" data-bs-toggle="modal" href="#tender_<?= $tender['id_safe'] ?>" role="button">View</a>
 														</td>
 													</tr>
 												<?php

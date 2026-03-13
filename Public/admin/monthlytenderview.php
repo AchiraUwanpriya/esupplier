@@ -61,12 +61,12 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
 			<!-- Modals for tenders -->
 			<?php foreach ($tenders as $tender) { ?>
 				<!-- modal 1 for showing suppliers according to the selected tender -->
-				<div class="modal fade" id="tender_<?= $tender['mtd_tender_no'] ?>" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+				<div class="modal fade" id="tender_<?= $tender['id_safe'] ?>" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
 					<div class="modal-dialog modal-lg modal-dialog-top">
 						<div class="modal-content">
 							<div class="modal-header">
 								<h4 class="modal-title fw-bold" id="exampleModalToggleLabel">Supplier List - <?= $current_button ?></h4>
-								<a href="fullpricelist.php?tender_no=<?= $tender['mtd_tender_no'] ?>">
+								<a href="fullpricelist.php?tender_no=<?= urlencode($tender['mtd_tender_no']) ?>">
 									<button type="submit" class="btn btn-success" style="margin-left: 500px">Full Price Schedule</button>
 								</a>
 								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -94,7 +94,7 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
 													<td><?= htmlspecialchars($suppiler['msd_supplier_name']) ?></td>
 													<td>
 														<button class="btn btn-primary" 
-																data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>" 
+																data-bs-target="#tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>" 
 																data-bs-toggle="modal" 
 																data-bs-dismiss="modal">
 															View Prices
@@ -112,7 +112,7 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
 
 				<?php foreach ($tender['suppilers'] as $suppiler) { ?>
 					<!-- modal 2 for showing entered price by supplier -->
-					<div class="modal fade" id="tender_<?= $tender['mtd_tender_no'] ?>_suppiler_<?= $suppiler['msd_supplier_code'] ?>" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+					<div class="modal fade" id="tender_<?= $tender['id_safe'] ?>_suppiler_<?= $suppiler['id_safe'] ?>" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
 						<div class="modal-dialog modal-dialog-top modal-xl">
 							<div class="modal-content">
 								<div class="modal-header">
@@ -121,8 +121,8 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
 								</div>
 								<div class="modal-body">
 									<div class="d-flex justify-content-end mb-3">
-										<button class="btn btn-danger me-2" data-bs-target="#tender_<?= $tender['mtd_tender_no'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
-										<a href="prints/print_monthly.php?supid=<?= $suppiler['msd_supplier_code'] ?>&tno=<?= $tender['mtd_tender_no'] ?>&cat=<?= $current_cat ?>" target="_blank">
+										<button class="btn btn-danger me-2" data-bs-target="#tender_<?= $tender['id_safe'] ?>" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
+										<a href="prints/print_monthly.php?supid=<?= urlencode($suppiler['msd_supplier_code']) ?>&tno=<?= urlencode($tender['mtd_tender_no']) ?>&cat=<?= $current_cat ?>" target="_blank">
 											<button type="button" class="btn btn-outline-success">Print</button>
 										</a>
 									</div>
@@ -191,7 +191,7 @@ if (!isset($_SESSION['mobile_number']) || !isset($_SESSION['name']) || !isset($_
 													<td class="text-center"><?= $tender['mtd_bidclose_date'] ?></td>
 													<td class="text-center"><?= $status ?></td>
 													<td class="text-center">
-														<a class="btn btn-primary" data-bs-toggle="modal" href="#tender_<?= $tender['mtd_tender_no'] ?>" role="button">View</a>
+														<a class="btn btn-primary" data-bs-toggle="modal" href="#tender_<?= $tender['id_safe'] ?>" role="button">View</a>
 													</td>
 												</tr>
 											<?php endforeach; ?>

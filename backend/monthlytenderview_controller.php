@@ -65,8 +65,25 @@ $tsql = get_monthly_tenders_sql($mtd_type);
 $stmt = mysqli_query($con, $tsql);
 
 if ($stmt !== false) {
+    // Optimization: Fetch ALL relevant catalogue items for this tender type ONCE
+    $catalogue = [];
+    $relevant_cats = getRelevantCategories($mtd_type);
+    if (!empty($relevant_cats)) {
+        $cat_list = "'" . implode("','", $relevant_cats) . "'";
+        $cat_sql = "SELECT MMC_MATERIAL_CODE, MMC_DESCRIPTION, MMC_UNIT, MMC_CAT_CODE 
+                    FROM mms_material_catalogue 
+                    WHERE MMC_CAT_CODE IN ($cat_list)
+                    ORDER BY MMC_DESCRIPTION ASC";
+        $cat_stmt = mysqli_query($con, $cat_sql);
+        while ($cat_row = mysqli_fetch_array($cat_stmt, MYSQLI_ASSOC)) {
+            $catalogue[] = $cat_row;
+        }
+    }
+
     while ($row = mysqli_fetch_array($stmt, MYSQLI_ASSOC)) {
         $tender = $row;
+        // Sanitize tender number for HTML IDs
+        $tender['id_safe'] = preg_replace('/[^A-Za-z0-9]/', '_', $row['mtd_tender_no']);
         
         $category_map = [
             'PI' => 'PVC Items',
@@ -83,30 +100,62 @@ if ($stmt !== false) {
             continue; // Skip to next tender instead of dying
         }
 
-        $suppilers = [];
+        $suppliers = [];
+        $supplier_codes = [];
         while ($row1 = mysqli_fetch_array($stmt2, MYSQLI_ASSOC)) {
-            $suppiler = $row1;
-            $items = [];
+            $supplier = $row1;
+            $supplier['id_safe'] = preg_replace('/[^A-Za-z0-9]/', '_', $row1['msd_supplier_code']);
             
-            $categories_to_query = getRelevantCategories($mtd_type);
+            // Initialize supplier items with FULL catalogue (restoring RIGHT JOIN behavior)
+            $supplier_items = [];
+            foreach ($catalogue as $cat_item) {
+                $cat_code = $cat_item['MMC_CAT_CODE'];
+                if (!isset($supplier_items[$cat_code])) {
+                    $supplier_items[$cat_code] = [];
+                }
+                $supplier_items[$cat_code][$cat_item['MMC_MATERIAL_CODE']] = [
+                    'MMC_DESCRIPTION' => $cat_item['MMC_DESCRIPTION'],
+                    'MMC_UNIT' => $cat_item['MMC_UNIT'],
+                    'mtt_price' => '',
+                    'mtt_remark' => ''
+                ];
+            }
+            $supplier['items'] = $supplier_items;
+            $suppliers[$row1['msd_supplier_code']] = $supplier;
+            $supplier_codes[] = "'" . mysqli_real_escape_string($con, $row1['msd_supplier_code']) . "'";
+        }
 
-            foreach ($categories_to_query as $cat_code) {
-                $tsql3 = get_monthly_tender_items_sql($row1['msd_supplier_code'], $row['mtd_tender_no'], $cat_code);
-                $stmt3 = mysqli_query($con, $tsql3);
-                
-                if ($stmt3 !== false) {
-                    $category_items = [];
-                    while ($item = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
-                        $category_items[] = $item;
+        if (!empty($supplier_codes)) {
+            // Optimization: Fetch ALL prices for THIS tender and THESE suppliers in ONE query
+            $tsql3 = "SELECT t.mtt_supplier_code, t.mtt_material_code, t.mtt_remark, t.mtt_price
+                      FROM mms_tenderprice_transactions t
+                      WHERE t.mtt_tender_no = '" . mysqli_real_escape_string($con, $row['mtd_tender_no']) . "'
+                      AND t.mtt_supplier_code IN (" . implode(',', $supplier_codes) . ")";
+                      
+            $stmt3 = mysqli_query($con, $tsql3);
+            if ($stmt3 !== false) {
+                while ($price_row = mysqli_fetch_array($stmt3, MYSQLI_ASSOC)) {
+                    $sc = $price_row['mtt_supplier_code'];
+                    $mc = $price_row['mtt_material_code'];
+                    if (isset($suppliers[$sc])) {
+                        foreach ($suppliers[$sc]['items'] as $cat_code => &$cat_data) {
+                            if (isset($cat_data[$mc])) {
+                                $cat_data[$mc]['mtt_price'] = $price_row['mtt_price'];
+                                $cat_data[$mc]['mtt_remark'] = $price_row['mtt_remark'];
+                                break;
+                            }
+                        }
                     }
-                    $items[$cat_code] = $category_items;
                 }
             }
-
-            $suppiler['items'] = $items;
-            $suppilers[] = $suppiler;
         }
-        $tender['suppilers'] = $suppilers;
+        foreach ($suppliers as &$sup) {
+            foreach ($sup['items'] as $cat_code => &$cat_data) {
+                $cat_data = array_values($cat_data);
+            }
+        }
+        
+        $tender['suppilers'] = array_values($suppliers);
         $tenders[] = $tender;
     }
 } else {
