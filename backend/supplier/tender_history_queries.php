@@ -12,19 +12,22 @@ class TenderHistoryQueries {
      * Get the last 10 tender numbers for a supplier
      */
     public function getRecentTenderNumbers($supplierCode, $limit = 10) {
+        $currentYear = date('Y');
+        $yearFilter = $currentYear . '-%';
         $sql = "SELECT msd_tender_no, Year FROM (
                     SELECT msd_tender_no, 
                     CONVERT(SUBSTRING_INDEX(SUBSTRING_INDEX(msd_tender_no, 'Week', -1), '-', 1), UNSIGNED INTEGER) AS Week, 
                     CONVERT(SUBSTRING_INDEX(msd_tender_no, '-', 1), UNSIGNED INTEGER) AS Year 
                     FROM `mms_suptender_details` 
                     WHERE msd_supplier_code = ?
+                    AND msd_tender_no LIKE ?
                 ) AS SortedTenders 
                 ORDER BY Year DESC, Week DESC 
                 LIMIT ?";
         
         $stmt = mysqli_prepare($this->con, $sql);
         if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "si", $supplierCode, $limit);
+            mysqli_stmt_bind_param($stmt, "ssi", $supplierCode, $yearFilter, $limit);
             mysqli_stmt_execute($stmt);
             $result = mysqli_stmt_get_result($stmt);
             $tenders = [];
