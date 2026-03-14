@@ -29,7 +29,7 @@ class RegistrationQueries {
     }
     
     public function registerSupplier($data) {
-        $createddate = date('Y-m-d');
+        $createddate = date('Y-m-d H:i:s');
         $uid = time();
         
         $query = "INSERT INTO mms_supplier_pending_details 
@@ -39,10 +39,8 @@ class RegistrationQueries {
         $stmt = $this->db->prepare($query);
         if (!$stmt) return false;
         
-        $stmt->bind_param('ssssssss', 
             $uid, $data['supname'], $data['email'], $data['mobile'], 
             $data['supcat'], $data['description'], $data['address'], $createddate
-        );
         
         return $stmt->execute();
     }

@@ -94,8 +94,8 @@ function changesSupplierStatus()
             // Insert into registered suppliers
             $insert_query = "INSERT INTO mms_suppliers_details 
                 (msd_supplier_code, msd_supplier_name, msd_email_address, msd_mobileno, 
-                 msd_supply_category, msd_supply_category_des, msd_address, msd_status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'A')";
+                 msd_supply_category, msd_supply_category_des, msd_address, msd_status, created_date) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'A', NOW())";
             
             $stmt = mysqli_prepare($con, $insert_query);
             if (!$stmt) {
@@ -199,7 +199,7 @@ function confirmsupplier()
         $suppliercode = $_REQUEST['suppliercode'];
         $suppliermobile = $_REQUEST['supmobile'];
 
-        $query = "UPDATE mms_suppliers_details SET msd_status='C' WHERE msd_supplier_code='$suppliercode'";
+        $query = "UPDATE mms_suppliers_details SET msd_status='C', created_date=NOW() WHERE msd_supplier_code='$suppliercode'";
         $returnJson['message'] = "Successfull Updated ";
         runquery($query);
 

@@ -53,7 +53,7 @@ if (isset($_POST['delete'])) {
 
 if (isset($_GET['action']) && $_GET['action'] === 'authorize' && isset($_GET['suppliercode'])) {
   $sc = mysqli_real_escape_string($con, $_GET['suppliercode']);
-  mysqli_query($con, "UPDATE mms_suppliers_details SET msd_status = 'C' WHERE msd_supplier_code = '$sc'");
+  mysqli_query($con, "UPDATE mms_suppliers_details SET msd_status = 'C', created_date = NOW() WHERE msd_supplier_code = '$sc'");
   header('Location: allactivesuppliersview.php');
   exit();
 }

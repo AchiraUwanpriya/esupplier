@@ -49,7 +49,7 @@ class SupplierQueries {
     }
     
     public function getAllSuppliers() {
-        $tsql = "SELECT * FROM mms_supplier_pending_details ORDER BY msd_supplier_code DESC";
+        $tsql = "SELECT * FROM mms_supplier_pending_details ORDER BY created_date DESC, msd_supplier_code DESC";
         $result = $this->db->query($tsql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
@@ -63,7 +63,7 @@ class SupplierQueries {
                     END AS msd_supply_category_label
                  FROM mms_supplier_pending_details
                  WHERE msd_status = 'I'
-                 ORDER BY msd_supplier_code DESC";
+                 ORDER BY created_date DESC, msd_supplier_code DESC";
 
         $result = $this->db->query($tsql);
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
@@ -81,8 +81,8 @@ class SupplierQueries {
             $this->db->begin_transaction();
 
             $insertSql = "INSERT INTO mms_suppliers_details
-                (msd_supplier_code, msd_supplier_name, msd_email_address, msd_mobileno, msd_supply_category, msd_supply_category_des, msd_address, msd_status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'A')";
+                (msd_supplier_code, msd_supplier_name, msd_email_address, msd_mobileno, msd_supply_category, msd_supply_category_des, msd_address, msd_status, created_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'A', NOW())";
 
             $insertStmt = $this->db->prepare($insertSql);
             if (!$insertStmt) {
@@ -166,7 +166,7 @@ class SupplierQueries {
 
     public function registerSupplier($data) {
         $uid = time();
-        $createddate = date('Y-m-d');
+        $createddate = date('Y-m-d H:i:s');
         
         $query = "INSERT INTO mms_supplier_pending_details 
                  (msd_supplier_code, msd_supplier_name, msd_email_address, msd_mobileno, msd_supply_category, msd_supply_category_des, msd_address, msd_status, created_date) 
