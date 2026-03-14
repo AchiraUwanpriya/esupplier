@@ -32,7 +32,6 @@ class TenderQueries {
         }
 
         $query = "SELECT
-          ROW_NUMBER() OVER (ORDER BY c.mmc_description) AS Serial_Number,
           t.mtt_material_code AS Material_Code,
           c.mmc_description AS Material_Description,
           c.mmc_unit AS Unit,

@@ -114,9 +114,6 @@ function renderItem($items, $cat)
 						<div class="modal-content">
 							<div class="modal-header">
 								<h4 class="modal-title fw-bold" id="exampleModalToggleLabel">Supplier List</h4>
-								<a href="fullpricelist.php?tender_no=<?= urlencode($tender['mtd_tender_no']) ?>">
-									<button type="submit" class="btn btn-success" style="margin-left: 500px">Full Price Schedule</button>
-								</a>
 								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 							</div>
 							<div class="modal-body">
@@ -153,7 +150,9 @@ function renderItem($items, $cat)
 								</div>
 							</div>
 							<div class="modal-footer">
-
+								<a href="fullpricelist.php?tender_no=<?= urlencode($tender['mtd_tender_no']) ?>">
+									<button type="button" class="btn btn-success">Full Price Schedule</button>
+								</a>
 							</div>
 						</div>
 					</div>

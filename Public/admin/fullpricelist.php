@@ -63,7 +63,7 @@ $table_data = $queries->getFullPriceSchedule($tender_no, $datalist);
 
         td {
             border: 1px solid #ddd;
-            text-align: right;
+            text-align: center;
             padding: 15px;
         }
 
@@ -109,11 +109,13 @@ $table_data = $queries->getFullPriceSchedule($tender_no, $datalist);
                         </thead>
                         <tbody>
                             <?php
+                            $serial = 1;
                             foreach ($table_data as $value) {
                                 echo "<tr>";
+                                echo "<td style='text-align: left'>" . $serial++ . "</td>";
                                 foreach ($value as $key2 => $val) {
                                     // Display the columns with left alignment for Material Name and Spec
-                                    if ($key2 === 'Material_Description' || $key2 === 'Material_Spec' || $key2 === 'Serial_Number') {
+                                    if ($key2 === 'Material_Description' || $key2 === 'Material_Spec') {
                                         echo "<td style='text-align: left'>" . htmlspecialchars($val) . "</td>";
                                     } else {
                                         echo "<td>" . htmlspecialchars($val) . "</td>";
@@ -175,7 +177,7 @@ $table_data = $queries->getFullPriceSchedule($tender_no, $datalist);
     </script>
 
     <!-- footer -->
-    <?php include 'components/footer.php' ?>
+    <?php include 'components/adminfooter.php' ?>
     <!-- End Footer -->
     <script src="../static/js/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
