@@ -2,7 +2,7 @@
 // SQL query helpers for allactivesuppliers
 function get_active_suppliers_sql()
 {
-  return "SELECT * FROM mms_suppliers_details where msd_status IN('A','C') ORDER BY created_date DESC, msd_supplier_code DESC";
+  return "SELECT * FROM mms_suppliers_details where msd_status IN('A','C') ORDER BY msd_supplier_code DESC";
 }
 
 function get_supplier_details_sql($supplierCode)
