@@ -7,7 +7,7 @@
         </div> <br><br>
         <h2 class="text-center text-success" style="font-weight: 600; font-size: 28px; margin-bottom: 20px;">SUCCESS !</h2> <br>
         <div class="row justify-content-center">
-            <img src="../../static/img/success.png" style="width: 80px;" class="fit-image">
+            <img src="../static/img/success.png" style="width: 80px;" class="fit-image">
         </div> <br>
         <div class="row justify-content-center">
             <div class="col-7 text-center">
