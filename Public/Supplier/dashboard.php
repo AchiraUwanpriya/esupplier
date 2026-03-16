@@ -8,7 +8,7 @@ date_default_timezone_set('Asia/Colombo');
 $__root = __DIR__ . '/../../';
 
 // Base URL prefix for HTML links/assets resolved in components
-$sbase = '../../';
+$sbase = '../';
 
 require_once $__root . 'backend/common/helper.php';
 
@@ -38,7 +38,7 @@ $user_category = $_SESSION['sup_category'] ?? '';
 function normalizeCategoryImagePath($path) {
     $path = trim((string)$path);
     if ($path === '') {
-        return '../../static/img/9.png';
+        return '../static/img/9.png';
     }
     $path = str_replace('\\', '/', $path);
     if (preg_match('/^(https?:\/\/|\.\.\/|\/)/i', $path)) {
@@ -47,7 +47,7 @@ function normalizeCategoryImagePath($path) {
     if (strpos($path, 'static/img/') === false) {
         $path = 'static/img/' . ltrim($path, '/');
     }
-    return '../../' . ltrim($path, '/');
+    return '../' . ltrim($path, '/');
 }
 
 $categories = [];

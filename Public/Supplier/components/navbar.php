@@ -1,6 +1,6 @@
 <?php
 // $sbase is set by the parent file to prefix all relative URLs.
-$sbase = isset($sbase) ? $sbase : '';
+$sbase = isset($sbase) ? $sbase : '../';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -68,7 +68,14 @@ $sbase = isset($sbase) ? $sbase : '';
     </nav>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+             if (typeof feather !== 'undefined') {
+                 feather.replace();
+             }
+        });
+
         document.addEventListener('click', function(e) {
             var trigger = e.target.closest('#profileDropdownToggle');
             if (!trigger) return;

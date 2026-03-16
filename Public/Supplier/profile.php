@@ -6,7 +6,7 @@ date_default_timezone_set('Asia/Colombo');
 $__root = __DIR__ . '/../../';
 
 // Base URL prefix for HTML links/assets resolved in components
-$sbase = '../../';
+$sbase = '../';
 
 if (!isset($_SESSION['sup_code'])) {
   header('Location: index.php');
@@ -131,22 +131,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   ?>
 
                     <ul class="list-unstyled mb-0">
-                      <li class="mb-1"><span data-feather="home" class="feather-sm me-1"></span> Address -
+                      <li class="mb-1"><span data-feather="map-pin" class="feather-sm me-1"></span> Address -
                         <a href="#">
                           <?php echo $address; ?>
                         </a>
                       </li>
-                      <li class="mb-1"><span data-feather="home" class="feather-sm me-1"></span> Mobile Number -
+                      <li class="mb-1"><span data-feather="phone" class="feather-sm me-1"></span> Mobile Number -
                         <a href="#">
                           <?php echo $mobile; ?>
                         </a>
                       </li>
-                      <li class="mb-1"><span data-feather="home" class="feather-sm me-1"></span> Category -
+                      <li class="mb-1"><span data-feather="tag" class="feather-sm me-1"></span> Category -
                         <a href="#">
                           <?php echo $supcategory; ?>
                         </a>
                       </li>
-                      <li class="mb-1"><span data-feather="home" class="feather-sm me-1"></span> Email -
+                      <li class="mb-1"><span data-feather="mail" class="feather-sm me-1"></span> Email -
                         <a href="#">
                           <?php echo $emailAd; ?>
                         </a>

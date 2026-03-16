@@ -1,7 +1,7 @@
 <?php
 // $sbase is set by the parent file to prefix all relative URLs.
-// Default to '' (empty) when included from root dashboard.php.
-$sbase = isset($sbase) ? $sbase : '';
+// Default to '../' as assets are in Public/static/
+$sbase = isset($sbase) ? $sbase : '../';
 ?>
 <!DOCTYPE html>
 <html lang="en">

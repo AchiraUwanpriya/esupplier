@@ -165,8 +165,8 @@ $currentYear = date('Y');
         });
     </script>
 
-    <script src="<?= $sbase ?>static/js/app.js"></script>
-    <script src="<?= $sbase ?>js/translate.js"></script>
+    <script src="../static/js/app.js"></script>
+    <script src="../static/js/translate.js"></script>
 
 </body>
 
