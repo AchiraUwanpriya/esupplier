@@ -1,5 +1,5 @@
 <?php
-include '../../../../backend/common/config.php';
+include '../../../backend/common/config.php';
 ?>
 
 <!DOCTYPE html>
@@ -7,7 +7,7 @@ include '../../../../backend/common/config.php';
 
 <head>
     <meta charset="UTF-8">
-    <link rel="shortcut icon" href="../../static/img/9.png" />
+    <link rel="shortcut icon" href="../static/img/9.png" />
     <title>eSupplier-CDPLC - Tender Print</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -232,6 +232,9 @@ include '../../../../backend/common/config.php';
 
 <body>
     <?php
+    $__root = __DIR__ . '/../../../';
+    include_once $__root . 'backend/common/config.php';
+
     $var_value = mysqli_real_escape_string($con, $_GET['supid']);
     $tenderno_val = mysqli_real_escape_string($con, $_GET['tno']);
 
@@ -353,7 +356,7 @@ include '../../../../backend/common/config.php';
                                 FROM mms_tenderprice_transactions tpt
                                 LEFT JOIN mms_material_catalogue mc 
                                     ON mc.MMC_MATERIAL_CODE = tpt.mtt_material_code 
-                                WHERE tpt.mtt_supplier_code = '$var_value' 
+                                WHERE tpt.mtt_supplier_code = '1682428362' 
                                     AND tpt.mtt_tender_no = '$tenderno_val'  
                                 ORDER BY mc.MMC_DESCRIPTION ASC";
 

@@ -1,49 +1,35 @@
 <?php
 session_start();
 if (!isset($_SESSION['sup_code'])) {
-    header('Location: ../../index.php');
-    exit();
+    header('Location: index.php');
 }
-
-$__root = "../../";
-$sbase = "../../";
-
+$__root = __DIR__ . '/../../';
 require_once $__root . 'backend/common/config.php';
 require_once $__root . 'backend/common/helper.php';
-require_once $__root . 'backend/supplier/tender_history_queries.php';
-
 $suppliercode = $_SESSION['sup_code'];
-$queries = new TenderHistoryQueries($con);
-$recentTenders = $queries->getRecentTenderNumbers($suppliercode);
 
+// Get current year
+$currentYear = date('Y');
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <link rel="shortcut icon" href="<?= $sbase ?>static/img/9.png" />
-
+    <link rel="shortcut icon" href="../static/img/9.png" />
     <title>eSupplier-CDPLC - Tender Prices</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
-    <link href="<?= $sbase ?>static/css/main.css" rel="stylesheet">
-    <link href="<?= $sbase ?>static/css/app.css" rel="stylesheet">
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/main.css" rel="stylesheet">
+    <link href="../static/css/app.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-
 <body>
     <div class="wrapper">
-        <!-- sidenav -->
         <?php include './components/sidenav.php' ?>
         <div class="main">
-            <!-- navbar -->
             <?php include './components/navbar.php' ?>
 
             <!--Select Tender No -->
@@ -55,19 +41,39 @@ $recentTenders = $queries->getRecentTenderNumbers($suppliercode);
                             Select your Tender
                         </option>
                         <?php
-                        foreach ($recentTenders as $tender) {
-                            $tenderNo = $tender["msd_tender_no"];
+                        // Get tenders from mms_suptender_details for current year
+                        $sql = "SELECT msd_tender_no 
+                                FROM mms_suptender_details 
+                                WHERE msd_supplier_code = '$suppliercode' 
+                                AND msd_tender_no LIKE '$currentYear-Week%'
+                                ORDER BY msd_tender_no DESC 
+                                LIMIT 10";
+                        
+                        $resultset = mysqli_query($con, $sql);
+                        
+                        if (!$resultset) {
+                            echo '<option style="font-size: 16px" value="" disabled>Database error</option>';
+                        } else if (mysqli_num_rows($resultset) == 0) {
+                            echo '<option style="font-size: 16px" value="" disabled>No tenders found for ' . $currentYear . '</option>';
+                        } else {
+                            while ($rows = mysqli_fetch_assoc($resultset)) {
+                                $tenderId = isset($_GET['tid']) ? $_GET['tid'] : '';
+                                $tenderNo = $rows["msd_tender_no"];
                         ?>
-                            <option style="font-size: 16px" value="<?php echo $tenderNo; ?>"><?php echo $tenderNo; ?></option>
+                                <option style="font-size: 16px" value="<?php echo $tenderNo; ?>" <?php echo ($tenderId == $tenderNo) ? 'selected' : ''; ?>>
+                                    <?php echo $tenderNo; ?>
+                                </option>
                         <?php
+                            }
                         }
                         ?>
                     </select>
                 </div>
                 <div class="col-8">
-                    <button style="font-size: 16px" type="button" id="printBtn" name="print" class="btn btn-success btn-lg">Print</button>
+                    <a id="printLink" name="print" target="_blank">
+                        <button style="font-size: 16px" type="button" id="printBtn" name="print" class="btn btn-success btn-lg">Print</button>
+                    </a>
                 </div>
-
             </div>
             <br>
             <div class="container-fluid" style="height:100%; overflow-y: scroll;">
@@ -85,16 +91,15 @@ $recentTenders = $queries->getRecentTenderNumbers($suppliercode);
                             </th>
                         </tr>
                     </thead>
-
                     <tbody id="gettbdata">
+                        <tr>
+                            <td colspan="3" class="text-center">Please select a tender to view details</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- footer -->
-            <?php
-            include './components/footer.php'
-            ?>
+            <?php include './components/footer.php' ?>
         </div>
     </div>
 
@@ -102,51 +107,64 @@ $recentTenders = $queries->getRecentTenderNumbers($suppliercode);
         let tenderId;
         $("#tendr").change(function() {
             tenderId = $(this).find(":selected").val();
-            console.log(tenderId);
+            console.log("Selected Tender:", tenderId);
 
             if (!tenderId) {
-                $('#gettbdata').html('');
+                $('#gettbdata').html('<tr><td colspan="3" class="text-center">Please select a tender to view details</td></tr>');
                 return;
             }
 
             // Update URL with tid parameter
             var newUrl = window.location.pathname + "?tid=" + encodeURIComponent(tenderId);
-            window.history.pushState({
-                path: newUrl
-            }, '', newUrl);
-
-            var dataString = 'tid=' + tenderId;
+            window.history.pushState({ path: newUrl }, '', newUrl);
 
             $.ajax({
-                type: 'get',
+                type: 'GET',
                 url: 'getTenderHistory.php',
-                data: dataString,
-                success: function(tdata) {
-                    if (tdata) {
-                        let list = JSON.parse(tdata);
-                        let rowData = ''
-                        list.forEach(element => {
-                            rowData += `<tr><td>${element.CategoryName}</td><td>${element.MMC_DESCRIPTION}</td><td>${element.mtt_price}</td></tr>`
+                data: { tid: tenderId },
+                dataType: 'json',
+                success: function(response) {
+                    console.log("Response:", response);
+                    
+                    if (response.error) {
+                        $('#gettbdata').html('<tr><td colspan="3" class="text-center text-danger">Error: ' + response.error + '</td></tr>');
+                    } else if (response && response.length > 0) {
+                        let rowData = '';
+                        response.forEach(element => {
+                            let categoryName = element.CategoryName || 'N/A';
+                            let description = element.MMC_DESCRIPTION || 'N/A';
+                            let price = element.mtt_price || '0.00';
+                            
+                            rowData += `<tr>
+                                            <td>${categoryName}</td>
+                                            <td>${description}</td>
+                                            <td>${price}</td>
+                                        </tr>`;
                         });
                         $('#gettbdata').html(rowData);
+                        $('#printLink').attr('href', 'prints/printAll.php?supid=<?php echo $_SESSION["sup_code"]; ?>&tno=' + encodeURIComponent(tenderId));
+                    } else {
+                        $('#gettbdata').html('<tr><td colspan="3" class="text-center">No data found for this tender</td></tr>');
                     }
                 },
+                error: function(xhr, status, error) {
+                    console.log("AJAX Error:", error);
+                    console.log("Response:", xhr.responseText);
+                    $('#gettbdata').html('<tr><td colspan="3" class="text-center text-danger">Error loading data: ' + error + '</td></tr>');
+                }
             });
         });
-
-        // Print button click handler
-        $('#printBtn').click(function() {
-            if (!tenderId) {
-                alert('Please select a tender first');
-                return;
+        
+        // Auto-load if tender ID is in URL
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tid = urlParams.get('tid');
+            if (tid) {
+                $('#tendr').val(tid).trigger('change');
             }
-            // Navigate to print page with correct path from root
-            window.open('<?= $sbase ?>Public/Supplier/pages/prints/printAll.php?supid=<?php echo $_SESSION["sup_code"]; ?>&tno=' + encodeURIComponent(tenderId), '_blank');
         });
     </script>
 
-    <!-- timer script sessionUnset -->
-    <script src="<?= $sbase ?>js/sessionUnset.js"></script>
     <script src="<?= $sbase ?>static/js/app.js"></script>
     <script src="<?= $sbase ?>js/translate.js"></script>
 
