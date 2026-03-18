@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$createddate = date('Y-m-d');
 
 	if (isset($_POST['submit']) && isset($_FILES['my_imagevat'])) {
-		include "../config.php";
+		require_once __DIR__ . '/../../../backend/common/config.php';
 
 
 		$img_name = $_FILES['my_imagevat']['name'];
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			}
 
 			$new_img_name = uniqid("VAT-", true) . '.' . $img_ex_lc;
-			$img_upload_path = '../uploads/vat_details/' . $new_img_name;
+			$img_upload_path = '../../uploads/vat_details/' . $new_img_name;
 			move_uploaded_file($tmp_name, $img_upload_path);
 
 			// Insert into Database

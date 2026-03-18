@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$createddate = date('Y-m-d');
 
 	if (isset($_POST['submit']) && isset($_FILES['my_imagebank'])) {
-		include "../config.php";
+		require_once __DIR__ . '/../../../backend/common/config.php';
 
 		// echo "<pre>";
 		// print_r($_FILES['my_imagebank']);
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			}
 
 			$new_img_name = uniqid("Bank_IMG-", true) . '.' . $img_ex_lc;
-			$img_upload_path = '../uploads/bank_details/' . $new_img_name;
+			$img_upload_path = '../../uploads/bank_details/' . $new_img_name;
 			move_uploaded_file($tmp_name, $img_upload_path);
 
 			// Insert into Database

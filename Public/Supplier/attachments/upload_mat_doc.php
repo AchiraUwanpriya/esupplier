@@ -34,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (in_array($img_ex_lc, $allowed_exs)) {
                     $new_img_name = uniqid("IMG-", true) . '.' . $img_ex_lc;
                     // Path relative to this file
-                    $img_upload_path = 'materials_details/' . $new_img_name;
+                    $img_upload_path = '../../uploads/materials_details/' . $new_img_name;
                     
-                    if (!is_dir('materials_details')) {
-                        mkdir('materials_details', 0777, true);
+                    if (!is_dir('../../uploads/materials_details')) {
+                        mkdir('../../uploads/materials_details', 0777, true);
                     }
                     
                     if (move_uploaded_file($tmp_name, $img_upload_path)) {

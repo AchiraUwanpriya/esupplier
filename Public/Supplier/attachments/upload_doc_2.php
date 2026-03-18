@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$createddate = date('Y-m-d');
 
 	if (isset($_POST['submit']) && isset($_FILES['my_image2'])) {
-		include "../config.php";
+		require_once __DIR__ . '/../../../backend/common/config.php';
 
 		$img_name = $_FILES['my_image2']['name'];
 		$img_size = $_FILES['my_image2']['size'];
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 				if (in_array($img_ex_lc, $allowed_exs)) {
 					$new_img_name = uniqid("CC-", true) . '.' . $img_ex_lc;
-					$img_upload_path = '../uploads/company_certificate/' . $new_img_name;
+					$img_upload_path = '../../uploads/company_certificate/' . $new_img_name;
 					move_uploaded_file($tmp_name, $img_upload_path);
 
 					// Insert into Database
