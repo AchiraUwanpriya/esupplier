@@ -81,8 +81,8 @@ class SupplierQueries {
             $this->db->begin_transaction();
 
             $insertSql = "INSERT INTO mms_suppliers_details
-                (msd_supplier_code, msd_supplier_name, msd_email_address, msd_mobileno, msd_supply_category, msd_supply_category_des, msd_address, msd_status, created_date)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'A', NOW())";
+                (msd_supplier_code, msd_supplier_name, msd_email_address, msd_mobileno, msd_supply_category, msd_supply_category_des, msd_address, msd_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'A')";
 
             $insertStmt = $this->db->prepare($insertSql);
             if (!$insertStmt) {

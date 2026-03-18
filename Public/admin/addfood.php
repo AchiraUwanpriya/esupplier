@@ -81,7 +81,17 @@
             outline: 0;
             box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
         }
+        
+        /* Sticky Headers */
+        .modal-body table thead th {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 10;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+        }
     </style>
+
 
     <script src="../static/js/jquery-3.3.1.min.js"></script>
     <script src="../static/js/jquery.validate.min.js"></script>
@@ -152,7 +162,8 @@
                         $icon = getIcon($code);
                         $catItems = $materials_by_category[$code];
                     ?>
-                        <div class="modal fade" id="modal_<?php echo $code; ?>" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalLabel_<?php echo $code; ?>" aria-hidden="true">
+                        <div class="modal" id="modal_<?php echo $code; ?>" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalLabel_<?php echo $code; ?>" aria-hidden="true">
+
                             <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -214,7 +225,8 @@
                     <?php endforeach; ?>
 
                     <!-- Update Modal -->
-                    <div class="modal fade" id="exampleModalScrollableupdate" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+                    <div class="modal" id="exampleModalScrollableupdate" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -274,7 +286,7 @@
                     </div>
 
                     <!-- Add Modal -->
-                    <div class="modal fade" id="globalAddModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="globalAddModalLabel" aria-hidden="true">
+                    <div class="modal" id="globalAddModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="globalAddModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -373,7 +385,14 @@
                     $(this).find(':focus').blur();
                 }
                 document.body.focus();
+                
+                // Cleanup overlay
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
+                $('body').css('overflow', '');
+                $('body').css('padding-right', '');
             });
+
         });
     </script>
 </body>

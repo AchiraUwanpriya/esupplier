@@ -53,7 +53,7 @@ if (isset($_POST['delete'])) {
 
 if (isset($_GET['action']) && $_GET['action'] === 'authorize' && isset($_GET['suppliercode'])) {
   $sc = mysqli_real_escape_string($con, $_GET['suppliercode']);
-  mysqli_query($con, "UPDATE mms_suppliers_details SET msd_status = 'C', created_date = NOW() WHERE msd_supplier_code = '$sc'");
+  mysqli_query($con, "UPDATE mms_suppliers_details SET msd_status = 'C' WHERE msd_supplier_code = '$sc'");
   header('Location: allactivesuppliersview.php');
   exit();
 }
@@ -90,9 +90,26 @@ if (isset($_POST['updateBankBtn'])) {
   $accno   = mysqli_real_escape_string($con, $_POST['accnumber']);
   $acctype = mysqli_real_escape_string($con, $_POST['acctype']);
   $bankcode= mysqli_real_escape_string($con, $_POST['bankcode']);
-  mysqli_query($con, "UPDATE mms_supplier_banks SET
-    MSB_ACCOUNT_NO='$accno', MSB_ACCOUNT_TYPE='$acctype', MSB_BANK_CODE='$bankcode'
-    WHERE MSB_SUPPLIER_CODE='$sc'");
+  $mainbank = mysqli_real_escape_string($con, $_POST['mainbank']);
+  $branch   = mysqli_real_escape_string($con, $_POST['branch']);
+
+  if (empty($accno) && empty($mainbank) && empty($branch)) {
+    header("Location: allactivesuppliersview.php?suppliercode=$sc&supmobile=$supmob&msg=bank_empty");
+    exit();
+  }
+
+  $check = mysqli_query($con, "SELECT MSB_SUPPLIER_CODE FROM mms_supplier_banks WHERE MSB_SUPPLIER_CODE = '$sc'");
+  if (mysqli_num_rows($check) > 0) {
+    mysqli_query($con, "UPDATE mms_supplier_banks SET
+      MSB_ACCOUNT_NO='$accno', MSB_ACCOUNT_TYPE='$acctype', MSB_BANK_CODE='$bankcode',
+      MSB_MAIN_BANK_CODE='$mainbank', MSB_CHILD_KEY='$branch', UPDATED_DATE=NOW(), UPDATED_BY='Admin'
+      WHERE MSB_SUPPLIER_CODE='$sc'");
+  } else {
+    mysqli_query($con, "INSERT INTO mms_supplier_banks 
+      (MSB_SUPPLIER_CODE, MSB_ACCOUNT_NO, MSB_ACCOUNT_TYPE, MSB_BANK_CODE, MSB_MAIN_BANK_CODE, MSB_CHILD_KEY, CREATED_DATE, CREATED_BY)
+      VALUES ('$sc', '$accno', '$acctype', '$bankcode', '$mainbank', '$branch', NOW(), 'Admin')");
+  }
+
   header("Location: allactivesuppliersview.php?suppliercode=$sc&supmobile=$supmob&msg=bank_updated");
   exit();
 }

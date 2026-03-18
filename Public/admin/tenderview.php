@@ -407,7 +407,7 @@ function renderItem($items, $cat)
 
 													if ($tn_status == 'Active' && $bidCloseDateTime >= $currentDateTime) {
 														$rowClass = 'active-row';
-														$viewButtonDisabled = true;
+														$viewButtonDisabled = false;
 													} elseif ($tn_status == 'Active' && $bidCloseDateTime <= $currentDateTime) {
 														$rowClass = 'active-row';
 														$viewButtonDisabled = false;

@@ -167,7 +167,7 @@ document.getElementById("insert").onclick = function() {
 
 	<div class="form-group">
 		<label for="exampleFormControlInput1">Mobile Number</label>
-		<input type="number" class="form-control" name="mobile" id="mobile" placeholder="Mobile Number" required>
+		<input type="text" class="form-control" name="mobile" id="mobile" placeholder="Mobile Number" required>
 	</div>
 
 	<div class="modal-footer">

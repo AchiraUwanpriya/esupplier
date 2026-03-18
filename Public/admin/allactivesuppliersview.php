@@ -23,6 +23,8 @@ include_once '../../backend/allactivesuppliers_controller.php';
   <link href="../static/css/app.css" rel="stylesheet">
   <link href="../static/css/main.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
   <!-- Material details -->
   <style>
@@ -64,6 +66,30 @@ include_once '../../backend/allactivesuppliers_controller.php';
 
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+
+  <script>
+    function validateBankForm(btn) {
+      const form = btn.closest('form');
+      const acc = form.querySelector('[name="accnumber"]').value.trim();
+      const bank = form.querySelector('[name="mainbank"]').value.trim();
+      const br = form.querySelector('[name="branch"]').value.trim();
+      const code = form.querySelector('[name="bankcode"]').value.trim();
+      const type = form.querySelector('[name="acctype"]').value.trim();
+      
+      if (!acc || !bank || !br || !code || !type) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Incomplete Details',
+          text: 'Please enter all fields for bank details!'
+        });
+        return false;
+      }
+      return true;
+    }
+  </script>
+
+
+
 
 </head>
 
@@ -124,7 +150,8 @@ include_once '../../backend/allactivesuppliers_controller.php';
                               <input type="text" hidden name="msd_email_address[<?= $index ?>]" value="<?php echo $row['msd_email_address']; ?>">
                             </td>
                             <td><?php echo $row['msd_mobileno']; ?>
-                              <input type="number" hidden name="msd_mobileno[<?= $index ?>]" value="<?php echo $row['msd_mobileno']; ?>">
+                                <input type="hidden" name="msd_mobileno[<?= $index ?>]" value="<?php echo $row['msd_mobileno']; ?>">
+
                             </td>
                             <td><?php echo $row['msd_supply_category']; ?>
                               <input type="text" hidden name="msd_supply_category[<?= $index ?>]" value="<?php echo $row['msd_supply_category']; ?>" hidden>
@@ -192,14 +219,29 @@ include_once '../../backend/allactivesuppliers_controller.php';
                           <input type="text" class="form-control" name="supname" id="supname" placeholder="Type your name" value="<?= htmlspecialchars($supplierDetails['msd_supplier_name']) ?>">
                         </div>
                         <div class="form-group col-md-2">
-                          <input type="number" class="form-control" value="" hidden>
+                          <input type="hidden" class="form-control" value="">
+
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="form-group col-md-10">
                           <label for="inputAddress2">Supplier Category</label>
-                          <input type="text" class="form-control" name="supcat" id="supcat" placeholder="Fish, Vegetables, Spices, Rice / Oil and Coconut, Dry Fish" value="<?= htmlspecialchars($supplierDetails['msd_supply_category']) ?>">
+                          <select class="form-control" name="supcat" id="supcat">
+                            <?php 
+                            $categories = [
+                              'RI' => 'Ration Items',
+                              'PI' => 'PVC Items',
+                              'B' => 'Cables',
+                              'M' => 'Miscellaneous Items',
+                              'I' => 'Medicine Items'
+                            ];
+                            foreach ($categories as $code => $name): ?>
+                              <option value="<?= $code ?>" <?= $supplierDetails['msd_supply_category'] === $code ? 'selected' : '' ?>><?= $name ?></option>
+                            <?php endforeach; ?>
+
+                          </select>
                         </div>
+
                         <div class="form-group col-md-2">
                           <label for="bsnature">Business Nature</label>
                           <select id="bsnature" name="bsnature" class="form-control">
@@ -241,7 +283,7 @@ include_once '../../backend/allactivesuppliers_controller.php';
 
                         <div class="form-group col-md-4">
                           <label for="telnumber">Telephone Number</label>
-                          <input type="text" class="form-control" name="telnumber" id="telnumber" placeholder="Telephone Number(Other)" value="<?= htmlspecialchars($supplierDetails['msd_teleno']) ?>">
+                          <input type="text" class="form-control" name="telnumber" id="telnumber" placeholder="Telephone Number(Other)" value="<?= htmlspecialchars($supplierDetails['msd_teleno']) ?>" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                         </div>
                       </div>
 
@@ -279,8 +321,11 @@ include_once '../../backend/allactivesuppliers_controller.php';
                     </form>
 
                     <!-- Refrence number update -->
-                    <form method="POST" id="ref" name="ref">
-                      <input type="hidden" name="refer_supplier_code" value="<?= $supplierDetails['msd_supplier_code'] ?>">
+                        <form method="POST" action="">
+                        <form method="POST" action="">
+
+                          <input type="hidden" name="bank_supplier_code" value="<?= $supplierDetails['msd_supplier_code'] ?>">
+
                       <input type="hidden" name="refer_supmobile" value="<?= $suppliermobile ?>">
                       <div class="form-group col-md-4">
                         <label for="refNo">Supplier Reference Number:</label>
@@ -333,22 +378,36 @@ include_once '../../backend/allactivesuppliers_controller.php';
                           <input type="hidden" name="bank_supmobile" value="<?= $suppliermobile ?>">
                           <br>
                           <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="mainbank">Main Bank</label>
-                              <input type="text" class="form-control" name="mainbank" value="<?= getvalue($data, 'MBD_BANK_NAME') ?>">
-                            </div>
-                            <div class="form-group col-md-4">
-                              <label for="bankcode">Bank Code</label>
-                              <input type="text" class="form-control" name="bankcode" value="<?= getvalue($data, 'MSB_BANK_CODE') ?>">
-                            </div>
+                          <div class="form-group col-md-4">
+                            <label for="mainbank">Main Bank</label>
+                            <select class="form-control" name="mainbank" id="mainbank_<?= $supplierDetails['msd_supplier_code'] ?>">
+                              <option value="">Select Bank</option>
+                              <?php
+                              $allBanks = selectquery(get_all_banks_sql());
+                              foreach ($allBanks as $bank): ?>
+                                <option value="<?= $bank['MBD_CHILD_KEY'] ?>" <?= getvalue($data, 'MSB_MAIN_BANK_CODE') == $bank['MBD_CHILD_KEY'] ? 'selected' : '' ?>>
+                                  <?= $bank['MBD_BANK_NAME'] ?>
+                                </option>
+                              <?php endforeach; ?>
+                            </select>
                           </div>
-
+                          <div class="form-group col-md-4">
+                            <label for="bankcode">Bank Code</label>
+                            <input type="text" class="form-control" name="bankcode" value="<?= getvalue($data, 'MSB_BANK_CODE') ?>">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="branch">Branch Name</label>
+                            <input type="text" class="form-control" name="branch" list="branches_<?= $supplierDetails['msd_supplier_code'] ?>" value="<?= getvalue($data, 'MSB_CHILD_KEY') ?>">
+                            <datalist id="branches_<?= $supplierDetails['msd_supplier_code'] ?>">
+                              <?php
+                              $allBranches = selectquery(get_all_branches_sql());
+                              foreach ($allBranches as $branch): ?>
+                                <option value="<?= $branch['MBD_CHILD_KEY'] ?>"><?= $branch['MBD_BANK_NAME'] ?></option>
+                              <?php endforeach; ?>
+                            </datalist>
+                          </div>
+                        </div>
                           <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="branch">Branch</label>
-                              <input type="text" class="form-control" name="branch" value="<?= getvalue($data, 'BRANCH_NAME') ?>">
-                            </div>
-
                             <div class="form-group col-md-4">
                               <label for="accnumber">Account Number</label>
                               <input type="text" class="form-control" name="accnumber" id="accnumber" value="<?= getvalue($data, 'MSB_ACCOUNT_NO') ?>">
@@ -370,8 +429,20 @@ include_once '../../backend/allactivesuppliers_controller.php';
                           <?php
                           }
                           ?>
-                          <input type="submit" class="btn btn-info" name="updateBankBtn" id="updateBankBtn" value="Update Bank Details" <?php if ($ButtonsDisabled) echo 'disabled'; ?> />
+                          <input type="submit" class="btn btn-info" name="updateBankBtn" id="updateBankBtn" value="Update Bank Details" <?php if ($ButtonsDisabled) echo 'disabled'; ?> onclick="return validateBankForm(this)" />
+
                         </form>
+
+                        <?php if (isset($_GET['msg']) && $_GET['msg'] === 'bank_empty'): ?>
+                        <script>
+                          Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No bank details were entered!'
+                          });
+                        </script>
+                        <?php endif; ?>
+
 
                       </div>
 
@@ -381,27 +452,34 @@ include_once '../../backend/allactivesuppliers_controller.php';
                       ?>
 
                       <!-- Tax details -->
-                      <?php
-                      $taxList = selectquery(get_tax_details_sql(mysqli_real_escape_string($con, $supplierCode)));
-                      foreach ($taxList as $row) {
-                      ?>
-                        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                          <br>
-                          <form method="POST" id="taxdetails" name="taxdetails">
-                            <div class="form-row">
-                              <div class="form-group col-md-2">
-                                <label for="vat">VAT</label>
-                                <input type="text" class="form-control" name="VAT" id="VAT" placeholder="VAT" disabled value=" <?php echo $row['msd_vat']; ?>">
+                      <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                        <br>
+                        <?php
+                        $taxList = selectquery(get_tax_details_sql(mysqli_real_escape_string($con, $supplierCode)));
+                        if (empty($taxList)) {
+                          echo '<div class="alert alert-info">No Tax Details Available</div>';
+                        } else {
+                          foreach ($taxList as $row) {
+                          ?>
+                            <form method="POST" id="taxdetails" name="taxdetails">
+                              <div class="form-row">
+                                <div class="form-group col-md-2">
+                                  <label for="vat">VAT</label>
+                                  <input type="text" class="form-control" name="VAT" id="VAT" placeholder="VAT" disabled value=" <?php echo $row['msd_vat']; ?>">
+                                </div>
+                                <div class="form-group col-md-2">
+                                  <label for="savt">SVAT</label>
+                                  <input type="text" class="form-control" name="SVAT" id="SVAT" placeholder="SVAT" disabled value=" <?php echo $row['msd_svat']; ?>">
+                                </div>
                               </div>
-                              <div class="form-group col-md-2">
-                                <label for="savt">SVAT</label>
-                                <input type="text" class="form-control" name="SVAT" id="SVAT" placeholder="SVAT" disabled value=" <?php echo $row['msd_svat']; ?>">
-                              </div>
-                            </div>
-                            <hr>
-                            <!-- <input type="submit" class="btn btn-info" name="updateTaxBtn" id="updateTaxBtn" value="Update Details" onclick=""/> -->
-                          </form>
-                        </div>
+                              <hr>
+                            </form>
+                          <?php
+                          }
+                        }
+                        ?>
+                      </div>
+
 
                         <script>
                           function Updatetaxdetails() {
@@ -410,8 +488,9 @@ include_once '../../backend/allactivesuppliers_controller.php';
                         </script>
 
                       <?php
-                      }
+                        // Removed redundant closing brace
                       ?>
+
 
                       <!-- categories -->
                       <div class="tab-pane fade" id="matdetails" role="tabpanel" aria-labelledby="matdetails-tab">

@@ -112,7 +112,7 @@ require_once '../backend/common/config.php';
           <br>
           <div class="input-field">
             <i class="fas fa-user-alt"></i>
-            <input type="snumber" id="servicenumber" placeholder="Service Number" maxlength="7" />
+            <input type="text" id="servicenumber" placeholder="Service Number" maxlength="7" oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
           </div>
           <div class="error" style="color: red; font-weight: bold;"></div>
 
