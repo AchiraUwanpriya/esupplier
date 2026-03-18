@@ -102,6 +102,10 @@ class SupplierAuth {
             die('<p style="color:red;text-align:center;">The mobile number already exists!</p>');
         }
 
+        if (!ctype_digit($mobile)) {
+            die('<p style="color:red;text-align:center;">Mobile number must contain only numbers (0-9)</p>');
+        }
+
         if (strlen($mobile) != 10) {
             die('<p style="color:red;text-align:center;">Mobile number must be 10 digits!</p>');
         }

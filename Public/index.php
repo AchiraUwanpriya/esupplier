@@ -119,7 +119,7 @@ if (isset($_SESSION['msd_supplier_name'])) {
           </div>
           <div class="input-field">
             <i class="fas fa-phone-alt"></i>
-            <input type="tel" placeholder="0778978987" name="mobile" id="mobile1" pattern="[0]{1}[7]{1}[0-9]{8}" required />
+            <input type="tel" placeholder="0778978987" name="mobile" id="mobile1" pattern="[0-9]{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" required />
           </div>
           <div class="input-field">
             <i class="fas fa-envelope"></i>
