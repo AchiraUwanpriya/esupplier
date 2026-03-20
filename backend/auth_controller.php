@@ -5,7 +5,7 @@ error_reporting(E_ALL & ~E_NOTICE);
 
 $supCategoryShort = isset($_SESSION['sup_category']) ? strtoupper(trim($_SESSION['sup_category'])) : '';
 require_once __DIR__ . '/common/db.php';
-require_once __DIR__ . '/../newsletterslk.class.php';
+require_once __DIR__ . '/common/newsletterslk.class.php';
 
 class AuthController
 {

@@ -216,7 +216,7 @@ include_once '../../backend/allactivesuppliers_controller.php';
 
                         <div class="form-group col-md-10">
                           <label for="inputAddress2">Supplier Name</label>
-                          <input type="text" class="form-control" name="supname" id="supname" placeholder="Type your name" value="<?= htmlspecialchars($supplierDetails['msd_supplier_name']) ?>">
+                          <input type="text" class="form-control" name="supname" id="supname" placeholder="Type your name" value="<?= htmlspecialchars($supplierDetails['msd_supplier_name']) ?>" readonly>
                         </div>
                         <div class="form-group col-md-2">
                           <input type="hidden" class="form-control" value="">
@@ -226,7 +226,7 @@ include_once '../../backend/allactivesuppliers_controller.php';
                       <div class="form-row">
                         <div class="form-group col-md-10">
                           <label for="inputAddress2">Supplier Category</label>
-                          <select class="form-control" name="supcat" id="supcat">
+                          <select class="form-control" name="supcat" id="supcat" disabled>
                             <?php 
                             $categories = [
                               'RI' => 'Ration Items',
@@ -244,7 +244,7 @@ include_once '../../backend/allactivesuppliers_controller.php';
 
                         <div class="form-group col-md-2">
                           <label for="bsnature">Business Nature</label>
-                          <select id="bsnature" name="bsnature" class="form-control">
+                          <select id="bsnature" name="bsnature" class="form-control" disabled>
                             <?php foreach (['Manufacture','Trading','Service'] as $opt): ?>
                               <option value="<?= $opt ?>" <?= $supplierDetails['msd_business_nature'] === $opt ? 'selected' : '' ?>><?= $opt ?></option>
                             <?php endforeach; ?>
@@ -254,22 +254,22 @@ include_once '../../backend/allactivesuppliers_controller.php';
                       <div class="form-row">
                         <div class="form-group col-md-12">
                           <label for="address">Address</label>
-                          <input type="text" class="form-control" name="address" id="address" value="<?= htmlspecialchars($supplierDetails['msd_address']) ?>">
+                          <input type="text" class="form-control" name="address" id="address" value="<?= htmlspecialchars($supplierDetails['msd_address']) ?>" readonly>
                         </div>
                       </div>
 
                       <div class="form-row">
                         <div class="form-group col-md-6">
                           <label for="officeaddress">Office Address</label>
-                          <input type="text" class="form-control" name="officeaddress" id="officeaddress" placeholder="Office Address" value="<?= htmlspecialchars($supplierDetails['msd_officeaddress']) ?>">
+                          <input type="text" class="form-control" name="officeaddress" id="officeaddress" placeholder="Office Address" value="<?= htmlspecialchars($supplierDetails['msd_officeaddress']) ?>" readonly>
                         </div>
                         <div class="form-group col-md-6">
                           <label for="operationaddress">Operation Address</label>
-                          <input type="text" class="form-control" name="operationaddress" id="operationaddress" placeholder="Operation Address" value="<?= htmlspecialchars($supplierDetails['msd_operationaddress']) ?>">
+                          <input type="text" class="form-control" name="operationaddress" id="operationaddress" placeholder="Operation Address" value="<?= htmlspecialchars($supplierDetails['msd_operationaddress']) ?>" readonly>
                         </div>
                         <div class="form-group col-md-6">
                           <label for="postalCode">Postal Code</label>
-                          <input type="text" class="form-control" name="postalCode" id="postalCode" placeholder="postal Code" value="<?= htmlspecialchars($supplierDetails['msd_postalcode']) ?>">
+                          <input type="text" class="form-control" name="postalCode" id="postalCode" placeholder="postal Code" value="<?= htmlspecialchars($supplierDetails['msd_postalcode']) ?>" readonly>
                         </div>
 
                       </div>
@@ -283,32 +283,32 @@ include_once '../../backend/allactivesuppliers_controller.php';
 
                         <div class="form-group col-md-4">
                           <label for="telnumber">Telephone Number</label>
-                          <input type="text" class="form-control" name="telnumber" id="telnumber" placeholder="Telephone Number(Other)" value="<?= htmlspecialchars($supplierDetails['msd_teleno']) ?>" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                          <input type="text" class="form-control" name="telnumber" id="telnumber" placeholder="Telephone Number(Other)" value="<?= htmlspecialchars($supplierDetails['msd_teleno']) ?>" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" readonly>
                         </div>
                       </div>
 
                       <div class="form-row">
                         <div class="form-group col-md-3">
                           <label for="fax">Fax Number</label>
-                          <input type="text" class="form-control" name="fax" id="fax" value="<?= htmlspecialchars($supplierDetails['msd_faxno']) ?>">
+                          <input type="text" class="form-control" name="fax" id="fax" value="<?= htmlspecialchars($supplierDetails['msd_faxno']) ?>" readonly>
                         </div>
                         <div class="form-group col-md-4">
                           <label for="emailad">Sales email address</label>
-                          <input type="email" name="emailad" class="form-control" id="emailad" value="<?= htmlspecialchars($supplierDetails['msd_email_address']) ?>">
+                          <input type="email" name="emailad" class="form-control" id="emailad" value="<?= htmlspecialchars($supplierDetails['msd_email_address']) ?>" readonly>
                         </div>
                         <div class="form-group col-md-5">
                           <label for="web">Web site</label>
-                          <input type="text" name="web" class="form-control" id="web" value="<?= htmlspecialchars($supplierDetails['msd_website']) ?>">
+                          <input type="text" name="web" class="form-control" id="web" value="<?= htmlspecialchars($supplierDetails['msd_website']) ?>" readonly>
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="form-group col-md-5">
                           <label for="contactperson">Contact Person</label>
-                          <input type="text" name="contactperson" class="form-control" id="contactperson" value="<?= htmlspecialchars($supplierDetails['msd_contact_person']) ?>">
+                          <input type="text" name="contactperson" class="form-control" id="contactperson" value="<?= htmlspecialchars($supplierDetails['msd_contact_person']) ?>" readonly>
                         </div>
                         <div class="form-group col-md-6">
                           <label for="agent">Agent </label>
-                          <select id="agent" name="agent" class="form-control">
+                          <select id="agent" name="agent" class="form-control" disabled>
                             <?php foreach (['Yes','No'] as $opt): ?>
                               <option value="<?= $opt ?>" <?= $supplierDetails['msd_agent'] === $opt ? 'selected' : '' ?>><?= $opt ?></option>
                             <?php endforeach; ?>
@@ -316,16 +316,13 @@ include_once '../../backend/allactivesuppliers_controller.php';
                         </div>
                       </div>
 
-                      <input type="submit" class="btn btn-info" name="updateSupBtn" id="updateSupBtn" value="Update Details" <?php if ($ButtonsDisabled) echo 'disabled'; ?> />
+                      <!-- <input type="submit" class="btn btn-info" name="updateSupBtn" id="updateSupBtn" value="Update Details" <?php if ($ButtonsDisabled) echo 'disabled'; ?> /> -->
                       <hr>
                     </form>
 
                     <!-- Refrence number update -->
-                        <form method="POST" action="">
-                        <form method="POST" action="">
-
-                          <input type="hidden" name="bank_supplier_code" value="<?= $supplierDetails['msd_supplier_code'] ?>">
-
+                    <form method="POST" action="">
+                      <input type="hidden" name="refer_supplier_code" value="<?= $supplierDetails['msd_supplier_code'] ?>">
                       <input type="hidden" name="refer_supmobile" value="<?= $suppliermobile ?>">
                       <div class="form-group col-md-4">
                         <label for="refNo">Supplier Reference Number:</label>
@@ -363,14 +360,7 @@ include_once '../../backend/allactivesuppliers_controller.php';
 
                         <!-- Supplier Bank -->
                         <?php
-                        $supplierCode = isset($_GET['suppliercode']) ? $_GET['suppliercode'] : null;
-                        $safeCode = mysqli_real_escape_string($con, $supplierCode);
-                        $dataList = selectquery(get_supplier_banks_sql($safeCode));
-                        $data = [];
-                        if (count($dataList)) {
-                          $data = $dataList[0];
-                        }
-
+                        $data = $bankData;
                         ?>
                         <br>
                         <form method="POST" id="bankdetails" name="bankdetails">
@@ -380,8 +370,8 @@ include_once '../../backend/allactivesuppliers_controller.php';
                           <div class="form-row">
                           <div class="form-group col-md-4">
                             <label for="mainbank">Main Bank</label>
-                            <select class="form-control" name="mainbank" id="mainbank_<?= $supplierDetails['msd_supplier_code'] ?>">
-                              <option value="">Select Bank</option>
+                            <select class="form-control" name="mainbank" id="mainbank_<?= $supplierDetails['msd_supplier_code'] ?>" disabled>
+                              <option value="<?= getvalue($data, 'MSB_MAIN_BANK_CODE') ?>" hidden><?= getvalue($data, 'MBD_BANK_NAME', 'Select Bank') ?></option>
                               <?php
                               $allBanks = selectquery(get_all_banks_sql());
                               foreach ($allBanks as $bank): ?>
@@ -393,11 +383,11 @@ include_once '../../backend/allactivesuppliers_controller.php';
                           </div>
                           <div class="form-group col-md-4">
                             <label for="bankcode">Bank Code</label>
-                            <input type="text" class="form-control" name="bankcode" value="<?= getvalue($data, 'MSB_BANK_CODE') ?>">
+                            <input type="text" class="form-control" name="bankcode" value="<?= getvalue($data, 'MSB_BANK_CODE') ?>" readonly>
                           </div>
                           <div class="form-group col-md-4">
                             <label for="branch">Branch Name</label>
-                            <input type="text" class="form-control" name="branch" list="branches_<?= $supplierDetails['msd_supplier_code'] ?>" value="<?= getvalue($data, 'MSB_CHILD_KEY') ?>">
+                            <input type="text" class="form-control" name="branch" list="branches_<?= $supplierDetails['msd_supplier_code'] ?>" value="<?= getvalue($data, 'BRANCH_NAME', getvalue($data, 'MSB_CHILD_KEY')) ?>" readonly>
                             <datalist id="branches_<?= $supplierDetails['msd_supplier_code'] ?>">
                               <?php
                               $allBranches = selectquery(get_all_branches_sql());
@@ -410,14 +400,14 @@ include_once '../../backend/allactivesuppliers_controller.php';
                           <div class="form-row">
                             <div class="form-group col-md-4">
                               <label for="accnumber">Account Number</label>
-                              <input type="text" class="form-control" name="accnumber" id="accnumber" value="<?= getvalue($data, 'MSB_ACCOUNT_NO') ?>">
+                              <input type="text" class="form-control" name="accnumber" id="accnumber" value="<?= getvalue($data, 'MSB_ACCOUNT_NO') ?>" readonly>
                             </div>
                           </div>
 
                           <div class="form-row">
                             <div class="form-group col-md-6">
                               <label for="acctype">Account Type</label>
-                              <input type="text" class="form-control" name="acctype" value="<?= getvalue($data, 'MSB_ACCOUNT_TYPE') ?>">
+                              <input type="text" class="form-control" name="acctype" value="<?= getvalue($data, 'MSB_ACCOUNT_TYPE') ?>" readonly>
                             </div>
                           </div>
                           <br />
@@ -429,7 +419,7 @@ include_once '../../backend/allactivesuppliers_controller.php';
                           <?php
                           }
                           ?>
-                          <input type="submit" class="btn btn-info" name="updateBankBtn" id="updateBankBtn" value="Update Bank Details" <?php if ($ButtonsDisabled) echo 'disabled'; ?> onclick="return validateBankForm(this)" />
+                          <!-- <input type="submit" class="btn btn-info" name="updateBankBtn" id="updateBankBtn" value="Update Bank Details" <?php if ($ButtonsDisabled) echo 'disabled'; ?> onclick="return validateBankForm(this)" /> -->
 
                         </form>
 
@@ -559,7 +549,7 @@ include_once '../../backend/allactivesuppliers_controller.php';
                                         <?= $attachment['msd_status']; ?>
                                       </td>
                                       <td>
-                                        <a href="./<?= $attachment['msd_file_path'] ?>" download='<?php $attachment['msd_file_name'] ?>' class="btn"><i class="fa fa-download"></i> Download</a>
+                                        <a href="../uploads/<?= str_replace(['../../uploads/', '../uploads/'], '', $attachment['msd_file_path']) ?>" download="<?= htmlspecialchars($attachment['msd_file_name']) ?>" class="btn"><i class="fa fa-download"></i> Download</a>
                                       </td>
                                       <td>
                                         <button type="submit" value="delete" class="btn" style="background-color:red" id="delete" onclick="popupattachments()" name="delete" <?php if ($ButtonsDisabled) echo 'disabled'; ?>>Deactivate</button>

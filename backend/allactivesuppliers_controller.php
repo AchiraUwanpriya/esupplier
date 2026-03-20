@@ -146,9 +146,13 @@ $updateModalOpen = false;
 $supplierDetails = [];
 if ($supplierCode) {
   $updateModalOpen = true;
-  $safeCode = mysqli_real_escape_string($con, $supplierCode);
+  $safeCode = mysqli_real_escape_string($con, trim($supplierCode));
   $datalist = selectquery(get_supplier_details_sql($safeCode));
   if (count($datalist) === 1) $supplierDetails = $datalist[0];
+
+  // Fetch bank details for the modal
+  $bankDataList = selectquery(get_supplier_banks_sql($safeCode));
+  $bankData = count($bankDataList) ? $bankDataList[0] : [];
   $datalist = selectquery("SELECT msd_serial_no,msd_file_name,msd_file_path,msd_status FROM mms_supplier_attachments WHERE msd_sup_code='$safeCode' AND msd_status='A'");
   if (count($datalist) > 0) $supplierDetails['attachments'] = $datalist;
 }

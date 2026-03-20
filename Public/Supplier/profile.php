@@ -697,7 +697,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                   <?php echo $row['msd_status']; ?>
                                 </td>
                                 <td>
-                                  <a href="../../<?php echo $msd_file_path ?>" download='<?php echo $msd_file_name ?>' class="btn btn-primary"><i class="fa fa-download"></i> Download</a>
+                                  <a href="../uploads/<?= str_replace(['../../uploads/', '../uploads/'], '', $msd_file_path) ?>" download='<?= $msd_file_name ?>' class="btn btn-primary"><i class="fa fa-download"></i> Download</a>
                                 </td>
                               </tr>
                             </form>

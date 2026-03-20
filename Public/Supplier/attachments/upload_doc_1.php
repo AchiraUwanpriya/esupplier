@@ -28,13 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				if (in_array($img_ex_lc, $allowed_exs)) {
 					$new_img_name = uniqid("BR-", true) . '.' . $img_ex_lc;
 					$img_upload_path = '../../uploads/bussiness_register/' . $new_img_name;
-					move_uploaded_file($tmp_name, $img_upload_path);
 
-					// Insert into Database
-					$sql = "INSERT into mms_supplier_attachments (msd_sup_code,msd_file_name,msd_file_path,msd_status,created_by,created_date,updated_by,updated_date) VALUES
+					if (move_uploaded_file($tmp_name, $img_upload_path)) {
+						// Insert into Database
+						$sql = "INSERT into mms_supplier_attachments (msd_sup_code,msd_file_name,msd_file_path,msd_status,created_by,created_date,updated_by,updated_date) VALUES
 				('$suppliercode','$new_img_name','$img_upload_path','A','$createdby','$createddate','NULL','NULL')";
-					mysqli_query($con, $sql);
-					echo '<script type="text/javascript">alert("Business Registration Uploaded Successfully!!"); location.href="../profile.php";</script>';
+						mysqli_query($con, $sql);
+						echo '<script type="text/javascript">alert("Business Registration Uploaded Successfully!!"); location.href="../profile.php";</script>';
+					} else {
+						$em = "Failed to move uploaded file. Check folder permissions.";
+						return header("Location: ../profile.php?error1=$em");
+					}
 				} else {
 					$em = "You can't upload files of this type";
 					return header("Location: ../profile.php?error1=$em");
