@@ -82,16 +82,29 @@
             box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
         }
         
-        /* Sticky Headers */
-        .modal-body table thead th {
-            position: sticky;
-            top: 0;
-            background-color: white;
-            z-index: 10;
-            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+        /* Sticky headers inside modals with background color */
+        .modal-dialog-scrollable .modal-body {
+            padding: 0 !important; /* Remove default padding so header sticks exactly at top */
+        }
+
+        .modal-dialog-scrollable .modal-body table {
+            border-collapse: separate !important;
+            border-spacing: 0;
+            width: 100%;
+            margin-bottom: 0;
+            margin-top: 1rem; /* Optional gap, adjust as desired */
+        }
+
+        .modal-dialog-scrollable .modal-body table thead th {
+            position: sticky !important;
+            top: 0 !important;
+            background-color: #a2a7a3 !important; 
+            z-index: 1020 !important;
+            box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+            background-clip: padding-box;
+            border-bottom: 2px solid #c3e6cb; 
         }
     </style>
-
 
     <script src="../static/js/jquery-3.3.1.min.js"></script>
     <script src="../static/js/jquery.validate.min.js"></script>
@@ -226,7 +239,6 @@
 
                     <!-- Update Modal -->
                     <div class="modal" id="exampleModalScrollableupdate" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
-
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -238,7 +250,6 @@
                                             <div class="form-group row">
                                                 <label for="MaterialCode" class="col-sm-2 col-form-label">Material Code:</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" class="form-control" name="MaterialCode" id="MaterialCode_hidden" hidden>
                                                     <input type="text" class="form-control" name="MaterialCode" id="MaterialCode" readonly>
                                                 </div>
                                             </div>
@@ -275,12 +286,12 @@
                                                 </div>
                                             </div>
                                         </table>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" onclick="modalclosefunction()" data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" name="updatebtn" id="updatebtn" class="btn btn-success" onclick="modalfunction()">Save changes</button>
+                                    <button type="submit" name="updatebtn" id="updatebtn" form="updateForm" class="btn btn-success" onclick="modalfunction()">Save changes</button>
                                 </div>
-                                </form>
                             </div>
                         </div>
                     </div>
@@ -329,12 +340,12 @@
                                                 </div>
                                             </div>
                                         </table>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" onclick="modalclosefunction()" data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" name="insertbtn" id="insertbtn" class="btn btn-success" onclick="modalfunction()">Save changes</button>
+                                    <button type="submit" name="insertbtn" id="insertbtn" form="addForm" class="btn btn-success" onclick="modalfunction()">Save changes</button>
                                 </div>
-                                </form>
                             </div>
                         </div>
                     </div>
