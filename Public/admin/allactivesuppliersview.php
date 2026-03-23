@@ -159,7 +159,7 @@ include_once '../../backend/allactivesuppliers_controller.php';
                             <td><?php echo $row['msd_address']; ?>
                               <input type="text" hidden name="msd_address[<?= $index ?>]" value="<?php echo $row['msd_address']; ?>" hidden>
                             </td>
-                            <td><?php echo $row['msd_status']; ?>
+                            <td><?php echo ($row['msd_status'] == 'A') ? 'Active' : (($row['msd_status'] == 'I') ? 'Inactive' : $row['msd_status']); ?>
                               <input type="text" hidden name="msd_status[<?= $index ?>]" value="<?php echo $row['msd_status']; ?>">
                             </td>
                             <td>
@@ -546,7 +546,7 @@ include_once '../../backend/allactivesuppliers_controller.php';
                                         <?= $attachment['msd_file_name']; ?>
                                       </td>
                                       <td>
-                                        <?= $attachment['msd_status']; ?>
+                                        <?= ($attachment['msd_status'] == 'A') ? 'Active' : (($attachment['msd_status'] == 'I') ? 'Inactive' : $attachment['msd_status']); ?>
                                       </td>
                                       <td>
                                         <a href="../uploads/<?= str_replace(['../../uploads/', '../uploads/'], '', $attachment['msd_file_path']) ?>" download="<?= htmlspecialchars($attachment['msd_file_name']) ?>" class="btn"><i class="fa fa-download"></i> Download</a>

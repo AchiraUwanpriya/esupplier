@@ -104,7 +104,7 @@ class ProfileQueries {
     public function getSupplierAttachments($supplierCode) {
         $query = "SELECT msd_serial_no, msd_file_name, msd_file_path, msd_status 
                   FROM mms_supplier_attachments 
-                  WHERE msd_sup_code = ?";
+                  WHERE msd_sup_code = ? AND msd_status = 'A'";
         $stmt = $this->db->prepare($query);
         if (!$stmt) return [];
         

@@ -694,7 +694,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                   <?php echo $row['msd_file_name']; ?>
                                 </td>
                                 <td>
-                                  <?php echo $row['msd_status']; ?>
+                                  <?php echo ($row['msd_status'] == 'A') ? 'Active' : (($row['msd_status'] == 'I') ? 'Inactive' : $row['msd_status']); ?>
                                 </td>
                                 <td>
                                   <a href="../uploads/<?= str_replace(['../../uploads/', '../uploads/'], '', $msd_file_path) ?>" download='<?= $msd_file_name ?>' class="btn btn-primary"><i class="fa fa-download"></i> Download</a>
