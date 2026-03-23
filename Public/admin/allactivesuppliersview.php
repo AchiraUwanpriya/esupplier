@@ -537,12 +537,14 @@ include_once '../../backend/allactivesuppliers_controller.php';
                               if (isset($supplierDetails['attachments'])) {
                                 foreach ($supplierDetails['attachments'] as $attachment) {
                               ?>
-                                  <form method="POST" id="attachment['<?= $attachment['msd_serial_no'] ?>']" name="attachment">
-                                    <input name="msd_serial_no" value="<?= $attachment['msd_serial_no'] ?>" hidden />
-                                    <tr>
-                                      <td>
-                                        <?= $attachment['msd_file_name']; ?>
-                                      </td>
+                                   <form method="POST" name="attachment">
+                                     <tr>
+                                       <td>
+                                         <input type="hidden" name="msd_serial_no" value="<?= $attachment['msd_serial_no'] ?>">
+                                         <input type="hidden" name="supcode_hidden" value="<?= $supplierCode ?>">
+                                         <input type="hidden" name="supmobile_hidden" value="<?= $suppliermobile ?>">
+                                         <?= $attachment['msd_file_name']; ?>
+                                       </td>
                                       <td>
                                         <?= ($attachment['msd_status'] == 'A') ? 'Active' : (($attachment['msd_status'] == 'I') ? 'Inactive' : $attachment['msd_status']); ?>
                                       </td>

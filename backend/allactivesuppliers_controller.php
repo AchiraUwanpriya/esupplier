@@ -37,18 +37,17 @@ function selectquery($query)
 function runquery($query)
 {
   global $con;
-  $query_run = mysqli_query($con, $query);
-  if ($query_run) {
-    echo "Data Inserted Successfully!";
-  } else {
-    print_r(mysqli_error($con));
-  }
+  mysqli_query($con, $query);
 }
 
 // WRITE HANDLERS
 if (isset($_POST['delete'])) {
-  $qry = "UPDATE mms_supplier_attachments SET msd_status='I',updated_by='" . $_SESSION['User'] . "',updated_date='$updatedate' WHERE msd_serial_no = '" . $_POST['msd_serial_no'] . "'";
+  $sc     = mysqli_real_escape_string($con, $_POST['supcode_hidden']);
+  $supmob = mysqli_real_escape_string($con, $_POST['supmobile_hidden']);
+  $qry = "UPDATE mms_supplier_attachments SET msd_status='I',updated_by='" . ($_SESSION['name'] ?? 'Admin') . "',updated_date='$updatedate' WHERE msd_serial_no = '" . $_POST['msd_serial_no'] . "'";
   runquery($qry);
+  header("Location: allactivesuppliersview.php?suppliercode=$sc&supmobile=$supmob&msg=attachment_deactivated");
+  exit();
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'authorize' && isset($_GET['suppliercode'])) {
@@ -127,7 +126,7 @@ if (isset($_POST['updateTaxBtn'])) {
   $supplierCode = isset($_GET['suppliercode']) ? $_GET['suppliercode'] : null;
   $statustax = $_POST['statustax'];
   $updatedate = date('Y-m-d');
-  $query = "UPDATE mms_tax_details SET msd_status = '$statustax',updated_by = '" . $_SESSION['User'] . "',updated_date = '$updatedate' WHERE msd_supplier_code = '$supplierCode'";
+  $query = "UPDATE mms_tax_details SET msd_status = '$statustax',updated_by = '" . ($_SESSION['name'] ?? 'Admin') . "',updated_date = '$updatedate' WHERE msd_supplier_code = '$supplierCode'";
   $stmtq = mysqli_query($con, $query);
   if ($stmtq) {
     echo '<script language="javascript">';
@@ -159,7 +158,12 @@ if ($supplierCode) {
 
 // Handle flash messages
 if (isset($_GET['msg'])) {
-  $msgs = ['supplier_updated'=>'Supplier Details Updated Successfully!!','bank_updated'=>'Bank Details Updated Successfully!!','ref_updated'=>'Reference Number Updated Successfully!!'];
+  $msgs = [
+    'supplier_updated' => 'Supplier Details Updated Successfully!!',
+    'bank_updated'     => 'Bank Details Updated Successfully!!',
+    'ref_updated'      => 'Reference Number Updated Successfully!!',
+    'attachment_deactivated' => 'Attachment Deactivated Successfully!!'
+  ];
   if (isset($msgs[$_GET['msg']])) {
     echo "<script>window.addEventListener('load',function(){ alert('" . $msgs[$_GET['msg']] . "'); });</script>";
   }
