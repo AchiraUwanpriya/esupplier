@@ -639,25 +639,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                       <?php
                       $tenderCategories = $profileQueries->getSupplierTenderCategories($suppliercode);
                       foreach ($tenderCategories as $row) {
+                        if (!empty(trim($row['CATDESC']))) {
                       ?>
-                        <tbody>
-
                           <tr>
                             <td>
                               <ul>
                                 <li>
-
-                                  <?php
-                                  echo $row['CATDESC'];
-                                  ?>
+                                  <?php echo htmlspecialchars($row['CATDESC']); ?>
                                 </li>
                               </ul>
                             </td>
-
                           </tr>
-                        <?php
+                      <?php
+                        }
                       }
-                        ?>
+                      ?>
                         </tbody>
 
                     </table>

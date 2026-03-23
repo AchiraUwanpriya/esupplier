@@ -496,21 +496,19 @@ include_once '../../backend/allactivesuppliers_controller.php';
                             $safe = mysqli_real_escape_string($con, $supplierCode);
                             $catList = selectquery(get_categories_sql($safe));
                             foreach ($catList as $row) {
+                              if (!empty(trim($row['CATDESC']))) {
                             ?>
-                              <tr>
-                                <td>
-                                  <ul>
-                                    <li>
-
-                                      <?php
-                                      echo $row['CATDESC'];
-                                      ?>
-                                    </li>
-                                  </ul>
-                                </td>
-
-                              </tr>
+                                <tr>
+                                  <td>
+                                    <ul>
+                                      <li>
+                                        <?php echo htmlspecialchars($row['CATDESC']); ?>
+                                      </li>
+                                    </ul>
+                                  </td>
+                                </tr>
                             <?php
+                              }
                             }
                             ?>
                           </tbody>
