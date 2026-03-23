@@ -27,7 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 				if (in_array($img_ex_lc, $allowed_exs)) {
 					$new_img_name = uniqid("BR-", true) . '.' . $img_ex_lc;
-					$img_upload_path = '../../uploads/bussiness_register/' . $new_img_name;
+					$upload_dir = '../../uploads/bussiness_register/';
+					if (!is_dir($upload_dir)) {
+						mkdir($upload_dir, 0777, true);
+					}
+					$img_upload_path = $upload_dir . $new_img_name;
 
 					if (move_uploaded_file($tmp_name, $img_upload_path)) {
 						// Insert into Database

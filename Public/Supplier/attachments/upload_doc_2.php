@@ -27,7 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 				if (in_array($img_ex_lc, $allowed_exs)) {
 					$new_img_name = uniqid("CC-", true) . '.' . $img_ex_lc;
-					$img_upload_path = '../../uploads/company_certificate/' . $new_img_name;
+					$upload_dir = '../../uploads/company_certificate/';
+					if (!is_dir($upload_dir)) {
+						mkdir($upload_dir, 0777, true);
+					}
+					$img_upload_path = $upload_dir . $new_img_name;
 					
 					if (move_uploaded_file($tmp_name, $img_upload_path)) {
 						// Insert into Database
@@ -36,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 						mysqli_query($con, $sql);
 						echo '<script type="text/javascript">alert("Company Certificate Uploaded Successfully!!"); location.href="../profile.php";</script>';
 					} else {
-						$em = "Failed to move uploaded file to $img_upload_path. Check folder permissions.";
+						$em = "Failed to move uploaded file. Check folder permissions.";
 						return header("Location: ../profile.php?error2=$em");
 					}
 				} else {

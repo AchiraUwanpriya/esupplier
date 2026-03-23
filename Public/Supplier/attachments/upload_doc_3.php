@@ -27,7 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 				if (in_array($img_ex_lc, $allowed_exs)) {
 					$new_img_name = uniqid("F20-", true) . '.' . $img_ex_lc;
-					$img_upload_path = '../../uploads/form_20/' . $new_img_name;
+					$upload_dir = '../../uploads/form_20/';
+					if (!is_dir($upload_dir)) {
+						mkdir($upload_dir, 0777, true);
+					}
+					$img_upload_path = $upload_dir . $new_img_name;
 
 					if (move_uploaded_file($tmp_name, $img_upload_path)) {
 						// Insert into Database

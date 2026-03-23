@@ -38,17 +38,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			}
 
 			$new_img_name = uniqid("SVAT-", true) . '.' . $img_ex_lc;
-			$img_upload_path = '../../uploads/svat_details/' . $new_img_name;
-			move_uploaded_file($tmp_name, $img_upload_path);
+			$upload_dir = '../../uploads/svat_details/';
+			if (!is_dir($upload_dir)) {
+				mkdir($upload_dir, 0777, true);
+			}
+			$img_upload_path = $upload_dir . $new_img_name;
+			
+			if (move_uploaded_file($tmp_name, $img_upload_path)) {
+				// Insert into Database
+				$sql = "INSERT into mms_supplier_attachments (msd_sup_code,msd_file_name,msd_file_path,msd_status,created_by,created_date,updated_by,updated_date) VALUES
+					('$suppliercode','$new_img_name','$img_upload_path','A','$createdby','$createddate','NULL','NULL')";
+				mysqli_query($con, $sql);
 
-			// Insert into Database
-			$sql = "INSERT into mms_supplier_attachments (msd_sup_code,msd_file_name,msd_file_path,msd_status,created_by,created_date,updated_by,updated_date) VALUES
-				('$suppliercode','$new_img_name','$img_upload_path','A','$createdby','$createddate','NULL','NULL')";
-			mysqli_query($con, $sql);
-
-			echo '<script type="text/javascript">alert("Records Saved Successfully!!");
-			setTimeout(function() { window.location.href = "../profile.php"; });
-			</script>';
+				echo '<script type="text/javascript">alert("Records Saved Successfully!!");
+				setTimeout(function() { window.location.href = "../profile.php"; });
+				</script>';
+			} else {
+				$em = "Failed to move uploaded file. Please check permissions.";
+				return header("Location: ../profile.php?error6=$em");
+			}
 		} else {
 			$em = "Unknown error occurred!";
 			return header("Location: ../profile.php?error6=$em");
