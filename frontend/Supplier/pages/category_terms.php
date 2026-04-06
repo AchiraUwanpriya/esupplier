@@ -1,5 +1,5 @@
 <?php
-// File: public/supplier/pages/category_terms.php
+// File: frontend/supplier/pages/category_terms.php
 
 // Include database connection and helper from backend
 require_once dirname(__DIR__, 3) . '/backend/common/config.php';

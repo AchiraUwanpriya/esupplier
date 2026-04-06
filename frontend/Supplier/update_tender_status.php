@@ -1,5 +1,5 @@
 <?php
-// update_tender_status.php - Refactored for Public/Supplier/
+// update_tender_status.php - Refactored for frontend/Supplier/
 $__root = __DIR__ . '/../../';
 require_once $__root . 'backend/common/config.php';
 require_once $__root . 'backend/supplier/tender_status_queries.php';
@@ -23,3 +23,4 @@ foreach ($tenders as $tender) {
     }
 }
 ?>
+

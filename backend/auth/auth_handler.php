@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     
     if ($_POST['action'] === 'login' && isset($_POST['mobile'])) {
         if ($auth->login($_POST['mobile'])) {
-            echo json_encode(['success' => true, 'redirect' => '../public/dashboard.php']);
+            echo json_encode(['success' => true, 'redirect' => '../frontend/dashboard.php']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Invalid mobile number']);
         }

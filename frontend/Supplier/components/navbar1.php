@@ -42,7 +42,7 @@
                         <img src="../static/img/avatars/avatar1.jpg" class="avatar img-fluid rounded me-1" alt="" /> <span class="text-dark"><?php echo $_SESSION['sup_name'] ?></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="<?= $sbase ?>Public/Supplier/profile.php"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
+                        <a class="dropdown-item" href="<?= $sbase ?>frontend/Supplier/profile.php"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
                         <!-- <a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>

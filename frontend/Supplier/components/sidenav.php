@@ -1,6 +1,6 @@
 <?php
 // $sbase is set by the parent file to prefix all relative URLs.
-// Default to '../' as assets are in Public/static/
+// Default to '../' as assets are in frontend/static/
 $sbase = isset($sbase) ? $sbase : '../';
 ?>
 <!DOCTYPE html>

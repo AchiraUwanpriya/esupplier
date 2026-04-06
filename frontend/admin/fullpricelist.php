@@ -1,6 +1,6 @@
 <?php
 session_start();
-// Public/admin/fullpricelist.php - Refactored
+// frontend/admin/fullpricelist.php - Refactored
 
 require_once '../../backend/common/config.php';
 require_once '../../backend/admin/tender_queries.php';
@@ -185,3 +185,4 @@ $table_data = $queries->getFullPriceSchedule($tender_no, $datalist);
 </body>
 
 </html>
+

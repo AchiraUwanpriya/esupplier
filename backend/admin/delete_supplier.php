@@ -13,10 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['supplierCode'])) {
     mysqli_stmt_close($stmt);
 
     // Redirect back to the page
-    header("Location: ../../Public/admin/allsuppliersview.php");
+    header("Location: ../../frontend/admin/allsuppliersview.php");
     exit();
 } else {
     // Invalid request or missing parameters
     http_response_code(400);
 }
 ?>
+

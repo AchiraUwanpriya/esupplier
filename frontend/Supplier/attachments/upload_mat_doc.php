@@ -1,6 +1,6 @@
 <?php
 session_start();
-// Root of the project (three levels up from Public/Supplier/attachments/)
+// Root of the project (three levels up from frontend/Supplier/attachments/)
 $__root = __DIR__ . '/../../../';
 
 if (!isset($_SESSION['sup_code'])) {
@@ -67,3 +67,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+

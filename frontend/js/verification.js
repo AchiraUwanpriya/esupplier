@@ -65,7 +65,7 @@ function verifyOTP() {
         dataType: "json",
         success: function(response) {
             if (response.type === 'success') {
-                window.location.href = resolvedBaseURL + 'Public/Supplier/dashboard.php';
+                window.location.href = resolvedBaseURL + 'frontend/Supplier/dashboard.php';
             } else {
                 document.querySelector('.error').innerHTML = response.message;
             }

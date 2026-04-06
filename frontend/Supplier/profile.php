@@ -2,7 +2,7 @@
 session_start();
 date_default_timezone_set('Asia/Colombo');
 
-// Root of the project (two levels up from Public/Supplier/)
+// Root of the project (two levels up from frontend/Supplier/)
 $__root = __DIR__ . '/../../';
 
 // Base URL prefix for HTML links/assets resolved in components

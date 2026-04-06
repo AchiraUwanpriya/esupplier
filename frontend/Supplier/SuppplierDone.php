@@ -1,5 +1,5 @@
 <?php
-// SuppplierDone.php - Refactored for Public/Supplier/
+// SuppplierDone.php - Refactored for frontend/Supplier/
 session_start();
 $__root = __DIR__ . '/../../';
 require_once $__root . 'backend/common/config.php';
@@ -47,3 +47,4 @@ function sendMessage($mobileNo = '', $msg = '', $subject = '') {
     curl_close($ch);
 }
 ?>
+

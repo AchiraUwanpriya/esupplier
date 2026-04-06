@@ -1,5 +1,5 @@
 <?php
-// File: public/supplier/pages/approve.php
+// File: frontend/supplier/pages/approve.php
 ?>
 
 <fieldset>

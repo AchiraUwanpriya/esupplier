@@ -1,5 +1,5 @@
 <?php
-// Public/admin/bank_view.php - Refactored
+// frontend/admin/bank_view.php - Refactored
 require_once '../../backend/common/config.php';
 
 // Select all images from database and display them in HTML <table>.
@@ -25,3 +25,4 @@ if ($res && mysqli_num_rows($res) > 0) {
     echo "No bank details found.";
 }
 ?>
+

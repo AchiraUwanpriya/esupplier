@@ -1,5 +1,5 @@
 <?php
-// Public/admin/download.php - Refactored
+// frontend/admin/download.php - Refactored
 require_once '../../backend/common/config.php';
 
 $FileNo = $_GET['FileNO'] ?? '';
@@ -66,3 +66,4 @@ function download_file($file_path) {
     }
 }
 ?>
+

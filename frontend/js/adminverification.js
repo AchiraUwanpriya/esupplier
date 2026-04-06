@@ -63,7 +63,7 @@ function verifyAdminOTP() {
       data: input,
       success: function (response) {
         if (response.type == "success") {
-          window.location.href = resolvedBaseURL + "Public/admin/adminview.php";
+          window.location.href = resolvedBaseURL + "frontend/admin/adminview.php";
         } else {
           $(".error").html(response.message || "Verification failed").show();
         }
@@ -76,3 +76,4 @@ function verifyAdminOTP() {
     $(".error").html("Please enter a valid OTP.").show();
   }
 }
+
